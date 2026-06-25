@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  RestaurantOS — base / shell
+  Valores tomados del export de Claude Design. Estos son la verdad visual.
+*/
+
+:root {
+  --base: #070c1a;
+  --surface: #0c1426;
+  --surface-2: #0a1020;
+  --elevated: #1b2742;
+
+  --brand: #3d8bff;
+  --brand-deep: #1f5fe0;
+  --cyan: #00d4ff;
+
+  --text: #e8edf2;
+  --text-muted: #9fb0c0;
+  --text-dim: #7c8896;
+  --text-faint: #5f6b7a;
+
+  --danger: #ff4d6d;
+  --gold: #ffb84d;
+  --violet: #a855f7;
+
+  --glass-border: rgba(125, 165, 255, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(61, 139, 255, 0.1), transparent 60%),
+    radial-gradient(900px 500px at -5% 110%, rgba(0, 212, 255, 0.06), transparent 55%),
+    var(--base);
+  color: var(--text);
+  font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Utilidad de panel glass reutilizable (Tailwind: usa también las clases del config) */
+.glass {
+  background: linear-gradient(180deg, rgba(20, 32, 60, 0.55), rgba(9, 14, 30, 0.55));
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid var(--glass-border);
+}
