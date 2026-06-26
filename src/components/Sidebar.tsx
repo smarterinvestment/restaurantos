@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
 import { useProfile } from "../hooks/useProfile";
+import { useHealthScore } from "../hooks/useHealthScore";
 
 const NAV = [
   { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -30,6 +31,7 @@ export default function Sidebar() {
   const { data: profile } = useProfile(userId);
   const restaurantName = profile?.restaurant_name?.trim() || "Mi Restaurante";
   const displayName    = profile?.full_name?.trim() || email;
+  const { data: health } = useHealthScore(userId);
 
   return (
     <aside
@@ -65,16 +67,38 @@ export default function Sidebar() {
         <div className="text-text-faint text-[10px] uppercase tracking-widest mb-1.5 font-medium">
           Salud financiera
         </div>
-        <div className="flex items-end gap-1.5">
-          <span className="font-display font-bold text-xl text-text leading-none">—</span>
-        </div>
-        <div className="mt-2 h-1 rounded-full" style={{ background: "rgba(125,165,255,0.10)" }}>
-          <div
-            className="h-full rounded-full"
-            style={{ width: "0%", background: "linear-gradient(90deg,#3d8bff,#00d4ff)" }}
-          />
-        </div>
-        <div className="mt-1.5 text-text-faint text-[10px]">Sin datos aún</div>
+        {health ? (
+          <>
+            <div className="flex items-end justify-between gap-1">
+              <span
+                className="font-display font-bold text-xl leading-none"
+                style={{ color: health.color }}
+              >
+                {health.score}
+              </span>
+              <span className="text-[10px] font-semibold leading-none mb-0.5" style={{ color: health.color }}>
+                /100
+              </span>
+            </div>
+            <div className="mt-2 h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(125,165,255,0.10)" }}>
+              <div
+                className="h-full rounded-full transition-all duration-700"
+                style={{ width: `${health.score}%`, ...health.barStyle }}
+              />
+            </div>
+            <div className="mt-1.5 text-[10px] font-medium" style={{ color: health.color }}>
+              {health.label}
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="flex items-end gap-1.5">
+              <span className="font-display font-bold text-xl text-text-faint leading-none">—</span>
+            </div>
+            <div className="mt-2 h-1.5 rounded-full" style={{ background: "rgba(125,165,255,0.10)" }} />
+            <div className="mt-1.5 text-text-faint text-[10px]">Sin datos aún</div>
+          </>
+        )}
       </div>
 
       {/* Navigation */}
