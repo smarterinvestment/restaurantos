@@ -29,18 +29,19 @@ async function runCheckAlerts(accessToken: string) {
   }).catch(console.error);
 }
 
-function severityIcon(sev: string) {
-  if (sev === "danger")  return <AlertCircle size={13} style={{ color: "#ff4d6d" }} />;
-  if (sev === "warning") return <AlertCircle size={13} style={{ color: "#ffb84d" }} />;
-  if (sev === "success") return <TrendingUp  size={13} style={{ color: "#10b981" }} />;
-  return <Info size={13} style={{ color: "#3d8bff" }} />;
+function severityStyle(sev: string) {
+  if (sev === "danger")  return { color: "#ff4d6d", iconBg: "rgba(255,77,109,0.12)",       iconBorder: "rgba(255,77,109,0.25)" };
+  if (sev === "warning") return { color: "#ffb84d", iconBg: "rgba(255,184,77,0.12)",       iconBorder: "rgba(255,184,77,0.25)" };
+  if (sev === "success") return { color: "#10b981", iconBg: "rgba(16,185,129,0.12)",       iconBorder: "rgba(16,185,129,0.25)" };
+  return { color: "var(--brand)", iconBg: "rgb(var(--brand-rgb) / 0.12)", iconBorder: "rgb(var(--brand-rgb) / 0.25)" };
 }
 
-function severityColor(sev: string) {
-  if (sev === "danger")  return "#ff4d6d";
-  if (sev === "warning") return "#ffb84d";
-  if (sev === "success") return "#10b981";
-  return "#3d8bff";
+function severityIcon(sev: string) {
+  const s = severityStyle(sev);
+  if (sev === "danger")  return <AlertCircle size={13} style={{ color: s.color }} />;
+  if (sev === "warning") return <AlertCircle size={13} style={{ color: s.color }} />;
+  if (sev === "success") return <TrendingUp  size={13} style={{ color: s.color }} />;
+  return <Info size={13} style={{ color: s.color }} />;
 }
 
 export default function NotificationBell() {
@@ -115,8 +116,8 @@ export default function NotificationBell() {
         onClick={() => setOpen(v => !v)}
         className="relative w-9 h-9 rounded-lg flex items-center justify-center transition-all"
         style={{
-          background: open ? "rgba(61,139,255,0.14)" : "rgba(27,39,66,0.50)",
-          border: "1px solid rgba(125,165,255,0.12)",
+          background: open ? "rgb(var(--brand-rgb) / 0.14)" : "rgba(27,39,66,0.50)",
+          border: "1px solid var(--glass-border)",
         }}
         title={t("notifications.title")}
       >
@@ -140,7 +141,7 @@ export default function NotificationBell() {
           style={{
             background: "linear-gradient(180deg,rgba(12,20,38,0.98),rgba(7,12,26,0.98))",
             backdropFilter: "blur(24px) saturate(150%)",
-            border: "1px solid rgba(125,165,255,0.14)",
+            border: "1px solid var(--glass-border)",
             boxShadow: "0 24px 64px rgba(0,0,0,0.6)",
           }}
         >
@@ -175,7 +176,7 @@ export default function NotificationBell() {
               </div>
             ) : (
               notifications.map(n => {
-                const color = severityColor(n.severity);
+                const s = severityStyle(n.severity);
                 return (
                   <div
                     key={n.id}
@@ -185,7 +186,7 @@ export default function NotificationBell() {
                   >
                     <div
                       className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
-                      style={{ background: color + "1a", border: `1px solid ${color}30` }}
+                      style={{ background: s.iconBg, border: `1px solid ${s.iconBorder}` }}
                     >
                       {severityIcon(n.severity)}
                     </div>

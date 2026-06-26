@@ -6,6 +6,10 @@ import App from "./App";
 import "./index.css";
 import "./i18n/config";
 
+// Apply saved theme before first paint to prevent FOUC
+const savedTheme = localStorage.getItem("ros-theme") ?? "blue";
+document.documentElement.setAttribute("data-theme", savedTheme);
+
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000 } },
 });

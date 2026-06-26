@@ -34,13 +34,13 @@ function avatarColor(name: string) { return PALETTE[name.charCodeAt(0) % PALETTE
 const GLASS = {
   background: "linear-gradient(180deg,rgba(20,32,60,0.55),rgba(9,14,30,0.55))",
   backdropFilter: "blur(20px) saturate(140%)",
-  border: "1px solid rgba(125,165,255,0.12)",
+  border: "1px solid var(--glass-border)",
 } as const;
 
 const fieldCls = [
   "h-10 rounded-lg px-3 text-sm text-text w-full",
   "bg-[rgba(27,39,66,0.65)]",
-  "border border-[rgba(125,165,255,0.14)] focus:border-[rgba(61,139,255,0.45)]",
+  "border border-[rgba(125,165,255,0.14)] focus:border-[var(--brand-border-active)]",
   "outline-none transition-colors placeholder:text-text-faint",
 ].join(" ");
 
@@ -127,7 +127,7 @@ export default function Suppliers() {
         <button
           onClick={() => { setTarget(null); setMode("create"); }}
           className="flex items-center gap-2 h-9 px-4 rounded-lg font-semibold text-sm text-white flex-shrink-0"
-          style={{ background: "linear-gradient(150deg,#3d8bff,#1f5fe0)", boxShadow: "0 4px 16px rgba(61,139,255,0.35)" }}
+          style={{ background: "linear-gradient(150deg,var(--brand),var(--brand-deep))", boxShadow: "0 4px 16px rgb(var(--brand-rgb) / 0.35)" }}
         >
           <Plus size={15} /> {t("suppliers.newSupplier")}
         </button>
@@ -365,7 +365,7 @@ function SupplierModal({ mode, initial, userId, onSaved, onCancel }: {
             <button
               type="button" onClick={() => saveMut.mutate()} disabled={saveMut.isPending}
               className="flex-1 h-10 rounded-lg font-display font-semibold text-sm text-white flex items-center justify-center gap-2 disabled:opacity-50"
-              style={{ background: "linear-gradient(150deg,#3d8bff,#1f5fe0)", boxShadow: "0 4px 16px rgba(61,139,255,0.35)" }}
+              style={{ background: "linear-gradient(150deg,var(--brand),var(--brand-deep))", boxShadow: "0 4px 16px rgb(var(--brand-rgb) / 0.35)" }}
             >
               <Check size={14} />
               {saveMut.isPending

@@ -3,19 +3,13 @@ import { useTranslation } from "react-i18next";
 import { Send, Bot, Loader2, Sparkles } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-
 type Message = { role: "user" | "assistant"; content: string };
-
-// ── Constants ─────────────────────────────────────────────────────────────────
 
 const GLASS = {
   background: "linear-gradient(180deg,rgba(20,32,60,0.55),rgba(9,14,30,0.55))",
   backdropFilter: "blur(20px) saturate(140%)",
-  border: "1px solid rgba(125,165,255,0.12)",
+  border: "1px solid var(--glass-border)",
 } as const;
-
-// ── Component ─────────────────────────────────────────────────────────────────
 
 export default function Assistant() {
   const { t } = useTranslation();
@@ -88,11 +82,11 @@ export default function Assistant() {
             <div
               className="w-16 h-16 rounded-2xl flex items-center justify-center"
               style={{
-                background: "linear-gradient(150deg,rgba(61,139,255,0.18),rgba(0,212,255,0.10))",
-                border: "1px solid rgba(61,139,255,0.22)",
+                background: "linear-gradient(150deg,rgb(var(--brand-rgb) / 0.18),rgb(var(--brand-cyan-rgb) / 0.10))",
+                border: "1px solid rgb(var(--brand-rgb) / 0.22)",
               }}
             >
-              <Sparkles size={28} style={{ color: "#3d8bff" }} />
+              <Sparkles size={28} style={{ color: "var(--brand)" }} />
             </div>
             <div>
               <p className="text-text font-medium text-sm mb-1">{t("assistant.emptyTitle")}</p>
@@ -108,18 +102,18 @@ export default function Assistant() {
               <div
                 className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
                 style={{
-                  background: "linear-gradient(150deg,rgba(61,139,255,0.20),rgba(0,212,255,0.12))",
-                  border: "1px solid rgba(61,139,255,0.22)",
+                  background: "linear-gradient(150deg,rgb(var(--brand-rgb) / 0.20),rgb(var(--brand-cyan-rgb) / 0.12))",
+                  border: "1px solid rgb(var(--brand-rgb) / 0.22)",
                 }}
               >
-                <Bot size={15} style={{ color: "#3d8bff" }} />
+                <Bot size={15} style={{ color: "var(--brand)" }} />
               </div>
             )}
             <div
               className="max-w-[78%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap"
               style={
                 m.role === "user"
-                  ? { background: "linear-gradient(150deg,rgba(61,139,255,0.26),rgba(31,95,224,0.20))", border: "1px solid rgba(61,139,255,0.28)", color: "#e8edf2" }
+                  ? { background: "linear-gradient(150deg,rgb(var(--brand-rgb) / 0.26),rgb(var(--brand-rgb) / 0.14))", border: "1px solid rgb(var(--brand-rgb) / 0.28)", color: "#e8edf2" }
                   : { background: "rgba(27,39,66,0.65)", border: "1px solid rgba(125,165,255,0.10)", color: "#e8edf2" }
               }
             >
@@ -132,12 +126,12 @@ export default function Assistant() {
         {loading && (
           <div className="flex gap-3">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ background: "linear-gradient(150deg,rgba(61,139,255,0.20),rgba(0,212,255,0.12))", border: "1px solid rgba(61,139,255,0.22)" }}>
-              <Bot size={15} style={{ color: "#3d8bff" }} />
+              style={{ background: "linear-gradient(150deg,rgb(var(--brand-rgb) / 0.20),rgb(var(--brand-cyan-rgb) / 0.12))", border: "1px solid rgb(var(--brand-rgb) / 0.22)" }}>
+              <Bot size={15} style={{ color: "var(--brand)" }} />
             </div>
             <div className="rounded-2xl px-4 py-3 flex items-center gap-2"
               style={{ background: "rgba(27,39,66,0.65)", border: "1px solid rgba(125,165,255,0.10)" }}>
-              <Loader2 size={14} className="animate-spin" style={{ color: "#3d8bff" }} />
+              <Loader2 size={14} className="animate-spin" style={{ color: "var(--brand)" }} />
               <span className="text-text-dim text-xs">{t("assistant.analyzing")}</span>
             </div>
           </div>
@@ -160,7 +154,7 @@ export default function Assistant() {
               key={s}
               onClick={() => send(s)}
               className="flex-1 min-w-fit h-9 px-4 rounded-lg text-xs font-medium transition-all"
-              style={{ background: "rgba(61,139,255,0.09)", border: "1px solid rgba(61,139,255,0.20)", color: "#9cc4ff" }}
+              style={{ background: "rgb(var(--brand-rgb) / 0.09)", border: "1px solid rgb(var(--brand-rgb) / 0.20)", color: "#9cc4ff" }}
             >
               {s}
             </button>
@@ -184,7 +178,7 @@ export default function Assistant() {
           onClick={() => send(input)}
           disabled={loading || !input.trim()}
           className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-all disabled:opacity-40"
-          style={{ background: "linear-gradient(150deg,#3d8bff,#1f5fe0)", boxShadow: "0 4px 16px rgba(61,139,255,0.35)" }}
+          style={{ background: "linear-gradient(150deg,var(--brand),var(--brand-deep))", boxShadow: "0 4px 16px rgb(var(--brand-rgb) / 0.35)" }}
         >
           <Send size={16} color="#ffffff" />
         </button>

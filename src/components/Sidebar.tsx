@@ -61,7 +61,7 @@ export default function Sidebar() {
         background: "linear-gradient(180deg, rgba(20,32,60,0.70), rgba(9,14,30,0.80))",
         backdropFilter: "blur(20px) saturate(140%)",
         WebkitBackdropFilter: "blur(20px) saturate(140%)",
-        borderRight: "1px solid rgba(125,165,255,0.12)",
+        borderRight: "1px solid var(--glass-border)",
       }}
     >
       {/* Logo */}
@@ -69,7 +69,7 @@ export default function Sidebar() {
         <div className="flex items-center gap-2.5">
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-            style={{ background: "linear-gradient(150deg,#3d8bff,#1f5fe0)" }}
+            style={{ background: "linear-gradient(150deg,var(--brand),var(--brand-deep))" }}
           >
             <TrendingUp size={16} className="text-white" />
           </div>
@@ -81,7 +81,7 @@ export default function Sidebar() {
       </div>
 
       {/* Salud financiera */}
-      <div className="mx-4 mb-6 rounded-xl p-4" style={{ background: "rgba(27,39,66,0.6)", border: "1px solid rgba(125,165,255,0.10)" }}>
+      <div className="mx-4 mb-6 rounded-xl p-4" style={{ background: "rgba(27,39,66,0.6)", border: "1px solid var(--glass-border)" }}>
         <div className="text-text-faint text-[10px] uppercase tracking-widest mb-1.5 font-medium">
           {t("sidebar.health")}
         </div>
@@ -95,7 +95,7 @@ export default function Sidebar() {
                 /100
               </span>
             </div>
-            <div className="mt-2 h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(125,165,255,0.10)" }}>
+            <div className="mt-2 h-1.5 rounded-full overflow-hidden" style={{ background: "rgb(var(--brand-rgb) / 0.10)" }}>
               <div
                 className="h-full rounded-full transition-all duration-700"
                 style={{ width: `${health.score}%`, ...health.barStyle }}
@@ -115,7 +115,7 @@ export default function Sidebar() {
             <div className="flex items-end gap-1.5">
               <span className="font-display font-bold text-xl text-text-faint leading-none">—</span>
             </div>
-            <div className="mt-2 h-1.5 rounded-full" style={{ background: "rgba(125,165,255,0.10)" }} />
+            <div className="mt-2 h-1.5 rounded-full" style={{ background: "rgb(var(--brand-rgb) / 0.10)" }} />
             <div className="mt-1.5 text-text-faint text-[10px]">{t("sidebar.noData")}</div>
           </>
         )}
@@ -133,7 +133,7 @@ export default function Sidebar() {
               ].join(" ")
             }
             style={({ isActive }) =>
-              isActive ? { background: "rgba(61,139,255,0.12)", boxShadow: "inset 2px 0 0 #3d8bff" } : undefined
+              isActive ? { background: "rgb(var(--brand-rgb) / 0.12)", boxShadow: "inset 2px 0 0 var(--brand)" } : undefined
             }
           >
             {({ isActive }) => (
@@ -155,9 +155,9 @@ export default function Sidebar() {
             onClick={() => i18n.changeLanguage(lang)}
             className="text-[11px] font-bold px-2 py-0.5 rounded-md uppercase transition-all"
             style={{
-              background: i18n.language.startsWith(lang) ? "rgba(61,139,255,0.18)" : "transparent",
-              color: i18n.language.startsWith(lang) ? "#3d8bff" : "#5f6b7a",
-              border: i18n.language.startsWith(lang) ? "1px solid rgba(61,139,255,0.25)" : "1px solid transparent",
+              background: i18n.language.startsWith(lang) ? "rgb(var(--brand-rgb) / 0.18)" : "transparent",
+              color: i18n.language.startsWith(lang) ? "var(--brand)" : "#5f6b7a",
+              border: i18n.language.startsWith(lang) ? "1px solid rgb(var(--brand-rgb) / 0.25)" : "1px solid transparent",
             }}
           >
             {lang}
@@ -175,7 +175,7 @@ export default function Sidebar() {
             ].join(" ")
           }
           style={({ isActive }) =>
-            isActive ? { background: "rgba(61,139,255,0.12)", boxShadow: "inset 2px 0 0 #3d8bff" } : undefined
+            isActive ? { background: "rgb(var(--brand-rgb) / 0.12)", boxShadow: "inset 2px 0 0 var(--brand)" } : undefined
           }
         >
           {({ isActive }) => (
@@ -190,7 +190,7 @@ export default function Sidebar() {
       {/* User block */}
       <div
         className="mx-4 mb-5 mt-2 rounded-xl px-4 py-3"
-        style={{ background: "rgba(27,39,66,0.5)", border: "1px solid rgba(125,165,255,0.08)" }}
+        style={{ background: "rgba(27,39,66,0.5)", border: "1px solid var(--glass-border)" }}
       >
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-brand/20 flex items-center justify-center flex-shrink-0">

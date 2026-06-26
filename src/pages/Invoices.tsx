@@ -57,23 +57,23 @@ const PALETTE = ["#3d8bff", "#00d4ff", "#a855f7", "#ffb84d", "#ff4d6d"];
 function avatarColor(name: string) { return PALETTE[name.charCodeAt(0) % PALETTE.length]; }
 
 const STATUS_STYLE: Record<DisplayStatus, { bg: string; color: string }> = {
-  pending:    { bg: "rgba(61,139,255,0.12)",  color: "#3d8bff" },
-  programada: { bg: "rgba(168,85,247,0.12)",  color: "#a855f7" },
-  vencida:    { bg: "rgba(255,77,109,0.12)",  color: "#ff4d6d" },
-  paid:       { bg: "rgba(0,212,255,0.10)",   color: "#00d4ff" },
-  void:       { bg: "rgba(124,136,150,0.12)", color: "#7c8896" },
+  pending:    { bg: "rgb(var(--brand-rgb) / 0.12)",      color: "var(--brand)"      },
+  programada: { bg: "rgba(168,85,247,0.12)",              color: "#a855f7"           },
+  vencida:    { bg: "rgba(255,77,109,0.12)",              color: "#ff4d6d"           },
+  paid:       { bg: "rgb(var(--brand-cyan-rgb) / 0.10)", color: "var(--brand-cyan)" },
+  void:       { bg: "rgba(124,136,150,0.12)",             color: "#7c8896"           },
 };
 
 const GLASS = {
   background: "linear-gradient(180deg,rgba(20,32,60,0.55),rgba(9,14,30,0.55))",
   backdropFilter: "blur(20px) saturate(140%)",
-  border: "1px solid rgba(125,165,255,0.12)",
+  border: "1px solid var(--glass-border)",
 } as const;
 
 const fieldCls = [
   "h-10 rounded-lg px-3 text-sm text-text w-full",
   "bg-[rgba(27,39,66,0.65)]",
-  "border border-[rgba(125,165,255,0.14)] focus:border-[rgba(61,139,255,0.45)]",
+  "border border-[rgba(125,165,255,0.14)] focus:border-[var(--brand-border-active)]",
   "outline-none transition-colors placeholder:text-text-faint",
 ].join(" ");
 
@@ -183,7 +183,7 @@ export default function Invoices() {
         <button
           onClick={() => navigate("/captura")}
           className="flex items-center gap-2 h-9 px-4 rounded-lg font-semibold text-sm text-white flex-shrink-0"
-          style={{ background: "linear-gradient(150deg,#3d8bff,#1f5fe0)", boxShadow: "0 4px 16px rgba(61,139,255,0.35)" }}
+          style={{ background: "linear-gradient(150deg,var(--brand),var(--brand-deep))", boxShadow: "0 4px 16px rgb(var(--brand-rgb) / 0.35)" }}
         >
           <Plus size={15} /> {t("invoices.newInvoice")}
         </button>
@@ -198,14 +198,14 @@ export default function Invoices() {
               key={key} onClick={() => setFilter(key)}
               className="flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-semibold transition-all"
               style={{
-                background: active ? "rgba(61,139,255,0.16)" : "rgba(27,39,66,0.55)",
-                border:     active ? "1px solid rgba(61,139,255,0.35)" : "1px solid rgba(125,165,255,0.10)",
-                color:      active ? "#3d8bff" : "#7c8896",
+                background: active ? "rgb(var(--brand-rgb) / 0.16)" : "rgba(27,39,66,0.55)",
+                border:     active ? "1px solid rgb(var(--brand-rgb) / 0.35)" : "1px solid rgba(125,165,255,0.10)",
+                color:      active ? "var(--brand)" : "#7c8896",
               }}
             >
               {t(labelKey)}
               <span className="text-[10px] font-bold rounded px-1.5 py-0.5"
-                style={{ background: active ? "rgba(61,139,255,0.18)" : "rgba(125,165,255,0.08)", color: active ? "#3d8bff" : "#5f6b7a" }}>
+                style={{ background: active ? "rgb(var(--brand-rgb) / 0.18)" : "rgba(125,165,255,0.08)", color: active ? "var(--brand)" : "#5f6b7a" }}>
                 {counts[key]}
               </span>
             </button>
@@ -274,7 +274,7 @@ export default function Invoices() {
                     key={inv.id}
                     className="transition-colors"
                     style={{ borderBottom: idx < filtered.length - 1 ? "1px solid rgba(125,165,255,0.06)" : undefined }}
-                    onMouseEnter={e => (e.currentTarget.style.background = "rgba(61,139,255,0.04)")}
+                    onMouseEnter={e => (e.currentTarget.style.background = "rgb(var(--brand-rgb) / 0.04)")}
                     onMouseLeave={e => (e.currentTarget.style.background = "")}
                   >
                     <td className="px-5 py-3.5">
@@ -321,7 +321,7 @@ export default function Invoices() {
                           onClick={(e) => { e.stopPropagation(); setEditInv(inv); }}
                           aria-label={t("common.edit")}
                           className="w-7 h-7 rounded-lg flex items-center justify-center text-text-dim hover:text-brand transition-colors"
-                          style={{ background: "rgba(61,139,255,0.07)" }}
+                          style={{ background: "rgb(var(--brand-rgb) / 0.07)" }}
                         >
                           <Pencil size={12} />
                         </button>
@@ -423,7 +423,7 @@ function EditInvoiceModal({ invoice, onSaved, onCancel }: {
           <div className="flex gap-2 pt-1">
             <button type="button" onClick={() => mut.mutate()} disabled={mut.isPending}
               className="flex-1 h-10 rounded-lg font-display font-semibold text-sm text-white flex items-center justify-center gap-2 disabled:opacity-50"
-              style={{ background: "linear-gradient(150deg,#3d8bff,#1f5fe0)", boxShadow: "0 4px 16px rgba(61,139,255,0.35)" }}>
+              style={{ background: "linear-gradient(150deg,var(--brand),var(--brand-deep))", boxShadow: "0 4px 16px rgb(var(--brand-rgb) / 0.35)" }}>
               <Check size={14} /> {mut.isPending ? t("preferences.saving") : t("invoices.saveChanges")}
             </button>
           </div>

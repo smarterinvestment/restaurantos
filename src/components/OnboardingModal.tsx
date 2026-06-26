@@ -35,7 +35,7 @@ export default function OnboardingModal({ userId }: { userId: string }) {
         <div className="flex items-center gap-2.5 mb-8">
           <div
             className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{ background: "linear-gradient(150deg,#3d8bff,#1f5fe0)" }}
+            style={{ background: "linear-gradient(150deg,var(--brand),var(--brand-deep))" }}
           >
             <TrendingUp size={17} className="text-white" />
           </div>
@@ -47,7 +47,7 @@ export default function OnboardingModal({ userId }: { userId: string }) {
 
         {/* Heading */}
         <div className="flex items-start gap-3 mb-2">
-          <ChefHat size={26} style={{ color: "#3d8bff", flexShrink: 0, marginTop: 2 }} />
+          <ChefHat size={26} style={{ color: "var(--brand)", flexShrink: 0, marginTop: 2 }} />
           <h1 className="font-display font-bold text-[22px] text-text leading-tight">
             {t("onboarding.title")}
           </h1>
@@ -80,7 +80,7 @@ export default function OnboardingModal({ userId }: { userId: string }) {
           onClick={submit}
           disabled={!fullName.trim() || upsert.isPending}
           className="w-full h-11 mt-7 rounded-xl font-semibold text-sm text-white transition-all disabled:opacity-40"
-          style={{ background: "linear-gradient(150deg,#3d8bff,#1f5fe0)", boxShadow: "0 4px 20px rgba(61,139,255,0.45)" }}
+          style={{ background: "linear-gradient(150deg,var(--brand),var(--brand-deep))", boxShadow: "0 4px 20px rgb(var(--brand-rgb) / 0.45)" }}
         >
           {upsert.isPending ? t("onboarding.saving") : t("onboarding.submit")}
         </button>
@@ -116,7 +116,7 @@ function Field({
         className="w-full h-11 rounded-xl px-4 text-sm text-text outline-none transition-all"
         style={{
           background: "rgba(27,39,66,0.65)",
-          border: value ? "1px solid rgba(61,139,255,0.32)" : "1px solid rgba(125,165,255,0.14)",
+          border: value ? "1px solid rgb(var(--brand-rgb) / 0.32)" : "1px solid rgba(125,165,255,0.14)",
         }}
       />
     </div>

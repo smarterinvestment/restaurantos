@@ -50,13 +50,13 @@ function todayStr() { return new Date().toISOString().split("T")[0]; }
 const GLASS = {
   background: "linear-gradient(180deg,rgba(20,32,60,0.55),rgba(9,14,30,0.55))",
   backdropFilter: "blur(20px) saturate(140%)",
-  border: "1px solid rgba(125,165,255,0.12)",
+  border: "1px solid var(--glass-border)",
 } as const;
 
 const fieldCls = [
   "h-10 rounded-lg px-3 text-sm text-text w-full",
   "bg-[rgba(27,39,66,0.65)]",
-  "border border-[rgba(125,165,255,0.14)] focus:border-[rgba(61,139,255,0.45)]",
+  "border border-[rgba(125,165,255,0.14)] focus:border-[var(--brand-border-active)]",
   "outline-none transition-colors placeholder:text-text-faint",
 ].join(" ");
 
@@ -207,7 +207,7 @@ function KpiCard({ label, value, hint, accent, loading }: {
   label: string; value: string | null; hint?: string;
   accent: "brand" | "danger" | "cyan"; loading: boolean;
 }) {
-  const color = accent === "brand" ? "#3d8bff" : accent === "danger" ? "#ff4d6d" : "#00d4ff";
+  const color = accent === "brand" ? "var(--brand)" : accent === "danger" ? "#ff4d6d" : "var(--brand-cyan)";
   return (
     <div className="rounded-2xl p-6" style={GLASS}>
       <div className="text-text-faint text-[10px] uppercase tracking-widest font-medium mb-3">{label}</div>
@@ -265,9 +265,9 @@ function IncomeForm({ userId, currency, onSaved }: {
                 key={key} type="button" onClick={() => setCategory(key)}
                 className="flex items-center gap-3 w-full h-10 px-3 rounded-lg text-sm font-medium transition-all text-left"
                 style={{
-                  background: active ? "rgba(61,139,255,0.16)" : "rgba(27,39,66,0.55)",
-                  border:     active ? "1px solid rgba(61,139,255,0.40)" : "1px solid rgba(125,165,255,0.10)",
-                  color:      active ? "#3d8bff" : "#9fb0c0",
+                  background: active ? "rgb(var(--brand-rgb) / 0.16)" : "rgba(27,39,66,0.55)",
+                  border:     active ? "1px solid rgb(var(--brand-rgb) / 0.40)" : "1px solid rgba(125,165,255,0.10)",
+                  color:      active ? "var(--brand)" : "#9fb0c0",
                 }}
               >
                 <Icon size={14} style={{ flexShrink: 0 }} /> {t(i18nKey)}
@@ -288,9 +288,9 @@ function IncomeForm({ userId, currency, onSaved }: {
                 key={key} type="button" onClick={() => setMethod(key)}
                 className="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg text-xs font-semibold transition-all"
                 style={{
-                  background: active ? "rgba(61,139,255,0.16)" : "rgba(27,39,66,0.55)",
-                  border:     active ? "1px solid rgba(61,139,255,0.40)" : "1px solid rgba(125,165,255,0.10)",
-                  color:      active ? "#3d8bff" : "#7c8896",
+                  background: active ? "rgb(var(--brand-rgb) / 0.16)" : "rgba(27,39,66,0.55)",
+                  border:     active ? "1px solid rgb(var(--brand-rgb) / 0.40)" : "1px solid rgba(125,165,255,0.10)",
+                  color:      active ? "var(--brand)" : "#7c8896",
                 }}
               >
                 <Icon size={13} /> {t(i18nKey)}
@@ -330,7 +330,7 @@ function IncomeForm({ userId, currency, onSaved }: {
       <button
         type="button" onClick={() => mutation.mutate()} disabled={mutation.isPending}
         className="w-full h-10 rounded-lg font-display font-semibold text-sm text-white flex items-center justify-center gap-2 transition-all disabled:opacity-50"
-        style={{ background: "linear-gradient(150deg,#3d8bff,#1f5fe0)", boxShadow: "0 6px 22px rgba(61,139,255,0.40)" }}
+        style={{ background: "linear-gradient(150deg,var(--brand),var(--brand-deep))", boxShadow: "0 6px 22px rgb(var(--brand-rgb) / 0.40)" }}
       >
         <TrendingUp size={15} />
         {mutation.isPending ? t("income.form.saving") : t("income.form.submit")}
@@ -382,8 +382,8 @@ function IncomeList({ movements, loading, error, currency, userId, onDeleted }: 
                 style={{ background: "rgba(27,39,66,0.40)", opacity: isDel ? 0.4 : 1 }}
               >
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ background: "rgba(61,139,255,0.12)" }}>
-                  <Icon size={14} style={{ color: "#3d8bff" }} />
+                  style={{ background: "rgb(var(--brand-rgb) / 0.12)" }}>
+                  <Icon size={14} style={{ color: "var(--brand)" }} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-text text-sm font-medium truncate">{categoryLabel}</div>
@@ -394,7 +394,7 @@ function IncomeList({ movements, loading, error, currency, userId, onDeleted }: 
                   </div>
                 </div>
                 <div className="flex items-center gap-3 flex-shrink-0 ml-2">
-                  <span className="font-display font-semibold text-sm" style={{ color: "#3d8bff" }}>
+                  <span className="font-display font-semibold text-sm" style={{ color: "var(--brand)" }}>
                     +{fmt(m.amount, m.currency ?? currency)}
                   </span>
                   <button type="button" onClick={() => del.mutate(m.id)} disabled={isDel}

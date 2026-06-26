@@ -313,20 +313,20 @@ function Dropzone({
       style={{
         minHeight: 340,
         background: dragOver
-          ? "linear-gradient(180deg, rgba(61,139,255,0.12), rgba(9,14,30,0.60))"
+          ? "linear-gradient(180deg, rgb(var(--brand-rgb) / 0.12), rgba(9,14,30,0.60))"
           : "linear-gradient(180deg, rgba(20,32,60,0.55), rgba(9,14,30,0.55))",
         backdropFilter: "blur(20px) saturate(140%)",
         border: dragOver
-          ? "1.5px dashed rgba(61,139,255,0.65)"
+          ? "1.5px dashed rgb(var(--brand-rgb) / 0.65)"
           : "1.5px dashed rgba(125,165,255,0.22)",
-        boxShadow: dragOver ? "0 0 0 4px rgba(61,139,255,0.10)" : undefined,
+        boxShadow: dragOver ? "0 0 0 4px rgb(var(--brand-rgb) / 0.10)" : undefined,
         transition: "all 0.15s ease",
       }}
     >
       <div
         className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5 transition-transform"
         style={{
-          background: dragOver ? "rgba(61,139,255,0.20)" : "rgba(61,139,255,0.10)",
+          background: dragOver ? "rgb(var(--brand-rgb) / 0.20)" : "rgb(var(--brand-rgb) / 0.10)",
           transform: dragOver ? "scale(1.08)" : "scale(1)",
         }}
       >
@@ -365,7 +365,7 @@ function ProcessingCard({ preview, statusKey }: { preview: string; statusKey: st
       </div>
       <div className="h-0.5 rounded-full w-52 overflow-hidden" style={{ background: "rgba(125,165,255,0.12)" }}>
         <div className="h-full rounded-full animate-pulse"
-          style={{ background: "linear-gradient(90deg, #3d8bff, #00d4ff)", width: "55%" }} />
+          style={{ background: "linear-gradient(90deg, var(--brand), var(--brand-cyan))", width: "55%" }} />
       </div>
     </div>
   );
@@ -506,8 +506,8 @@ function ConfirmForm({
             type="button" onClick={() => onConfirm(draft, storagePath)} disabled={!canSave}
             className="flex-1 h-11 rounded-lg font-display font-semibold text-sm text-white transition-all"
             style={{
-              background: canSave ? "linear-gradient(150deg, #3d8bff, #1f5fe0)" : "rgba(61,139,255,0.20)",
-              boxShadow: canSave ? "0 6px 22px rgba(61,139,255,0.40), inset 0 1px 1px rgba(255,255,255,0.12)" : undefined,
+              background: canSave ? "linear-gradient(150deg, var(--brand), var(--brand-deep))" : "rgb(var(--brand-rgb) / 0.20)",
+              boxShadow: canSave ? "0 6px 22px rgb(var(--brand-rgb) / 0.40), inset 0 1px 1px rgba(255,255,255,0.12)" : undefined,
               cursor: canSave ? "pointer" : "not-allowed",
               color: canSave ? "#ffffff" : "rgba(232,237,242,0.35)",
             }}
@@ -573,7 +573,7 @@ function ErrorCard({ message, onRetry }: { message: string; onRetry: () => void 
       </div>
       <button type="button" onClick={onRetry}
         className="mt-1 h-10 px-6 rounded-lg text-sm font-semibold text-white transition-all"
-        style={{ background: "linear-gradient(150deg, #3d8bff, #1f5fe0)", boxShadow: "0 4px 16px rgba(61,139,255,0.35)" }}>
+        style={{ background: "linear-gradient(150deg, var(--brand), var(--brand-deep))", boxShadow: "0 4px 16px rgb(var(--brand-rgb) / 0.35)" }}>
         {t("capture.error.retry")}
       </button>
     </div>
@@ -587,7 +587,7 @@ const labelCls = "block text-text-dim text-xs font-medium mb-1.5";
 const fieldCls = [
   "h-9 rounded-lg px-3 text-sm text-text",
   "bg-[rgba(27,39,66,0.65)]",
-  "border border-[rgba(125,165,255,0.14)] focus:border-[rgba(61,139,255,0.45)]",
+  "border border-[rgba(125,165,255,0.14)] focus:border-[var(--brand-border-active)]",
   "outline-none transition-colors placeholder:text-text-faint",
   "w-full",
 ].join(" ");

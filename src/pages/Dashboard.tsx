@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useProfile } from "../hooks/useProfile";
+import { useThemeColors } from "../hooks/useThemeColors";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, AreaChart, Area,
@@ -34,19 +35,15 @@ function todayLabel(lang: string): string {
 const GLASS = {
   background: "linear-gradient(180deg,rgba(20,32,60,0.55),rgba(9,14,30,0.55))",
   backdropFilter: "blur(20px) saturate(140%)",
-  border: "1px solid rgba(125,165,255,0.12)",
+  border: "1px solid var(--glass-border)",
 } as const;
 
-const TOOLTIP_STYLE = {
-  contentStyle: {
-    background: "#0c1426",
-    border: "1px solid rgba(125,165,255,0.20)",
-    borderRadius: 10,
-    color: "#e8edf2",
-    fontSize: 12,
-  },
-  cursor: { fill: "rgba(61,139,255,0.06)" },
-};
+function alertColors(sev: string) {
+  if (sev === "danger")  return { c: "#ff4d6d", bg: "rgba(255,77,109,0.05)",   border: "rgba(255,77,109,0.12)",   icon: "rgba(255,77,109,0.10)"  };
+  if (sev === "warning") return { c: "#ffb84d", bg: "rgba(255,184,77,0.05)",   border: "rgba(255,184,77,0.12)",   icon: "rgba(255,184,77,0.10)"  };
+  if (sev === "success") return { c: "#10b981", bg: "rgba(16,185,129,0.05)",   border: "rgba(16,185,129,0.12)",   icon: "rgba(16,185,129,0.10)"  };
+  return { c: "var(--brand)", bg: "rgb(var(--brand-rgb) / 0.05)", border: "rgb(var(--brand-rgb) / 0.12)", icon: "rgb(var(--brand-rgb) / 0.10)" };
+}
 
 // ── Master query ──────────────────────────────────────────────────────────────
 
@@ -173,6 +170,7 @@ function useDashboardData(userId: string, lang: string) {
 export default function Dashboard() {
   const navigate  = useNavigate();
   const { t, i18n } = useTranslation();
+  const tc        = useThemeColors();
   const session   = useAuthStore((s) => s.session!);
   const userId    = session.user.id;
   const userName  = (session.user.user_metadata?.full_name as string | undefined)
@@ -185,6 +183,17 @@ export default function Dashboard() {
     ?? userName.split(/\s+/)[0];
 
   const { data, isLoading, error } = useDashboardData(userId, i18n.language);
+
+  const TOOLTIP_STYLE = {
+    contentStyle: {
+      background: "#0c1426",
+      border: "1px solid rgba(125,165,255,0.20)",
+      borderRadius: 10,
+      color: "#e8edf2",
+      fontSize: 12,
+    },
+    cursor: { fill: tc.brand + "10" },
+  };
 
   return (
     <div className="space-y-6">
@@ -199,7 +208,7 @@ export default function Dashboard() {
         <button
           onClick={() => navigate("/captura")}
           className="flex items-center gap-2 h-9 px-4 rounded-lg font-semibold text-sm text-white flex-shrink-0"
-          style={{ background: "linear-gradient(150deg,#3d8bff,#1f5fe0)", boxShadow: "0 4px 16px rgba(61,139,255,0.35)" }}
+          style={{ background: "linear-gradient(150deg,var(--brand),var(--brand-deep))", boxShadow: "0 4px 16px rgb(var(--brand-rgb) / 0.35)" }}
         >
           <ScanLine size={15} /> {t("dashboard.scanInvoice")}
         </button>
@@ -260,7 +269,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-between mb-5">
             <h2 className="font-display font-semibold text-sm text-text">{t("dashboard.charts.incomeVsExpenses")}</h2>
             <div className="flex items-center gap-4">
-              <Legend color="#3d8bff" label={t("dashboard.charts.income")} />
+              <Legend color={tc.brand} label={t("dashboard.charts.income")} />
               <Legend color="#ff4d6d" label={t("dashboard.charts.expenses")} />
             </div>
           </div>
@@ -275,7 +284,7 @@ export default function Dashboard() {
                 <YAxis tickFormatter={(v: number) => v >= 1000 ? `$${(v/1000).toFixed(0)}k` : `$${v}`}
                   tick={{ fill: "#5f6b7a", fontSize: 11 }} axisLine={false} tickLine={false} width={42} />
                 <Tooltip {...TOOLTIP_STYLE} formatter={(v: number) => [fmt(v)]} />
-                <Bar dataKey="income" name={t("dashboard.charts.income")} fill="#3d8bff" radius={[4, 4, 0, 0]} maxBarSize={28} />
+                <Bar dataKey="income" name={t("dashboard.charts.income")} fill={tc.brand} radius={[4, 4, 0, 0]} maxBarSize={28} />
                 <Bar dataKey="expense" name={t("dashboard.charts.expenses")} fill="#ff4d6d" radius={[4, 4, 0, 0]} maxBarSize={28} />
               </BarChart>
             </ResponsiveContainer>
@@ -305,8 +314,8 @@ export default function Dashboard() {
                       className="h-full rounded-full transition-all duration-700"
                       style={{
                         width: cat ? `${(cat.amount / (data?.maxCat ?? 1)) * 100}%` : "0%",
-                        background: `linear-gradient(90deg,#3d8bff,#00d4ff)`,
-                        boxShadow: "0 0 8px rgba(61,139,255,0.5)",
+                        background: `linear-gradient(90deg,var(--brand),var(--brand-cyan))`,
+                        boxShadow: "0 0 8px rgb(var(--brand-rgb) / 0.5)",
                       }}
                     />
                   </div>
@@ -342,13 +351,13 @@ export default function Dashboard() {
               { labelKey: "dashboard.cashflow.in30days", val: data?.b30 },
             ] as const).map(({ labelKey, val }) => (
               <div key={labelKey} className="rounded-xl p-4 text-center"
-                style={{ background: "rgba(27,39,66,0.50)", border: "1px solid rgba(125,165,255,0.08)" }}>
+                style={{ background: "rgba(27,39,66,0.50)", border: "1px solid var(--glass-border)" }}>
                 <div className="text-text-faint text-[10px] uppercase tracking-wider font-medium mb-1">{t(labelKey)}</div>
                 {isLoading ? (
                   <div className="h-6 w-20 mx-auto rounded bg-elevated animate-pulse" />
                 ) : (
                   <div className="font-display font-bold text-lg leading-none"
-                    style={{ color: (val ?? 0) < 0 ? "#ff4d6d" : "#3d8bff" }}>
+                    style={{ color: (val ?? 0) < 0 ? "#ff4d6d" : "var(--brand)" }}>
                     {val !== undefined ? fmt(val, data?.currency) : "—"}
                   </div>
                 )}
@@ -364,8 +373,8 @@ export default function Dashboard() {
               <AreaChart data={data?.projLine ?? []}>
                 <defs>
                   <linearGradient id="projGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="#3d8bff" stopOpacity={0.22} />
-                    <stop offset="95%" stopColor="#3d8bff" stopOpacity={0} />
+                    <stop offset="5%"  stopColor={tc.brand} stopOpacity={0.22} />
+                    <stop offset="95%" stopColor={tc.brand} stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(125,165,255,0.07)" vertical={false} />
@@ -376,7 +385,7 @@ export default function Dashboard() {
                   tick={{ fill: "#5f6b7a", fontSize: 10 }} axisLine={false} tickLine={false} width={42} />
                 <Tooltip {...TOOLTIP_STYLE} formatter={(v: number) => [fmt(v), t("dashboard.cashflow.projectedBalance")]} />
                 <Area type="monotone" dataKey="balance" name={t("dashboard.cashflow.projectedBalance")}
-                  stroke="#3d8bff" strokeWidth={2} fill="url(#projGrad)" dot={{ fill: "#3d8bff", r: 3, strokeWidth: 0 }} />
+                  stroke={tc.brand} strokeWidth={2} fill="url(#projGrad)" dot={{ fill: tc.brand, r: 3, strokeWidth: 0 }} />
               </AreaChart>
             </ResponsiveContainer>
           )}
@@ -403,7 +412,7 @@ function KpiCard({ label, loading, error, value, hint, accent, empty, emptyHint 
   empty?: boolean; emptyHint?: string;
 }) {
   const { t } = useTranslation();
-  const color = accent === "brand" ? "#3d8bff" : "#ff4d6d";
+  const color = accent === "brand" ? "var(--brand)" : "#ff4d6d";
   return (
     <div className="rounded-2xl p-5" style={GLASS}>
       <div className="text-text-faint text-[10px] uppercase tracking-widest font-medium mb-3">{label}</div>
@@ -473,17 +482,14 @@ function AlertsWidget({ userId }: { userId: string }) {
     staleTime: 30_000,
   });
 
-  const colorOf = (sev: string) =>
-    ({ danger: "#ff4d6d", warning: "#ffb84d", success: "#10b981", info: "#3d8bff" }[sev] ?? "#3d8bff");
-
   const iconOf = (sev: string) => {
-    const c = colorOf(sev);
-    if (sev === "danger" || sev === "warning") return <AlertCircle size={14} style={{ color: c }} />;
-    if (sev === "success") return <CheckCircle size={14} style={{ color: c }} />;
-    return <Info size={14} style={{ color: c }} />;
+    const ac = alertColors(sev);
+    if (sev === "danger" || sev === "warning") return <AlertCircle size={14} style={{ color: ac.c }} />;
+    if (sev === "success") return <CheckCircle size={14} style={{ color: ac.c }} />;
+    return <Info size={14} style={{ color: ac.c }} />;
   };
 
-  const newCount = alerts.filter((a: any) => !a.read).length;
+  const newCount  = alerts.filter((a: any) => !a.read).length;
   const hasUrgent = alerts.some((a: any) => a.severity === "danger");
 
   return (
@@ -521,15 +527,15 @@ function AlertsWidget({ userId }: { userId: string }) {
       ) : (
         <div className="flex-1 flex flex-col gap-2 overflow-y-auto" style={{ maxHeight: 320 }}>
           {alerts.map((a: any) => {
-            const color = colorOf(a.severity);
+            const ac = alertColors(a.severity);
             return (
               <div
                 key={a.id}
                 className="flex items-start gap-3 rounded-xl px-3.5 py-3 flex-shrink-0"
-                style={{ background: color + "0c", border: `1px solid ${color}1e`, opacity: a.read ? 0.6 : 1 }}
+                style={{ background: ac.bg, border: `1px solid ${ac.border}`, opacity: a.read ? 0.6 : 1 }}
               >
                 <div className="w-[26px] h-[26px] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
-                  style={{ background: color + "18" }}>
+                  style={{ background: ac.icon }}>
                   {iconOf(a.severity)}
                 </div>
                 <div className="min-w-0">

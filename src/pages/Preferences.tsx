@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Bell, Mail, Save, Check, Smartphone, User, Store } from "lucide-react";
+import { Bell, Mail, Save, Check, Smartphone, User, Store, Palette } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../store/authStore";
 import { useProfile } from "../hooks/useProfile";
+import { useThemeStore } from "../store/themeStore";
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -17,7 +18,7 @@ function urlBase64ToUint8Array(base64String: string) {
 const GLASS = {
   background: "linear-gradient(180deg,rgba(20,32,60,0.55),rgba(9,14,30,0.55))",
   backdropFilter: "blur(20px) saturate(140%)",
-  border: "1px solid rgba(125,165,255,0.12)",
+  border: "1px solid var(--glass-border)",
 } as const;
 
 export default function Preferences() {
@@ -25,6 +26,7 @@ export default function Preferences() {
   const { session }           = useAuthStore();
   const userId                = session?.user.id ?? "";
   const { data: profile, upsert: upsertProfile } = useProfile(userId);
+  const { theme, setTheme }   = useThemeStore();
 
   const [fullName,       setFullName]       = useState("");
   const [restaurantName, setRestaurantName] = useState("");
@@ -145,7 +147,7 @@ export default function Preferences() {
                   className="w-full h-10 rounded-xl px-3.5 text-sm text-text outline-none transition-all"
                   style={{
                     background: "rgba(27,39,66,0.65)",
-                    border: fullName ? "1px solid rgba(61,139,255,0.28)" : "1px solid rgba(125,165,255,0.14)",
+                    border: fullName ? "1px solid rgb(var(--brand-rgb) / 0.28)" : "1px solid rgba(125,165,255,0.14)",
                   }}
                 />
               </div>
@@ -162,14 +164,14 @@ export default function Preferences() {
                   className="w-full h-10 rounded-xl px-3.5 text-sm text-text outline-none transition-all"
                   style={{
                     background: "rgba(27,39,66,0.65)",
-                    border: restaurantName ? "1px solid rgba(61,139,255,0.28)" : "1px solid rgba(125,165,255,0.14)",
+                    border: restaurantName ? "1px solid rgb(var(--brand-rgb) / 0.28)" : "1px solid rgba(125,165,255,0.14)",
                   }}
                 />
               </div>
             </div>
           </div>
 
-          {/* Language */}
+          {/* ── Language ── */}
           <div className="rounded-2xl p-6" style={GLASS}>
             <h2 className="font-display font-semibold text-sm text-text mb-4">{t("preferences.language.title")}</h2>
             <div className="flex gap-2">
@@ -179,9 +181,9 @@ export default function Preferences() {
                   onClick={() => i18n.changeLanguage(lang)}
                   className="h-9 px-5 rounded-lg text-sm font-semibold uppercase transition-all"
                   style={{
-                    background: i18n.language.startsWith(lang) ? "rgba(61,139,255,0.16)" : "rgba(27,39,66,0.55)",
-                    border:     i18n.language.startsWith(lang) ? "1px solid rgba(61,139,255,0.40)" : "1px solid rgba(125,165,255,0.10)",
-                    color:      i18n.language.startsWith(lang) ? "#3d8bff" : "#7c8896",
+                    background: i18n.language.startsWith(lang) ? "rgb(var(--brand-rgb) / 0.16)" : "rgba(27,39,66,0.55)",
+                    border:     i18n.language.startsWith(lang) ? "1px solid rgb(var(--brand-rgb) / 0.40)" : "1px solid rgba(125,165,255,0.10)",
+                    color:      i18n.language.startsWith(lang) ? "var(--brand)" : "#7c8896",
                   }}
                 >
                   {lang === "es" ? "Español" : "English"}
@@ -190,7 +192,46 @@ export default function Preferences() {
             </div>
           </div>
 
-          {/* Notification channels */}
+          {/* ── Theme ── */}
+          <div className="rounded-2xl p-6" style={GLASS}>
+            <div className="flex items-center gap-2 mb-4">
+              <Palette size={15} className="text-brand" />
+              <h2 className="font-display font-semibold text-sm text-text">{t("preferences.theme.title")}</h2>
+            </div>
+            <div className="flex gap-3">
+              {(["blue", "pink"] as const).map(th => {
+                const active = theme === th;
+                const accentBlue = "rgb(61 139 255 / 0.16)";
+                const accentPink = "rgb(255 93 143 / 0.16)";
+                const borderBlue = "rgb(61 139 255 / 0.40)";
+                const borderPink = "rgb(255 93 143 / 0.40)";
+                const dotBlue = "#3d8bff";
+                const dotPink = "#ff5d8f";
+                return (
+                  <button
+                    key={th}
+                    onClick={() => setTheme(th)}
+                    className="flex items-center gap-2.5 h-10 px-4 rounded-lg text-sm font-medium transition-all"
+                    style={{
+                      background: active ? (th === "blue" ? accentBlue : accentPink) : "rgba(27,39,66,0.55)",
+                      border: active
+                        ? `1px solid ${th === "blue" ? borderBlue : borderPink}`
+                        : "1px solid rgba(125,165,255,0.10)",
+                      color: active ? (th === "blue" ? "#3d8bff" : "#ff5d8f") : "#7c8896",
+                    }}
+                  >
+                    <span
+                      className="w-3 h-3 rounded-full flex-shrink-0"
+                      style={{ background: th === "blue" ? dotBlue : dotPink }}
+                    />
+                    {t(th === "blue" ? "preferences.theme.blue" : "preferences.theme.pink")}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ── Notification channels ── */}
           <div className="rounded-2xl p-6 space-y-5" style={GLASS}>
             <h2 className="font-display font-semibold text-sm text-text">{t("preferences.notifications.title")}</h2>
 
@@ -254,7 +295,7 @@ export default function Preferences() {
             )}
           </div>
 
-          {/* Alert timing */}
+          {/* ── Alert timing ── */}
           <div className="rounded-2xl p-6" style={GLASS}>
             <h2 className="font-display font-semibold text-sm text-text mb-4">{t("preferences.timing.title")}</h2>
             <div className="flex items-center gap-5">
@@ -274,7 +315,7 @@ export default function Preferences() {
                 </button>
                 <div
                   className="w-12 h-8 rounded-lg flex items-center justify-center font-display font-bold text-text text-sm"
-                  style={{ background: "rgba(61,139,255,0.10)", border: "1px solid rgba(61,139,255,0.18)" }}
+                  style={{ background: "rgb(var(--brand-rgb) / 0.10)", border: "1px solid rgb(var(--brand-rgb) / 0.18)" }}
                 >
                   {daysBefore}
                 </div>
@@ -289,13 +330,13 @@ export default function Preferences() {
             </div>
           </div>
 
-          {/* Save button */}
+          {/* ── Save button ── */}
           <div className="flex justify-end">
             <button
               onClick={save}
               disabled={saving}
               className="flex items-center gap-2 h-10 px-5 rounded-xl font-semibold text-sm text-white transition-all disabled:opacity-60"
-              style={{ background: "linear-gradient(150deg,#3d8bff,#1f5fe0)", boxShadow: "0 4px 16px rgba(61,139,255,0.35)" }}
+              style={{ background: "linear-gradient(150deg,var(--brand),var(--brand-deep))", boxShadow: "0 4px 16px rgb(var(--brand-rgb) / 0.35)" }}
             >
               {saved ? (
                 <><Check size={15} /> {t("preferences.saved")}</>
@@ -343,9 +384,9 @@ function Toggle({
             onClick={() => onChange(!checked)}
             className="relative flex-shrink-0 w-11 h-6 rounded-full transition-all duration-200"
             style={{
-              background: checked ? "linear-gradient(150deg,#3d8bff,#1f5fe0)" : "rgba(27,39,66,0.8)",
+              background: checked ? "linear-gradient(150deg,var(--brand),var(--brand-deep))" : "rgba(27,39,66,0.8)",
               border: checked ? "none" : "1px solid rgba(125,165,255,0.15)",
-              boxShadow: checked ? "0 2px 10px rgba(61,139,255,0.40)" : "none",
+              boxShadow: checked ? "0 2px 10px rgb(var(--brand-rgb) / 0.40)" : "none",
             }}
           >
             <span

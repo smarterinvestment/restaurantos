@@ -40,7 +40,7 @@ export default function Login() {
       className="min-h-screen flex items-center justify-center p-4"
       style={{
         background:
-          "radial-gradient(1200px 600px at 80% -10%, rgba(61,139,255,0.10), transparent 60%), radial-gradient(900px 500px at -5% 110%, rgba(0,212,255,0.06), transparent 55%), #070c1a",
+          "radial-gradient(1200px 600px at 80% -10%, rgb(var(--brand-rgb) / 0.10), transparent 60%), radial-gradient(900px 500px at -5% 110%, rgb(var(--brand-cyan-rgb) / 0.06), transparent 55%), #070c1a",
       }}
     >
       <div
@@ -55,7 +55,7 @@ export default function Login() {
         <div className="flex items-center gap-3 mb-8">
           <div
             className="w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{ background: "linear-gradient(150deg,#3d8bff,#1f5fe0)" }}
+            style={{ background: "linear-gradient(150deg,var(--brand),var(--brand-deep))" }}
           >
             <TrendingUp size={20} className="text-white" />
           </div>
@@ -85,7 +85,7 @@ export default function Login() {
               placeholder={t("login.emailPlaceholder")}
               className="w-full rounded-lg px-3.5 py-2.5 text-sm text-text placeholder:text-text-faint outline-none transition-all"
               style={{ background: "rgba(27,39,66,0.7)", border: "1px solid rgba(125,165,255,0.15)" }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(61,139,255,0.5)")}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "var(--brand-border-active)")}
               onBlur={(e)  => (e.currentTarget.style.borderColor = "rgba(125,165,255,0.15)")}
             />
           </div>
@@ -102,7 +102,7 @@ export default function Login() {
               placeholder="••••••••"
               className="w-full rounded-lg px-3.5 py-2.5 text-sm text-text placeholder:text-text-faint outline-none transition-all"
               style={{ background: "rgba(27,39,66,0.7)", border: "1px solid rgba(125,165,255,0.15)" }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(61,139,255,0.5)")}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "var(--brand-border-active)")}
               onBlur={(e)  => (e.currentTarget.style.borderColor = "rgba(125,165,255,0.15)")}
             />
           </div>
@@ -113,7 +113,7 @@ export default function Login() {
             </div>
           )}
           {info && (
-            <div className="rounded-lg px-3.5 py-2.5 text-sm" style={{ background: "rgba(61,139,255,0.12)", color: "#9cc4ff" }}>
+            <div className="rounded-lg px-3.5 py-2.5 text-sm" style={{ background: "rgb(var(--brand-rgb) / 0.12)", color: "#9cc4ff" }}>
               {info}
             </div>
           )}
@@ -122,7 +122,7 @@ export default function Login() {
             type="submit"
             disabled={busy}
             className="w-full rounded-lg py-2.5 font-semibold text-sm text-white flex items-center justify-center gap-2 transition-opacity disabled:opacity-60"
-            style={{ background: "linear-gradient(150deg,#3d8bff,#1f5fe0)", boxShadow: "0 6px 22px rgba(61,139,255,0.40)" }}
+            style={{ background: "linear-gradient(150deg,var(--brand),var(--brand-deep))", boxShadow: "0 6px 22px rgb(var(--brand-rgb) / 0.40)" }}
           >
             {busy && <Loader2 size={15} className="animate-spin" />}
             {mode === "signin" ? t("login.submitSignin") : t("login.submitSignup")}
