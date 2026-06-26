@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
+import webpush from "web-push";
 
 const SUPABASE_URL   = process.env.VITE_SUPABASE_URL!;
 const SUPABASE_SERV  = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -7,6 +8,15 @@ const RESEND_KEY     = process.env.RESEND_API_KEY ?? "";
 const APP_URL        = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : "https://restaurantos.vercel.app";
+
+// Configure VAPID (once per cold start)
+if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails(
+    "mailto:alertas@restaurantos.app",
+    process.env.VAPID_PUBLIC_KEY,
+    process.env.VAPID_PRIVATE_KEY
+  );
+}
 
 type Severity = "info" | "warning" | "danger" | "success";
 
@@ -238,6 +248,39 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const urgent = toInsert.filter(a => a.severity === "danger" || a.severity === "warning");
   if (emailEnabled && urgent.length > 0) {
     await sendConsolidatedEmail(userEmail, urgent).catch(console.error);
+  }
+
+  // Send push notification to all registered subscriptions
+  if (toInsert.length > 0 && process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+    const { data: pushSubs } = await admin
+      .from("push_subscriptions")
+      .select("id, subscription")
+      .eq("user_id", userId);
+
+    if (pushSubs && pushSubs.length > 0) {
+      const pushTitle = toInsert.length === 1
+        ? toInsert[0].title
+        : `${toInsert.length} nuevas alertas financieras`;
+      const pushBody = toInsert.length === 1
+        ? toInsert[0].body
+        : urgent.length > 0
+          ? `${urgent.filter(a => a.severity === "danger").length} crítica(s), ${urgent.filter(a => a.severity === "warning").length} advertencia(s)`
+          : toInsert[0].body;
+
+      const payload = JSON.stringify({ title: pushTitle, body: pushBody, type: toInsert[0].type });
+
+      for (const row of pushSubs) {
+        await webpush.sendNotification(row.subscription as webpush.PushSubscription, payload)
+          .catch(async (err: any) => {
+            if (err.statusCode === 410) {
+              // Subscription expired — remove it
+              await admin.from("push_subscriptions").delete().eq("id", row.id);
+            } else {
+              console.error("[check-alerts] push error:", err.message);
+            }
+          });
+      }
+    }
   }
 
   return res.status(200).json({ ok: true, created: toInsert.length });
