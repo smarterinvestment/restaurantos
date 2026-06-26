@@ -53,10 +53,12 @@ export default function Login() {
       >
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
+          {/* TEST: si icon-192 carga, el problema es logo-full-512.png específicamente */}
+          <img src="/icon-192.png" width="80" alt="test icon" />
           <img
             src="/logo-full-512.png"
             alt="Smarter Restaurant Management"
-            className="h-14 w-auto max-w-[220px] object-contain"
+            className="h-14 w-auto max-w-[220px] object-contain mt-2"
           />
         </div>
 
