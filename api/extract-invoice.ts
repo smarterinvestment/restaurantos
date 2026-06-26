@@ -1,22 +1,12 @@
+import type { VercelRequest, VercelResponse } from "@vercel/node";
+
 /**
- * api/extract-invoice.ts — Vercel Serverless Function
- *
- * api/package.json fuerza CommonJS para este directorio,
- * resolviendo el conflicto con "type": "module" del raíz (Vite).
+ * api/extract-invoice.ts — Vercel Serverless Function (ES module)
  *
  * POST { imageBase64: string, mediaType: "image/jpeg"|"image/png"|"image/webp" }
  * Devuelve JSON estructurado. NO persiste — el frontend confirma antes de guardar.
  * Requiere env: ANTHROPIC_API_KEY
  */
-
-type VercelRequest = {
-  method?: string;
-  body?: any;
-};
-type VercelResponse = {
-  status: (code: number) => VercelResponse;
-  json: (body: any) => void;
-};
 
 const EXTRACTION_SCHEMA = `{
   "supplier_name": string,
@@ -40,7 +30,7 @@ const SYSTEM_PROMPT =
   "\nSi un campo no aparece en la factura, usa null. Las cantidades son números (sin símbolo de moneda). " +
   "Las fechas en formato ISO YYYY-MM-DD.";
 
-module.exports = async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -104,7 +94,7 @@ module.exports = async function handler(req: VercelRequest, res: VercelResponse)
       });
     }
 
-    const data = await anthropicRes.json();
+    const data = await anthropicRes.json() as any;
     console.log("[extract-invoice] Respuesta OK — stop_reason:", data.stop_reason, "| usage:", JSON.stringify(data.usage));
 
     const text: string = (data.content || [])
@@ -134,4 +124,4 @@ module.exports = async function handler(req: VercelRequest, res: VercelResponse)
     console.error("[extract-invoice] Fallo inesperado:", err);
     return res.status(500).json({ error: "Fallo inesperado", detail: String(err?.message || err) });
   }
-};
+}
