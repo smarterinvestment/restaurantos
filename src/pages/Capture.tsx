@@ -186,7 +186,7 @@ export default function Capture() {
           tax: strNum(draft.tax),
           total_amount: strNum(draft.total_amount) ?? 0,
           status: "pending",
-          storage_path: storagePath,
+          image_url: storagePath,
         })
         .select("id")
         .single();
@@ -213,9 +213,11 @@ export default function Capture() {
         user_id: userId,
         type: "expense",
         amount: strNum(draft.total_amount) ?? 0,
+        currency: draft.currency || "USD",
         description: `Factura ${draft.invoice_number || "s/n"} — ${draft.supplier_name}`,
-        date: draft.due_date || today,
-        reference_id: inv.id,
+        occurred_at: draft.due_date || today,
+        source: "invoice",
+        invoice_id: inv.id,
       });
       if (movErr) throw new Error(`Movimiento: ${movErr.message}`);
 
