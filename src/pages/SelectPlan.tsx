@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Check, Loader2 } from "lucide-react";
-import { useAuthStore } from "../store/authStore";
 import { supabase } from "../lib/supabase";
 
 const PRICE_BASICO = "price_1Tmfz3ITKXKBIUvUWX94Dsx9";
@@ -41,55 +40,70 @@ const PLANS = [
 export default function SelectPlan() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const { session } = useAuthStore();
 
   const preselected = params.get("plan") as "basico" | "pro" | null;
   const [selected, setSelected] = useState<"basico" | "pro">(preselected ?? "basico");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [emailConfirmed, setEmailConfirmed] = useState<boolean | null>(null);
 
   useEffect(() => {
-    if (!session) { setEmailConfirmed(null); return; }
     supabase.auth.getUser().then(({ data: { user } }) => {
       setEmailConfirmed(!!user?.email_confirmed_at);
     });
-  }, [session]);
+  }, []);
 
-  const canCheckout = !!session && emailConfirmed === true;
-
-  async function handleCheckout() {
-    if (!canCheckout) return;
-    const plan = PLANS.find(p => p.id === selected)!;
-    setLoading(true);
-    setError("");
+  const handleSelectPlan = async (priceId: string) => {
     try {
-      console.log('Llamando a stripe-checkout con:', { priceId: plan.priceMonthlyId, userId: session!.user.id, email: session!.user.email });
-      const res = await fetch("/api/stripe-checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      setLoading(true);
+      console.log('Iniciando pago con priceId:', priceId);
+
+      const { data: { user } } = await supabase.auth.getUser();
+      console.log('Usuario:', user?.id, user?.email);
+
+      if (!user) {
+        alert('No hay sesión activa');
+        return;
+      }
+
+      const response = await fetch('/api/stripe-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
         body: JSON.stringify({
-          priceId: plan.priceMonthlyId,
-          userId: session!.user.id,
-          email: session!.user.email,
-          accessToken: session!.access_token,
+          priceId,
+          userId: user.id,
+          email: user.email,
         }),
       });
-      console.log('Response status:', res.status, 'ok:', res.ok);
-      console.log('Leyendo respuesta...');
-      const text = await res.text();
-      console.log('Raw response:', text);
-      if (!text) throw new Error('Respuesta vacía del servidor');
+
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers.get('content-type'));
+
+      const text = await response.text();
+      console.log('Raw response body:', text);
+
+      if (!text) {
+        throw new Error('El servidor devolvió respuesta vacía');
+      }
+
       const data = JSON.parse(text);
-      console.log('Data recibida:', data);
-      if (!res.ok) throw new Error(data.error ?? "Error al crear sesión de pago");
-      window.location.href = data.url;
+      console.log('Data parseada:', data);
+
+      if (data.url) {
+        console.log('Redirigiendo a Stripe:', data.url);
+        window.location.href = data.url;
+      } else {
+        throw new Error(data.error || 'No se recibió URL de Stripe');
+      }
     } catch (err: unknown) {
       console.error('Error completo:', err);
-      setError(err instanceof Error ? err.message : "Error inesperado");
+      alert('Error: ' + (err instanceof Error ? err.message : String(err)));
+    } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
     <div
@@ -168,18 +182,8 @@ export default function SelectPlan() {
         })}
       </div>
 
-      {/* Error */}
-      {error && (
-        <div
-          className="mt-4 w-full max-w-2xl rounded-lg px-4 py-3 text-sm"
-          style={{ background: "rgba(255,77,109,0.12)", color: "#ff4d6d" }}
-        >
-          {error}
-        </div>
-      )}
-
-      {/* Email not confirmed warning — only shown when logged in but unconfirmed */}
-      {session && emailConfirmed === false && (
+      {/* Email not confirmed warning */}
+      {emailConfirmed === false && (
         <div
           className="mt-4 w-full max-w-2xl rounded-lg px-4 py-3 text-sm text-center"
           style={{ background: "rgb(var(--brand-rgb) / 0.08)", color: "#9cc4ff", border: "1px solid rgb(var(--brand-rgb) / 0.15)" }}
@@ -191,8 +195,8 @@ export default function SelectPlan() {
       {/* CTA buttons */}
       <div className="mt-6 flex flex-col sm:flex-row gap-3 w-full max-w-2xl">
         <button
-          onClick={handleCheckout}
-          disabled={loading || !canCheckout}
+          onClick={() => handleSelectPlan(PLANS.find(p => p.id === selected)!.priceMonthlyId)}
+          disabled={loading}
           className="flex-1 flex items-center justify-center gap-2 rounded-xl py-3.5 font-semibold text-sm text-white transition-opacity disabled:opacity-50"
           style={{
             background: "linear-gradient(150deg,var(--brand),var(--brand-deep))",

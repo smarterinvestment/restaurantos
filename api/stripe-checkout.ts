@@ -15,15 +15,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    const { priceId, userId, email, accessToken } = req.body ?? {};
-    console.log("Campos recibidos:", { priceId, userId, email: !!email, accessToken: !!accessToken });
-    if (!priceId || !userId || !email || !accessToken)
+    const { priceId, userId, email } = req.body ?? {};
+    console.log("Campos recibidos:", { priceId, userId, email: !!email });
+    if (!priceId || !userId || !email)
       return res.status(400).json({ error: "Faltan campos requeridos" });
-
-    const { data: { user }, error: authErr } = await supabaseAdmin.auth.getUser(accessToken);
-    console.log("Auth result:", { userId: user?.id, authErr: authErr?.message });
-    if (authErr || !user || user.id !== userId)
-      return res.status(401).json({ error: "No autorizado" });
 
     const { data: profile } = await supabaseAdmin
       .from("profiles")
