@@ -67,7 +67,7 @@ export default function Assistant() {
   }
 
   return (
-    <div className="flex flex-col" style={{ height: "calc(100vh - 108px)" }}>
+    <div className="flex flex-col h-[calc(100vh-94px)] md:h-[calc(100vh-108px)]">
       {/* Header */}
       <div className="mb-6 flex-shrink-0">
         <h1 className="font-display font-semibold text-2xl text-text">{t("assistant.title")}</h1>

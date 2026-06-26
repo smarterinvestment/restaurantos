@@ -214,7 +214,7 @@ export default function Invoices() {
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl overflow-hidden" style={GLASS}>
+      <div className="rounded-2xl" style={GLASS}>
         {q.isLoading && (
           <div className="flex justify-center py-16">
             <div className="w-5 h-5 rounded-full border-2 border-brand border-t-transparent animate-spin" />
@@ -239,7 +239,8 @@ export default function Invoices() {
         )}
 
         {!q.isLoading && filtered.length > 0 && (
-          <table className="w-full">
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-[580px]">
             <thead>
               <tr style={{ borderBottom: "1px solid rgba(125,165,255,0.08)" }}>
                 {[
@@ -341,6 +342,7 @@ export default function Invoices() {
               })}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>

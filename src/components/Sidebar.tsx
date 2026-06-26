@@ -1,9 +1,10 @@
-import { NavLink } from "react-router-dom";
+import { useEffect } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import {
   LayoutDashboard, ScanLine, Banknote, FileText,
-  Truck, Sparkles, TrendingUp, User, LogOut, Settings,
+  Truck, Sparkles, TrendingUp, User, LogOut, Settings, X,
 } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
 import { useProfile } from "../hooks/useProfile";
@@ -32,9 +33,15 @@ function renderHint(parts: HintPart[], t: TFunction): string {
   }).filter(Boolean).join(" · ");
 }
 
-export default function Sidebar() {
+export default function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t, i18n } = useTranslation();
   const { session, signOut } = useAuthStore();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (open) onClose();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
   const email   = session?.user.email ?? "";
   const userId  = session?.user.id ?? "";
   const { data: profile }  = useProfile(userId);
@@ -54,8 +61,23 @@ export default function Sidebar() {
   const hintText = health ? renderHint(health.hintParts, t) : "";
 
   return (
+    <>
+      {/* Mobile backdrop */}
+      {open && (
+        <div
+          className="fixed inset-0 z-40 bg-black/60 md:hidden"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      )}
+
     <aside
-      className="fixed top-0 left-0 h-full flex flex-col"
+      className={[
+        "fixed top-0 left-0 h-full flex flex-col z-50",
+        "transition-transform duration-300 ease-in-out",
+        open ? "translate-x-0" : "-translate-x-full",
+        "md:translate-x-0",
+      ].join(" ")}
       style={{
         width: 248,
         background: "linear-gradient(180deg, rgba(20,32,60,0.70), rgba(9,14,30,0.80))",
@@ -64,6 +86,15 @@ export default function Sidebar() {
         borderRight: "1px solid var(--glass-border)",
       }}
     >
+      {/* Mobile close button */}
+      <button
+        className="absolute top-3 right-3 p-1.5 rounded-lg text-text-faint hover:text-text transition-colors md:hidden"
+        onClick={onClose}
+        aria-label="Cerrar menú"
+      >
+        <X size={16} />
+      </button>
+
       {/* Logo */}
       <div className="px-6 pt-7 pb-6">
         <div className="flex items-center gap-2.5">
@@ -210,5 +241,6 @@ export default function Sidebar() {
         </div>
       </div>
     </aside>
+    </>
   );
 }

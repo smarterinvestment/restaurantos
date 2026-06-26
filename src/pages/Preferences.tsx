@@ -133,7 +133,7 @@ export default function Preferences() {
           <div className="rounded-2xl p-6 space-y-4" style={GLASS}>
             <h2 className="font-display font-semibold text-sm text-text">{t("preferences.profile.title")}</h2>
 
-            <div className="grid gap-4" style={{ gridTemplateColumns: "1fr 1fr" }}>
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
               <div>
                 <label className="block text-text-dim text-xs font-medium mb-1.5">
                   <User size={11} className="inline mr-1 opacity-70" />

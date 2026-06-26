@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
+import { Menu, TrendingUp } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import NotificationBell from "../components/NotificationBell";
 import OnboardingModal from "../components/OnboardingModal";
@@ -11,14 +13,46 @@ export default function AppLayout() {
   const { data: profile, isLoading: profileLoading } = useProfile(userId);
   const needsOnboarding = !!userId && !profileLoading && (!profile || !profile.full_name?.trim());
 
-  return (
-    <div className="min-h-screen bg-base">
-      {needsOnboarding && <OnboardingModal userId={userId} />}
-      <Sidebar />
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-      {/* Top bar — notification bell */}
+  return (
+    <div className="min-h-screen bg-base overflow-x-hidden">
+      {needsOnboarding && <OnboardingModal userId={userId} />}
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+      {/* Mobile header — shown on <md only */}
       <div
-        className="fixed top-0 right-0 z-40 flex items-center justify-end"
+        className="fixed top-0 left-0 right-0 z-40 flex items-center gap-3 md:hidden"
+        style={{
+          height: 52,
+          padding: "0 16px",
+          background: "rgba(7,12,26,0.92)",
+          backdropFilter: "blur(12px)",
+          borderBottom: "1px solid rgba(125,165,255,0.07)",
+        }}
+      >
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="p-1.5 rounded-lg text-text-muted hover:text-text transition-colors"
+          aria-label="Abrir menú"
+        >
+          <Menu size={20} />
+        </button>
+        <div className="flex items-center gap-2 flex-1">
+          <div
+            className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+            style={{ background: "linear-gradient(150deg,var(--brand),var(--brand-deep))" }}
+          >
+            <TrendingUp size={13} className="text-white" />
+          </div>
+          <span className="font-display font-semibold text-sm text-text">CashFlow AI</span>
+        </div>
+        <NotificationBell />
+      </div>
+
+      {/* Desktop top bar — hidden on mobile */}
+      <div
+        className="hidden md:flex fixed top-0 right-0 z-40 items-center justify-end"
         style={{
           left: 248,
           height: 52,
@@ -31,10 +65,10 @@ export default function AppLayout() {
         <NotificationBell />
       </div>
 
-      <main className="min-h-screen" style={{ marginLeft: 248 }}>
+      <main className="min-h-screen md:ml-[248px] overflow-x-hidden">
         <div
-          className="min-h-screen"
-          style={{ padding: "82px 38px 40px", maxWidth: 1280 }}
+          className="min-h-screen pt-[68px] px-4 pb-10 md:pt-[82px] md:px-[38px]"
+          style={{ maxWidth: 1280 }}
         >
           <Outlet />
         </div>

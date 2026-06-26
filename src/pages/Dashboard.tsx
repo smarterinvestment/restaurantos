@@ -198,7 +198,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       {/* ── Greeting row ── */}
-      <div className="flex items-start justify-between">
+      <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <h1 className="font-display font-semibold text-2xl text-text">
             {t(greetingKey())}, {firstName}
@@ -215,7 +215,7 @@ export default function Dashboard() {
       </div>
 
       {/* ── 4 KPI cards ── */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         <KpiCard
           label={t("dashboard.kpi.balance")}
           loading={isLoading}
@@ -263,7 +263,7 @@ export default function Dashboard() {
       </div>
 
       {/* ── Charts row ── */}
-      <div className="grid gap-4" style={{ gridTemplateColumns: "1.4fr 1fr" }}>
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-[1.4fr_1fr]">
         {/* Income vs Expenses */}
         <div className="rounded-2xl p-6" style={GLASS}>
           <div className="flex items-center justify-between mb-5">
@@ -327,7 +327,7 @@ export default function Dashboard() {
       </div>
 
       {/* ── Projected cash flow (60%) + Alertas (40%) ── */}
-      <div className="grid gap-4" style={{ gridTemplateColumns: "3fr 2fr" }}>
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-[3fr_2fr]">
         {/* Left: projected cash flow */}
         <div className="rounded-2xl p-6" style={GLASS}>
           <div className="flex items-start justify-between mb-5">

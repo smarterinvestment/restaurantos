@@ -410,9 +410,9 @@ function ConfirmForm({
   const canSave = draft.supplier_name.trim().length > 0 && draft.total_amount.trim().length > 0;
 
   return (
-    <div className="grid gap-6" style={{ gridTemplateColumns: "1fr 1.45fr", alignItems: "start" }}>
+    <div className="grid gap-6 grid-cols-1 md:grid-cols-[1fr_1.45fr] items-start">
       {/* Left: image preview */}
-      <div className="rounded-2xl p-5 sticky top-8" style={{
+      <div className="rounded-2xl p-5 md:sticky md:top-8" style={{
         background: "linear-gradient(180deg, rgba(20,32,60,0.55), rgba(9,14,30,0.55))",
         backdropFilter: "blur(20px) saturate(140%)",
         border: "1px solid rgba(125,165,255,0.12)",
@@ -464,7 +464,7 @@ function ConfirmForm({
             </Field>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Field label={t("capture.form.subtotal")}>
               <input type="number" value={draft.subtotal} onChange={(e) => set("subtotal", e.target.value)}
                 placeholder="0.00" step="0.01" min="0" className={fieldCls} />

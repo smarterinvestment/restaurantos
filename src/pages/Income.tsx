@@ -154,7 +154,7 @@ export default function Income() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <KpiCard
           label={t("income.kpi.balance")}
           value={kpis ? fmt(kpis.balance, currency) : null}
@@ -179,7 +179,7 @@ export default function Income() {
       </div>
 
       {/* Two-column layout */}
-      <div className="grid gap-6" style={{ gridTemplateColumns: "1fr 1.5fr", alignItems: "start" }}>
+      <div className="grid gap-6 grid-cols-1 md:grid-cols-[1fr_1.5fr] items-start">
         <IncomeForm userId={userId} currency={currency} onSaved={invalidate} />
         <div className="space-y-4">
           <IncomeList
