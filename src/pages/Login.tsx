@@ -5,10 +5,10 @@ import { Loader2 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../store/authStore";
 
-export default function Login() {
+export default function Login({ defaultMode = "signin" }: { defaultMode?: "signin" | "signup" }) {
   const { t } = useTranslation();
   const { session } = useAuthStore();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<"signin" | "signup">(defaultMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -46,7 +46,7 @@ export default function Login() {
       <div
         className="w-full max-w-sm rounded-2xl p-8"
         style={{
-          background: "linear-gradient(180deg,rgba(20,32,60,0.70),rgba(9,14,30,0.80))",
+          background: "var(--sidebar-bg)",
           backdropFilter: "blur(20px) saturate(140%)",
           border: "1px solid rgba(125,165,255,0.12)",
         }}
@@ -79,7 +79,7 @@ export default function Login() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder={t("login.emailPlaceholder")}
               className="w-full rounded-lg px-3.5 py-2.5 text-sm text-text placeholder:text-text-faint outline-none transition-all"
-              style={{ background: "rgba(27,39,66,0.7)", border: "1px solid rgba(125,165,255,0.15)" }}
+              style={{ background: "rgb(var(--elevated-rgb) / 0.70)", border: "1px solid var(--glass-border)" }}
               onFocus={(e) => (e.currentTarget.style.borderColor = "var(--brand-border-active)")}
               onBlur={(e)  => (e.currentTarget.style.borderColor = "rgba(125,165,255,0.15)")}
             />
@@ -96,7 +96,7 @@ export default function Login() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               className="w-full rounded-lg px-3.5 py-2.5 text-sm text-text placeholder:text-text-faint outline-none transition-all"
-              style={{ background: "rgba(27,39,66,0.7)", border: "1px solid rgba(125,165,255,0.15)" }}
+              style={{ background: "rgb(var(--elevated-rgb) / 0.70)", border: "1px solid var(--glass-border)" }}
               onFocus={(e) => (e.currentTarget.style.borderColor = "var(--brand-border-active)")}
               onBlur={(e)  => (e.currentTarget.style.borderColor = "rgba(125,165,255,0.15)")}
             />

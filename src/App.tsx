@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import AuthListener from "./components/AuthListener";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AppLayout from "./layouts/AppLayout";
+import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Capture from "./pages/Capture";
@@ -16,7 +17,12 @@ export default function App() {
     <>
       <AuthListener />
       <Routes>
+        {/* Public */}
+        <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/registro" element={<Login defaultMode="signup" />} />
+
+        {/* Protected app */}
         <Route
           element={
             <ProtectedRoute>
@@ -24,7 +30,6 @@ export default function App() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/captura" element={<Capture />} />
           <Route path="/ingresos" element={<Income />} />
@@ -33,6 +38,9 @@ export default function App() {
           <Route path="/asistente" element={<Assistant />} />
           <Route path="/preferencias" element={<Preferences />} />
         </Route>
+
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
   );
