@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { TrendingUp, ChefHat } from "lucide-react";
+import { ChefHat } from "lucide-react";
 import { useProfile } from "../hooks/useProfile";
 
 export default function OnboardingModal({ userId }: { userId: string }) {
@@ -33,15 +33,10 @@ export default function OnboardingModal({ userId }: { userId: string }) {
       >
         {/* Logo */}
         <div className="flex items-center gap-2.5 mb-8">
-          <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{ background: "linear-gradient(150deg,var(--brand),var(--brand-deep))" }}
-          >
-            <TrendingUp size={17} className="text-white" />
-          </div>
+          <img src="/icon-192.png" alt="Logo" className="w-9 h-9 rounded-xl object-contain flex-shrink-0" />
           <div>
-            <div className="font-display font-bold text-sm text-text leading-tight">CashFlow AI</div>
-            <div className="text-text-faint text-[10px] leading-tight">RestaurantOS</div>
+            <div className="font-display font-bold text-sm text-text leading-tight">Smarter Restaurant</div>
+            <div className="text-text-faint text-[10px] leading-tight">Management</div>
           </div>
         </div>
 

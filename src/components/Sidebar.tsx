@@ -101,8 +101,7 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
           <img
             src="/icon-192.png"
             alt="Logo"
-            className="w-8 h-8 rounded-lg flex-shrink-0"
-            style={{ filter: "drop-shadow(0 2px 8px rgb(var(--brand-rgb) / 0.25))" }}
+            className="w-10 h-10 rounded-xl object-contain flex-shrink-0"
           />
           <div>
             <div className="font-display font-semibold text-sm text-text leading-tight">Smarter Restaurant</div>

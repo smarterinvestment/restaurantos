@@ -56,8 +56,7 @@ export default function Login() {
           <img
             src="/logo-full-512.png"
             alt="Smarter Restaurant Management"
-            className="h-16 w-auto"
-            style={{ filter: "drop-shadow(0 4px 16px rgb(var(--brand-rgb) / 0.30))" }}
+            className="h-14 w-auto max-w-[220px] object-contain"
           />
         </div>
 
