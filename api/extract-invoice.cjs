@@ -1,32 +1,20 @@
 /**
- * api/extract-invoice.ts — Vercel Serverless Function (CommonJS)
+ * api/extract-invoice.cjs — Vercel Serverless Function (CommonJS)
  *
+ * .cjs fuerza CommonJS aunque package.json tenga "type": "module".
  * Extrae datos de una factura (imagen) usando CLAUDE VISION.
- * NO usar OpenAI/Tesseract/Google Vision. Modelo: claude-sonnet-4-6.
  *
- * Entrada (POST JSON): { imageBase64: string, mediaType: "image/jpeg" | "image/png" | "image/webp" }
- * Salida: JSON estructurado de la factura. NO persiste nada:
- *   el frontend debe mostrar pantalla de CONFIRMACIÓN HUMANA antes de guardar en Supabase.
- *
- * Requiere env del servidor: ANTHROPIC_API_KEY
- * Runtime: Node 18+ (fetch nativo disponible sin node-fetch)
+ * POST { imageBase64: string, mediaType: "image/jpeg"|"image/png"|"image/webp" }
+ * Devuelve JSON estructurado. NO persiste — el frontend confirma antes de guardar.
+ * Requiere env: ANTHROPIC_API_KEY
  */
-
-type VercelRequest = {
-  method?: string;
-  body?: any;
-};
-type VercelResponse = {
-  status: (code: number) => VercelResponse;
-  json: (body: any) => void;
-};
 
 const EXTRACTION_SCHEMA = `{
   "supplier_name": string,
   "invoice_number": string | null,
-  "issue_date": string | null,        // ISO YYYY-MM-DD
-  "due_date": string | null,          // ISO YYYY-MM-DD
-  "currency": string,                  // p.ej. "USD"
+  "issue_date": string | null,
+  "due_date": string | null,
+  "currency": string,
   "subtotal": number | null,
   "tax": number | null,
   "total_amount": number,
@@ -36,14 +24,14 @@ const EXTRACTION_SCHEMA = `{
 }`;
 
 const SYSTEM_PROMPT =
-  `Eres un extractor de datos de facturas de restaurantes. ` +
-  `Devuelve EXCLUSIVAMENTE un objeto JSON válido que cumpla este esquema, sin texto extra, ` +
-  `sin explicaciones y sin bloques de código markdown:\n` +
+  "Eres un extractor de datos de facturas de restaurantes. " +
+  "Devuelve EXCLUSIVAMENTE un objeto JSON válido que cumpla este esquema, sin texto extra, " +
+  "sin explicaciones y sin bloques de código markdown:\n" +
   EXTRACTION_SCHEMA +
-  `\nSi un campo no aparece en la factura, usa null. Las cantidades son números (sin símbolo de moneda). ` +
-  `Las fechas en formato ISO YYYY-MM-DD.`;
+  "\nSi un campo no aparece en la factura, usa null. Las cantidades son números (sin símbolo de moneda). " +
+  "Las fechas en formato ISO YYYY-MM-DD.";
 
-module.exports = async function handler(req: VercelRequest, res: VercelResponse) {
+module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -53,10 +41,7 @@ module.exports = async function handler(req: VercelRequest, res: VercelResponse)
     return res.status(500).json({ error: "Falta ANTHROPIC_API_KEY en el servidor" });
   }
 
-  const { imageBase64, mediaType } = (req.body || {}) as {
-    imageBase64?: string;
-    mediaType?: string;
-  };
+  const { imageBase64, mediaType } = req.body || {};
 
   if (!imageBase64 || !mediaType) {
     return res.status(400).json({ error: "Faltan imageBase64 y/o mediaType" });
@@ -110,18 +95,17 @@ module.exports = async function handler(req: VercelRequest, res: VercelResponse)
     const data = await anthropicRes.json();
     console.log("[extract-invoice] Respuesta OK — stop_reason:", data.stop_reason, "| usage:", JSON.stringify(data.usage));
 
-    const text: string = (data.content || [])
-      .filter((b: any) => b.type === "text")
-      .map((b: any) => b.text)
+    const text = (data.content || [])
+      .filter((b) => b.type === "text")
+      .map((b) => b.text)
       .join("");
 
-    // Parseo robusto: quita fences por si acaso y aísla el primer objeto JSON.
     const cleaned = text.replace(/```json|```/g, "").trim();
     const start = cleaned.indexOf("{");
     const end = cleaned.lastIndexOf("}");
     const jsonStr = start >= 0 && end >= 0 ? cleaned.slice(start, end + 1) : cleaned;
 
-    let parsed: any;
+    let parsed;
     try {
       parsed = JSON.parse(jsonStr);
     } catch {
@@ -132,9 +116,9 @@ module.exports = async function handler(req: VercelRequest, res: VercelResponse)
       });
     }
 
-    // OJO: esto NO se guarda. El frontend debe confirmarlo con el usuario primero.
+    // NO se guarda. El frontend debe confirmarlo con el usuario primero.
     return res.status(200).json({ ok: true, invoice: parsed });
-  } catch (err: any) {
+  } catch (err) {
     console.error("[extract-invoice] Fallo inesperado:", err);
     return res.status(500).json({ error: "Fallo inesperado", detail: String(err?.message || err) });
   }
