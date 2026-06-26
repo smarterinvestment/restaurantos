@@ -76,8 +76,11 @@ export default function SelectPlan() {
         }),
       });
       console.log('Response status:', res.status, 'ok:', res.ok);
-      console.log('Leyendo JSON...');
-      const data = await res.json();
+      console.log('Leyendo respuesta...');
+      const text = await res.text();
+      console.log('Raw response:', text);
+      if (!text) throw new Error('Respuesta vacía del servidor');
+      const data = JSON.parse(text);
       console.log('Data recibida:', data);
       if (!res.ok) throw new Error(data.error ?? "Error al crear sesión de pago");
       window.location.href = data.url;
