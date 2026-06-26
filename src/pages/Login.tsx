@@ -29,9 +29,15 @@ export default function Login({ defaultMode = "signin" }: { defaultMode?: "signi
       const { error: err } = await supabase.auth.signInWithPassword({ email, password });
       if (err) setError(err.message);
     } else {
-      const { error: err } = await supabase.auth.signUp({ email, password });
-      if (err) setError(err.message);
-      else {
+      const { data: signUpData, error: err } = await supabase.auth.signUp({ email, password });
+      if (err) {
+        setError(err.message);
+      } else {
+        // signUp con confirmación de email activa devuelve session:null.
+        // Hacemos signIn inmediatamente para garantizar sesión antes de navegar.
+        if (!signUpData.session) {
+          await supabase.auth.signInWithPassword({ email, password });
+        }
         const plan = params.get("plan");
         navigate("/select-plan" + (plan ? `?plan=${plan}` : ""));
       }

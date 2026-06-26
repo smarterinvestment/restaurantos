@@ -57,13 +57,14 @@ export default function SelectPlan() {
       setLoading(true);
       console.log('Iniciando pago con priceId:', priceId);
 
-      const { data: { user } } = await supabase.auth.getUser();
-      console.log('Usuario:', user?.id, user?.email);
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log('Sesión:', session?.user?.id, session?.user?.email);
 
-      if (!user) {
-        alert('No hay sesión activa');
+      if (!session?.user) {
+        alert('Sesión no lista, espera un momento y reintenta.');
         return;
       }
+      const user = session.user;
 
       const response = await fetch('/api/stripe-checkout', {
         method: 'POST',
