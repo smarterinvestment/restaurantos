@@ -134,10 +134,11 @@ export default function Income() {
   const accountQ = useCashAccount(userId);
 
   const invalidate = () => {
-    qc.invalidateQueries({ queryKey: ["cash-kpis",       userId] });
+    qc.invalidateQueries({ queryKey: ["cash-kpis",        userId] });
     qc.invalidateQueries({ queryKey: ["income-movements", userId] });
-    qc.invalidateQueries({ queryKey: ["cash-account",    userId] });
-    qc.invalidateQueries({ queryKey: ["cash-position",   userId] });
+    qc.invalidateQueries({ queryKey: ["cash-account",     userId] });
+    qc.invalidateQueries({ queryKey: ["cash-position",    userId] });
+    qc.invalidateQueries({ queryKey: ["dashboard-data",   userId] });
   };
 
   const kpis     = kpisQ.data;

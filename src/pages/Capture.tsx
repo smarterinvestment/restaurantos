@@ -223,7 +223,8 @@ export default function Capture() {
 
       // 5. Refresh dashboard data and navigate
       qc.invalidateQueries({ queryKey: ["upcoming-invoices", userId] });
-      qc.invalidateQueries({ queryKey: ["cash-position", userId] });
+      qc.invalidateQueries({ queryKey: ["cash-position",    userId] });
+      qc.invalidateQueries({ queryKey: ["dashboard-data",   userId] });
       navigate("/dashboard");
     } catch (err: any) {
       setStage({ name: "error", message: err.message ?? "Error al guardar." });

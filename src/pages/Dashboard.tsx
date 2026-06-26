@@ -1,310 +1,477 @@
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, Clock } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, AreaChart, Area,
+} from "recharts";
+import { ScanLine, AlertCircle, TrendingDown } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../store/authStore";
 
-// ── helpers ──────────────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-function fmt(amount: number, currency = "USD") {
-  return new Intl.NumberFormat("es-US", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(amount);
+function fmt(n: number, cur = "USD") {
+  return new Intl.NumberFormat("es-US", { style: "currency", currency: cur, maximumFractionDigits: 0 }).format(n);
 }
 
-function daysUntil(dateStr: string): number {
-  const due = new Date(dateStr + "T00:00:00");
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  return Math.round((due.getTime() - now.getTime()) / 86_400_000);
+function greeting(): string {
+  const h = new Date().getHours();
+  if (h >= 5 && h < 12) return "Buenos días";
+  if (h >= 12 && h < 19) return "Buenas tardes";
+  return "Buenas noches";
 }
 
-// ── queries ──────────────────────────────────────────────────────────────────
-
-function useCashPosition(userId: string) {
-  return useQuery({
-    queryKey: ["cash-position", userId],
-    queryFn: async () => {
-      const [{ data: accounts }, { data: movements }] = await Promise.all([
-        supabase
-          .from("cash_accounts")
-          .select("starting_balance")
-          .eq("user_id", userId),
-        supabase
-          .from("cash_movements")
-          .select("type, amount")
-          .eq("user_id", userId),
-      ]);
-
-      const base = (accounts ?? []).reduce(
-        (s, a) => s + Number(a.starting_balance),
-        0
-      );
-      const net = (movements ?? []).reduce(
-        (s, m) => s + (m.type === "income" ? Number(m.amount) : -Number(m.amount)),
-        0
-      );
-      return base + net;
-    },
+function todayLabel(): string {
+  return new Date().toLocaleDateString("es-US", {
+    weekday: "long", year: "numeric", month: "long", day: "numeric",
   });
 }
 
-type Invoice = {
-  id: string;
-  invoice_number: string | null;
-  due_date: string;
-  total_amount: number;
-  currency: string;
-  suppliers: { name: string }[] | null;
+const MONTHS = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+
+const GLASS = {
+  background: "linear-gradient(180deg,rgba(20,32,60,0.55),rgba(9,14,30,0.55))",
+  backdropFilter: "blur(20px) saturate(140%)",
+  border: "1px solid rgba(125,165,255,0.12)",
+} as const;
+
+const TOOLTIP_STYLE = {
+  contentStyle: {
+    background: "#0c1426",
+    border: "1px solid rgba(125,165,255,0.20)",
+    borderRadius: 10,
+    color: "#e8edf2",
+    fontSize: 12,
+  },
+  cursor: { fill: "rgba(61,139,255,0.06)" },
 };
 
-function useUpcomingInvoices(userId: string) {
+// ── Master query ──────────────────────────────────────────────────────────────
+
+function useDashboardData(userId: string) {
   return useQuery({
-    queryKey: ["upcoming-invoices", userId],
+    queryKey: ["dashboard-data", userId],
     queryFn: async () => {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const in30 = new Date(today.getTime() + 30 * 86_400_000);
-      const toISO = (d: Date) => d.toISOString().split("T")[0];
+      const now   = new Date();
+      const today = now.toISOString().split("T")[0];
+      const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
+      const in30  = new Date(now.getTime() + 30 * 86_400_000).toISOString().split("T")[0];
 
-      const { data } = await supabase
-        .from("invoices")
-        .select("id, invoice_number, due_date, total_amount, currency, suppliers(name)")
-        .eq("user_id", userId)
-        .eq("status", "pending")
-        .lte("due_date", toISO(in30))
-        .order("due_date");
+      const sixAgo = new Date(now);
+      sixAgo.setMonth(sixAgo.getMonth() - 6);
+      sixAgo.setDate(1);
+      const sixAgoStr = sixAgo.toISOString().split("T")[0];
 
-      return (data ?? []) as Invoice[];
+      const [
+        { data: accounts },
+        { data: movements },
+        { data: invoices },
+      ] = await Promise.all([
+        supabase.from("cash_accounts").select("starting_balance,currency").eq("user_id", userId),
+        supabase.from("cash_movements").select("type,amount,occurred_at,category").eq("user_id", userId),
+        supabase.from("invoices")
+          .select("id,total_amount,due_date,status")
+          .eq("user_id", userId)
+          .not("status", "eq", "paid")
+          .not("status", "eq", "void"),
+      ]);
+
+      const all  = movements ?? [];
+      const invs = invoices ?? [];
+
+      // ── Balance ──
+      const base = (accounts ?? []).reduce((s, a) => s + Number(a.starting_balance), 0);
+      const net  = all.reduce((s, m) => s + (m.type === "income" ? Number(m.amount) : -Number(m.amount)), 0);
+      const balance  = base + net;
+      const currency = (accounts ?? [])[0]?.currency ?? "USD";
+
+      // ── KPIs ──
+      const monthMov     = all.filter(m => m.occurred_at >= firstOfMonth && m.occurred_at <= today);
+      const monthExpense = monthMov.filter(m => m.type === "expense").reduce((s, m) => s + Number(m.amount), 0);
+
+      const pending = invs;
+      const overdue = invs.filter(i => i.due_date && i.due_date < today);
+      const totalPending = pending.reduce((s, i) => s + Number(i.total_amount), 0);
+      const totalOverdue = overdue.reduce((s, i) => s + Number(i.total_amount), 0);
+
+      // ── 6-month chart ──
+      const monthMap: Record<string, { income: number; expense: number }> = {};
+      for (const m of all.filter(mv => mv.occurred_at >= sixAgoStr)) {
+        const key = m.occurred_at.slice(0, 7);
+        if (!monthMap[key]) monthMap[key] = { income: 0, expense: 0 };
+        monthMap[key][m.type === "income" ? "income" : "expense"] += Number(m.amount);
+      }
+      const sixMonthChart = Array.from({ length: 6 }, (_, i) => {
+        const d = new Date(now);
+        d.setMonth(d.getMonth() - (5 - i));
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+        return { month: MONTHS[d.getMonth()], income: monthMap[key]?.income ?? 0, expense: monthMap[key]?.expense ?? 0 };
+      });
+
+      // ── Category chart (current month expenses) ──
+      const catMap: Record<string, number> = {};
+      for (const m of monthMov.filter(m => m.type === "expense")) {
+        const cat = m.category || "Sin categoría";
+        catMap[cat] = (catMap[cat] ?? 0) + Number(m.amount);
+      }
+      const categoryData = Object.entries(catMap)
+        .map(([name, amount]) => ({ name, amount }))
+        .sort((a, b) => b.amount - a.amount)
+        .slice(0, 6);
+      const maxCat = Math.max(...categoryData.map(c => c.amount), 1);
+
+      // ── 30-day projection ──
+      const dueMap: Record<string, number> = {};
+      for (const inv of invs) {
+        if (inv.due_date && inv.due_date >= today && inv.due_date <= in30) {
+          dueMap[inv.due_date] = (dueMap[inv.due_date] ?? 0) + Number(inv.total_amount);
+        }
+      }
+
+      let runBal = balance;
+      const projLine: { label: string; balance: number }[] = [];
+      for (let i = 0; i <= 30; i++) {
+        const d = new Date(now); d.setDate(d.getDate() + i);
+        const ds = d.toISOString().split("T")[0];
+        if (i > 0) runBal -= (dueMap[ds] ?? 0);
+        if (i === 0 || i === 7 || i === 14 || i === 21 || i === 30 || dueMap[ds]) {
+          projLine.push({
+            label: i === 0 ? "Hoy" : `+${i}d`,
+            balance: Math.round(runBal * 100) / 100,
+          });
+        }
+      }
+
+      // Milestone balances
+      let b7 = balance, b15 = balance, b30 = balance;
+      for (const [ds, amt] of Object.entries(dueMap)) {
+        const diff = Math.round((new Date(ds + "T00:00:00").getTime() - new Date(today + "T00:00:00").getTime()) / 86_400_000);
+        if (diff <= 7)  b7  -= amt;
+        if (diff <= 15) b15 -= amt;
+        if (diff <= 30) b30 -= amt;
+      }
+
+      return {
+        balance, currency,
+        monthExpense,
+        pendingCount: pending.length, totalPending,
+        overdueCount: overdue.length, totalOverdue,
+        sixMonthChart, categoryData, maxCat,
+        projLine, b7, b15, b30,
+        hasMovements: all.length > 0,
+        hasInvoices:  invs.length > 0,
+      };
     },
   });
 }
 
-// ── component ─────────────────────────────────────────────────────────────────
+// ── Main ──────────────────────────────────────────────────────────────────────
 
 export default function Dashboard() {
-  const userId = useAuthStore((s) => s.session!.user.id);
-  const cash = useCashPosition(userId);
-  const upcoming = useUpcomingInvoices(userId);
+  const navigate  = useNavigate();
+  const session   = useAuthStore((s) => s.session!);
+  const userId    = session.user.id;
+  const userName  = (session.user.user_metadata?.full_name as string | undefined)
+    ?? (session.user.user_metadata?.name as string | undefined)
+    ?? session.user.email?.split("@")[0]
+    ?? "Chef";
 
-  const totalPayable = (upcoming.data ?? []).reduce(
-    (s, inv) => s + Number(inv.total_amount),
-    0
-  );
+  const { data, isLoading, error } = useDashboardData(userId);
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="font-display font-semibold text-2xl text-text">Dashboard</h1>
-        <p className="text-text-muted text-sm mt-1">
-          Posición de caja y cuentas por pagar
-        </p>
+    <div className="space-y-6">
+      {/* ── Greeting row ── */}
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="font-display font-semibold text-2xl text-text">
+            {greeting()}, {userName}
+          </h1>
+          <p className="text-text-muted text-sm mt-1 capitalize">{todayLabel()}</p>
+        </div>
+        <button
+          onClick={() => navigate("/captura")}
+          className="flex items-center gap-2 h-9 px-4 rounded-lg font-semibold text-sm text-white flex-shrink-0"
+          style={{ background: "linear-gradient(150deg,#3d8bff,#1f5fe0)", boxShadow: "0 4px 16px rgba(61,139,255,0.35)" }}
+        >
+          <ScanLine size={15} /> Escanear factura
+        </button>
       </div>
 
-      {/* KPI row */}
-      <div className="grid grid-cols-2 gap-4 mb-8">
+      {/* ── 4 KPI cards ── */}
+      <div className="grid grid-cols-4 gap-4">
         <KpiCard
-          label="Posición de caja"
-          loading={cash.isLoading}
-          error={!!cash.error}
-          value={cash.data !== undefined ? fmt(cash.data) : null}
-          hint={
-            cash.data !== undefined
-              ? cash.data >= 0
-                ? "Saldo disponible"
-                : "Saldo negativo — revisar"
-              : undefined
-          }
-          accent={cash.data !== undefined && cash.data < 0 ? "danger" : "brand"}
+          label="Dinero disponible"
+          loading={isLoading}
+          error={!!error}
+          value={data ? fmt(data.balance, data.currency) : null}
+          hint={data ? (data.balance < 0 ? "Saldo negativo" : "Saldo en caja") : undefined}
+          accent={data && data.balance < 0 ? "danger" : "brand"}
+          empty={data && !data.hasMovements}
+          emptyHint="Sin movimientos"
         />
         <KpiCard
-          label="Por pagar (próx. 30 días)"
-          loading={upcoming.isLoading}
-          error={!!upcoming.error}
-          value={upcoming.data !== undefined ? fmt(totalPayable) : null}
-          hint={
-            upcoming.data !== undefined
-              ? upcoming.data.length === 0
-                ? "Sin facturas próximas"
-                : `${upcoming.data.length} factura${upcoming.data.length > 1 ? "s" : ""} pendiente${upcoming.data.length > 1 ? "s" : ""}`
-              : undefined
-          }
+          label="Facturas pendientes"
+          loading={isLoading}
+          error={!!error}
+          value={data && data.pendingCount > 0 ? fmt(data.totalPending) : null}
+          hint={data ? (data.pendingCount > 0 ? `${data.pendingCount} factura${data.pendingCount !== 1 ? "s" : ""}` : "Al día") : undefined}
+          accent="brand"
+          empty={data && data.pendingCount === 0}
+          emptyHint="Sin facturas pendientes"
+        />
+        <KpiCard
+          label="Facturas vencidas"
+          loading={isLoading}
+          error={!!error}
+          value={data && data.overdueCount > 0 ? fmt(data.totalOverdue) : null}
+          hint={data ? (data.overdueCount > 0 ? `${data.overdueCount} vencida${data.overdueCount !== 1 ? "s" : ""}` : "Sin vencidas") : undefined}
+          accent={data && data.overdueCount > 0 ? "danger" : "brand"}
+          empty={data && data.overdueCount === 0}
+          emptyHint="Sin facturas vencidas"
+        />
+        <KpiCard
+          label="Gastos del mes"
+          loading={isLoading}
+          error={!!error}
+          value={data && data.monthExpense > 0 ? fmt(data.monthExpense) : null}
+          hint={data ? (data.monthExpense > 0 ? "Este mes" : "Sin gastos registrados") : undefined}
           accent="danger"
+          empty={data && data.monthExpense === 0}
+          emptyHint="Sin gastos este mes"
         />
       </div>
 
-      {/* Upcoming invoices */}
-      <div
-        className="rounded-2xl p-6"
-        style={{
-          background:
-            "linear-gradient(180deg,rgba(20,32,60,0.55),rgba(9,14,30,0.55))",
-          backdropFilter: "blur(20px) saturate(140%)",
-          border: "1px solid rgba(125,165,255,0.12)",
-        }}
-      >
-        <h2 className="font-display font-semibold text-base text-text mb-4">
-          Próximos vencimientos
-        </h2>
-
-        {upcoming.isLoading && (
-          <div className="flex justify-center py-8">
-            <div className="w-5 h-5 rounded-full border-2 border-brand border-t-transparent animate-spin" />
+      {/* ── Charts row ── */}
+      <div className="grid gap-4" style={{ gridTemplateColumns: "1.4fr 1fr" }}>
+        {/* Income vs Expenses */}
+        <div className="rounded-2xl p-6" style={GLASS}>
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="font-display font-semibold text-sm text-text">Ingresos vs Gastos</h2>
+            <div className="flex items-center gap-4">
+              <Legend color="#3d8bff" label="Ingresos" />
+              <Legend color="#ff4d6d" label="Gastos" />
+            </div>
           </div>
-        )}
 
-        {upcoming.error && (
-          <div className="flex items-center gap-2 text-danger text-sm py-4">
-            <AlertCircle size={16} />
-            Error al cargar facturas
-          </div>
-        )}
-
-        {upcoming.data && upcoming.data.length === 0 && (
-          <div className="flex flex-col items-center py-8 text-text-faint text-sm">
-            <span className="mb-1">Sin facturas próximas</span>
-            <span className="text-xs">
-              Usa{" "}
-              <strong className="text-text-dim">Captura</strong> para registrar
-              una factura
-            </span>
-          </div>
-        )}
-
-        {upcoming.data && upcoming.data.length > 0 && (
-          <div className="space-y-2">
-            {upcoming.data.map((inv) => {
-              const days = daysUntil(inv.due_date);
-              const isOverdue = days < 0;
-              const isUrgent = days >= 0 && days <= 3;
-              return (
-                <InvoiceRow
-                  key={inv.id}
-                  supplierName={inv.suppliers?.[0]?.name ?? "Proveedor"}
-                  invoiceNumber={inv.invoice_number}
-                  amount={fmt(inv.total_amount, inv.currency)}
-                  days={days}
-                  isOverdue={isOverdue}
-                  isUrgent={isUrgent}
-                />
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ── sub-components ────────────────────────────────────────────────────────────
-
-function KpiCard({
-  label,
-  loading,
-  error,
-  value,
-  hint,
-  accent,
-}: {
-  label: string;
-  loading: boolean;
-  error: boolean;
-  value: string | null;
-  hint?: string;
-  accent: "brand" | "danger";
-}) {
-  const color = accent === "brand" ? "#3d8bff" : "#ff4d6d";
-  return (
-    <div
-      className="rounded-2xl p-6"
-      style={{
-        background:
-          "linear-gradient(180deg,rgba(20,32,60,0.55),rgba(9,14,30,0.55))",
-        backdropFilter: "blur(20px) saturate(140%)",
-        border: "1px solid rgba(125,165,255,0.12)",
-      }}
-    >
-      <div className="text-text-faint text-[10px] uppercase tracking-widest font-medium mb-3">
-        {label}
-      </div>
-      {loading && (
-        <div className="w-5 h-5 rounded-full border-2 border-brand border-t-transparent animate-spin mb-2" />
-      )}
-      {error && (
-        <div className="text-danger text-sm font-medium mb-2">Error al cargar</div>
-      )}
-      {!loading && !error && (
-        <div
-          className="font-display font-bold text-3xl leading-none mb-2"
-          style={{ color }}
-        >
-          {value ?? "—"}
+          {data && !data.hasMovements ? (
+            <EmptyChart label="Sin movimientos en los últimos 6 meses" />
+          ) : (
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={data?.sixMonthChart ?? []} barGap={3} barCategoryGap="30%">
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(125,165,255,0.07)" vertical={false} />
+                <XAxis dataKey="month" tick={{ fill: "#5f6b7a", fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis tickFormatter={(v: number) => v >= 1000 ? `$${(v/1000).toFixed(0)}k` : `$${v}`}
+                  tick={{ fill: "#5f6b7a", fontSize: 11 }} axisLine={false} tickLine={false} width={42} />
+                <Tooltip {...TOOLTIP_STYLE} formatter={(v: number) => [fmt(v)]} />
+                <Bar dataKey="income" name="Ingresos" fill="#3d8bff" radius={[4, 4, 0, 0]} maxBarSize={28} />
+                <Bar dataKey="expense" name="Gastos"   fill="#ff4d6d" radius={[4, 4, 0, 0]} maxBarSize={28} />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </div>
-      )}
-      {hint && <div className="text-text-dim text-xs">{hint}</div>}
-    </div>
-  );
-}
 
-function InvoiceRow({
-  supplierName,
-  invoiceNumber,
-  amount,
-  days,
-  isOverdue,
-  isUrgent,
-}: {
-  supplierName: string;
-  invoiceNumber: string | null;
-  amount: string;
-  days: number;
-  isOverdue: boolean;
-  isUrgent: boolean;
-}) {
-  const badgeColor = isOverdue
-    ? "rgba(255,77,109,0.15)"
-    : isUrgent
-    ? "rgba(255,184,77,0.12)"
-    : "rgba(125,165,255,0.08)";
-  const badgeText = isOverdue
-    ? "#ff4d6d"
-    : isUrgent
-    ? "#ffb84d"
-    : "#9fb0c0";
-  const daysLabel = isOverdue
-    ? `Vencida hace ${Math.abs(days)} d`
-    : days === 0
-    ? "Vence hoy"
-    : `${days} d`;
-
-  return (
-    <div
-      className="flex items-center justify-between rounded-xl px-4 py-3 transition-colors"
-      style={{ background: "rgba(27,39,66,0.40)" }}
-    >
-      <div className="flex items-center gap-3 min-w-0">
-        <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-          style={{ background: badgeColor }}
-        >
-          <Clock size={14} style={{ color: badgeText }} />
-        </div>
-        <div className="min-w-0">
-          <div className="text-text text-sm font-medium truncate">{supplierName}</div>
-          {invoiceNumber && (
-            <div className="text-text-faint text-xs truncate">#{invoiceNumber}</div>
+        {/* Expenses by category */}
+        <div className="rounded-2xl p-6" style={GLASS}>
+          <h2 className="font-display font-semibold text-sm text-text mb-5">Gastos por categoría · mes</h2>
+          {!isLoading && data?.categoryData.length === 0 ? (
+            <EmptyChart label="Sin gastos registrados este mes" />
+          ) : (
+            <div className="space-y-3">
+              {(data?.categoryData ?? Array(4).fill(null)).map((cat, i) => (
+                <div key={i}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-text-dim text-xs truncate max-w-[55%]">
+                      {cat?.name ?? <span className="inline-block w-20 h-3 rounded bg-elevated animate-pulse" />}
+                    </span>
+                    <span className="text-text text-xs font-semibold">
+                      {cat ? fmt(cat.amount) : <span className="inline-block w-12 h-3 rounded bg-elevated animate-pulse" />}
+                    </span>
+                  </div>
+                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(27,39,66,0.80)" }}>
+                    <div
+                      className="h-full rounded-full transition-all duration-700"
+                      style={{
+                        width: cat ? `${(cat.amount / (data?.maxCat ?? 1)) * 100}%` : "0%",
+                        background: `linear-gradient(90deg,#3d8bff,#00d4ff)`,
+                        boxShadow: "0 0 8px rgba(61,139,255,0.5)",
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       </div>
-      <div className="flex items-center gap-4 flex-shrink-0 ml-4">
-        <span className="font-display font-semibold text-sm text-text">{amount}</span>
-        <span
-          className="text-xs font-medium rounded-md px-2 py-0.5"
-          style={{ background: badgeColor, color: badgeText }}
-        >
-          {daysLabel}
-        </span>
+
+      {/* ── Projected cash flow ── */}
+      <div className="rounded-2xl p-6" style={GLASS}>
+        <div className="flex items-start justify-between mb-5">
+          <div>
+            <h2 className="font-display font-semibold text-sm text-text">Flujo de caja proyectado</h2>
+            <p className="text-text-dim text-xs mt-0.5">Próximos 30 días — descuenta facturas pendientes por fecha de vencimiento</p>
+          </div>
+          {data && data.b30 < 0 && (
+            <div className="flex items-center gap-1.5 text-danger text-xs font-medium flex-shrink-0"
+              style={{ background: "rgba(255,77,109,0.10)", border: "1px solid rgba(255,77,109,0.20)", borderRadius: 8, padding: "4px 10px" }}>
+              <AlertCircle size={12} /> Saldo negativo proyectado
+            </div>
+          )}
+        </div>
+
+        {/* Milestone cards */}
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          {([
+            { label: "En 7 días",  val: data?.b7  },
+            { label: "En 15 días", val: data?.b15 },
+            { label: "En 30 días", val: data?.b30 },
+          ] as const).map(({ label, val }) => (
+            <div key={label} className="rounded-xl p-4 text-center"
+              style={{ background: "rgba(27,39,66,0.50)", border: "1px solid rgba(125,165,255,0.08)" }}>
+              <div className="text-text-faint text-[10px] uppercase tracking-wider font-medium mb-1">{label}</div>
+              {isLoading ? (
+                <div className="h-6 w-20 mx-auto rounded bg-elevated animate-pulse" />
+              ) : (
+                <div className="font-display font-bold text-lg leading-none"
+                  style={{ color: (val ?? 0) < 0 ? "#ff4d6d" : "#3d8bff" }}>
+                  {val !== undefined ? fmt(val, data?.currency) : "—"}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Area chart */}
+        {data && !data.hasInvoices ? (
+          <EmptyChart label="Sin facturas pendientes para proyectar" height={140} />
+        ) : (
+          <ResponsiveContainer width="100%" height={160}>
+            <AreaChart data={data?.projLine ?? []}>
+              <defs>
+                <linearGradient id="projGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%"  stopColor="#3d8bff" stopOpacity={0.22} />
+                  <stop offset="95%" stopColor="#3d8bff" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(125,165,255,0.07)" vertical={false} />
+              <XAxis dataKey="label" tick={{ fill: "#5f6b7a", fontSize: 10 }} axisLine={false} tickLine={false} />
+              <YAxis tickFormatter={(v: number) => v >= 1000 ? `$${(v/1000).toFixed(0)}k` : `$${v}`}
+                tick={{ fill: "#5f6b7a", fontSize: 10 }} axisLine={false} tickLine={false} width={42} />
+              <Tooltip {...TOOLTIP_STYLE} formatter={(v: number) => [fmt(v), "Saldo proyectado"]} />
+              <Area type="monotone" dataKey="balance" name="Saldo proyectado"
+                stroke="#3d8bff" strokeWidth={2} fill="url(#projGrad)" dot={{ fill: "#3d8bff", r: 3, strokeWidth: 0 }} />
+            </AreaChart>
+          </ResponsiveContainer>
+        )}
+      </div>
+
+      {/* ── Upcoming invoices quick list ── */}
+      {data && data.pendingCount > 0 && (
+        <UpcomingInvoices userId={userId} />
+      )}
+    </div>
+  );
+}
+
+// ── Sub-components ────────────────────────────────────────────────────────────
+
+function KpiCard({ label, loading, error, value, hint, accent, empty, emptyHint }: {
+  label: string; loading: boolean; error: boolean;
+  value: string | null; hint?: string;
+  accent: "brand" | "danger";
+  empty?: boolean; emptyHint?: string;
+}) {
+  const color = accent === "brand" ? "#3d8bff" : "#ff4d6d";
+  return (
+    <div className="rounded-2xl p-5" style={GLASS}>
+      <div className="text-text-faint text-[10px] uppercase tracking-widest font-medium mb-3">{label}</div>
+      {loading && <div className="w-5 h-5 rounded-full border-2 border-brand border-t-transparent animate-spin mb-2" />}
+      {error   && <div className="text-danger text-sm font-medium mb-2">Error</div>}
+      {!loading && !error && (
+        empty
+          ? <div className="font-display font-bold text-2xl leading-none mb-1.5 text-text-faint">—</div>
+          : <div className="font-display font-bold text-2xl leading-none mb-1.5" style={{ color }}>{value ?? "—"}</div>
+      )}
+      <div className="text-text-dim text-xs">{empty ? emptyHint : hint}</div>
+    </div>
+  );
+}
+
+function Legend({ color, label }: { color: string; label: string }) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <div className="w-2.5 h-2.5 rounded-sm" style={{ background: color }} />
+      <span className="text-text-dim text-xs">{label}</span>
+    </div>
+  );
+}
+
+function EmptyChart({ label, height = 200 }: { label: string; height?: number }) {
+  return (
+    <div className="flex flex-col items-center justify-center text-text-faint text-xs gap-2 rounded-xl"
+      style={{ height, background: "rgba(27,39,66,0.25)" }}>
+      <TrendingDown size={20} className="opacity-30" />
+      {label}
+    </div>
+  );
+}
+
+function UpcomingInvoices({ userId }: { userId: string }) {
+  const { data, isLoading } = useQuery({
+    queryKey: ["upcoming-invoices", userId],
+    queryFn: async () => {
+      const today = new Date().toISOString().split("T")[0];
+      const in30  = new Date(Date.now() + 30 * 86_400_000).toISOString().split("T")[0];
+      const { data } = await supabase
+        .from("invoices")
+        .select("id,invoice_number,due_date,total_amount,currency,suppliers(name)")
+        .eq("user_id", userId)
+        .not("status", "eq", "paid")
+        .not("status", "eq", "void")
+        .lte("due_date", in30)
+        .order("due_date")
+        .limit(5);
+      return data ?? [];
+    },
+  });
+
+  if (isLoading || !data?.length) return null;
+
+  return (
+    <div className="rounded-2xl p-6" style={GLASS}>
+      <h2 className="font-display font-semibold text-sm text-text mb-4">Próximos vencimientos</h2>
+      <div className="space-y-2">
+        {data.map((inv: any) => {
+          const days = inv.due_date
+            ? Math.round((new Date(inv.due_date + "T00:00:00").getTime() - new Date().setHours(0,0,0,0)) / 86_400_000)
+            : null;
+          const name = !inv.suppliers ? "Proveedor"
+            : Array.isArray(inv.suppliers) ? inv.suppliers[0]?.name ?? "Proveedor"
+            : inv.suppliers.name;
+          const isOverdue = days !== null && days < 0;
+          const isUrgent  = days !== null && days >= 0 && days <= 3;
+          const badgeColor = isOverdue ? "#ff4d6d" : isUrgent ? "#ffb84d" : "#9fb0c0";
+          const badgeBg    = isOverdue ? "rgba(255,77,109,0.12)" : isUrgent ? "rgba(255,184,77,0.10)" : "rgba(125,165,255,0.08)";
+
+          return (
+            <div key={inv.id} className="flex items-center justify-between rounded-xl px-4 py-3"
+              style={{ background: "rgba(27,39,66,0.40)" }}>
+              <div className="min-w-0">
+                <div className="text-text text-sm font-medium truncate">{name}</div>
+                {inv.invoice_number && <div className="text-text-faint text-xs">#{inv.invoice_number}</div>}
+              </div>
+              <div className="flex items-center gap-4 flex-shrink-0 ml-4">
+                <span className="font-display font-semibold text-sm text-text">
+                  {fmt(inv.total_amount, inv.currency)}
+                </span>
+                <span className="text-xs font-medium rounded-md px-2 py-0.5"
+                  style={{ background: badgeBg, color: badgeColor }}>
+                  {days === null ? "—" : days < 0 ? `Hace ${Math.abs(days)}d` : days === 0 ? "Hoy" : `${days}d`}
+                </span>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
