@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { Plus, AlertCircle, FileText } from "lucide-react";
+import { Plus, AlertCircle, FileText, Pencil, Trash2, X, Check } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../store/authStore";
 
@@ -49,11 +49,11 @@ function supplierName(inv: Invoice): string {
 }
 
 function initials(name: string) {
-  return name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
+  return name.split(" ").filter(Boolean).map(w => w[0]).join("").toUpperCase().slice(0, 2);
 }
 
-const AVATAR_COLORS = ["#3d8bff", "#00d4ff", "#a855f7", "#ffb84d", "#ff4d6d"];
-function avatarColor(name: string) { return AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length]; }
+const PALETTE = ["#3d8bff", "#00d4ff", "#a855f7", "#ffb84d", "#ff4d6d"];
+function avatarColor(name: string) { return PALETTE[name.charCodeAt(0) % PALETTE.length]; }
 
 const STATUS_CFG: Record<DisplayStatus, { label: string; bg: string; color: string }> = {
   pending:    { label: "Pendiente",  bg: "rgba(61,139,255,0.12)",  color: "#3d8bff" },
@@ -64,11 +64,11 @@ const STATUS_CFG: Record<DisplayStatus, { label: string; bg: string; color: stri
 };
 
 const FILTERS: { key: FilterKey; label: string }[] = [
-  { key: "todas",     label: "Todas" },
-  { key: "pending",   label: "Pendientes" },
+  { key: "todas",      label: "Todas" },
+  { key: "pending",    label: "Pendientes" },
   { key: "programada", label: "Programadas" },
-  { key: "vencida",   label: "Vencidas" },
-  { key: "paid",      label: "Pagadas" },
+  { key: "vencida",    label: "Vencidas" },
+  { key: "paid",       label: "Pagadas" },
 ];
 
 const GLASS = {
@@ -76,6 +76,15 @@ const GLASS = {
   backdropFilter: "blur(20px) saturate(140%)",
   border: "1px solid rgba(125,165,255,0.12)",
 } as const;
+
+const fieldCls = [
+  "h-10 rounded-lg px-3 text-sm text-text w-full",
+  "bg-[rgba(27,39,66,0.65)]",
+  "border border-[rgba(125,165,255,0.14)] focus:border-[rgba(61,139,255,0.45)]",
+  "outline-none transition-colors placeholder:text-text-faint",
+].join(" ");
+
+const labelCls = "block text-text-dim text-xs font-medium mb-1.5";
 
 // ── Query ─────────────────────────────────────────────────────────────────────
 
@@ -98,18 +107,29 @@ function useInvoices(userId: string) {
 export default function Invoices() {
   const userId   = useAuthStore((s) => s.session!.user.id);
   const navigate = useNavigate();
+  const qc       = useQueryClient();
   const q        = useInvoices(userId);
-  const [filter, setFilter] = useState<FilterKey>("todas");
+
+  const [filter,    setFilter]    = useState<FilterKey>("todas");
+  const [editInv,   setEditInv]   = useState<Invoice | null>(null);
+  const [deleteInv, setDeleteInv] = useState<Invoice | null>(null);
+
+  const invalidateAll = () => {
+    qc.invalidateQueries({ queryKey: ["invoices",          userId] });
+    qc.invalidateQueries({ queryKey: ["upcoming-invoices", userId] });
+    qc.invalidateQueries({ queryKey: ["cash-position",     userId] });
+    qc.invalidateQueries({ queryKey: ["dashboard-data",    userId] });
+  };
 
   const enriched = (q.data ?? []).map(inv => ({ ...inv, displayStatus: getDisplayStatus(inv) }));
 
   const counts: Record<FilterKey, number> = {
-    todas:     enriched.length,
-    pending:   enriched.filter(i => i.displayStatus === "pending").length,
+    todas:      enriched.length,
+    pending:    enriched.filter(i => i.displayStatus === "pending").length,
     programada: enriched.filter(i => i.displayStatus === "programada").length,
-    vencida:   enriched.filter(i => i.displayStatus === "vencida").length,
-    paid:      enriched.filter(i => i.displayStatus === "paid").length,
-    void:      0,
+    vencida:    enriched.filter(i => i.displayStatus === "vencida").length,
+    paid:       enriched.filter(i => i.displayStatus === "paid").length,
+    void:       0,
   };
 
   const filtered = filter === "todas" ? enriched : enriched.filter(i => i.displayStatus === filter);
@@ -120,6 +140,25 @@ export default function Invoices() {
 
   return (
     <div>
+      {/* Edit modal */}
+      {editInv && (
+        <EditInvoiceModal
+          invoice={editInv}
+          onSaved={() => { invalidateAll(); setEditInv(null); }}
+          onCancel={() => setEditInv(null)}
+        />
+      )}
+
+      {/* Delete confirm modal */}
+      {deleteInv && (
+        <DeleteInvoiceModal
+          invoice={deleteInv}
+          userId={userId}
+          onDeleted={() => { invalidateAll(); setDeleteInv(null); }}
+          onCancel={() => setDeleteInv(null)}
+        />
+      )}
+
       {/* Header */}
       <div className="flex items-start justify-between mb-8">
         <div>
@@ -132,7 +171,7 @@ export default function Invoices() {
         </div>
         <button
           onClick={() => navigate("/captura")}
-          className="flex items-center gap-2 h-9 px-4 rounded-lg font-semibold text-sm text-white transition-all flex-shrink-0"
+          className="flex items-center gap-2 h-9 px-4 rounded-lg font-semibold text-sm text-white flex-shrink-0"
           style={{ background: "linear-gradient(150deg,#3d8bff,#1f5fe0)", boxShadow: "0 4px 16px rgba(61,139,255,0.35)" }}
         >
           <Plus size={15} /> Nueva factura
@@ -170,13 +209,11 @@ export default function Invoices() {
             <div className="w-5 h-5 rounded-full border-2 border-brand border-t-transparent animate-spin" />
           </div>
         )}
-
         {q.error && (
           <div className="flex items-center gap-2 text-danger text-sm p-8">
             <AlertCircle size={16} /> Error al cargar facturas
           </div>
         )}
-
         {!q.isLoading && !q.error && filtered.length === 0 && (
           <div className="flex flex-col items-center py-16 text-text-faint text-sm">
             <FileText size={32} className="mb-3 opacity-30" />
@@ -194,8 +231,8 @@ export default function Invoices() {
           <table className="w-full">
             <thead>
               <tr style={{ borderBottom: "1px solid rgba(125,165,255,0.08)" }}>
-                {["Proveedor", "N.º factura", "Vencimiento", "Monto", "Estado"].map(col => (
-                  <th key={col} className="text-left text-[10px] uppercase tracking-widest font-medium text-text-faint px-5 py-3.5">
+                {["Proveedor", "N.º factura", "Vencimiento", "Monto", "Estado", ""].map((col, i) => (
+                  <th key={i} className="text-left text-[10px] uppercase tracking-widest font-medium text-text-faint px-5 py-3.5">
                     {col}
                   </th>
                 ))}
@@ -226,7 +263,7 @@ export default function Invoices() {
                         <span className="text-text text-sm font-medium">{name}</span>
                       </div>
                     </td>
-                    {/* N.º factura */}
+                    {/* N.º */}
                     <td className="px-5 py-3.5">
                       <span className="text-text-muted text-sm">
                         {inv.invoice_number ? `#${inv.invoice_number}` : "—"}
@@ -261,12 +298,194 @@ export default function Invoices() {
                         {cfg.label}
                       </span>
                     </td>
+                    {/* Acciones */}
+                    <td className="px-4 py-3.5">
+                      <div className="flex items-center gap-1.5 justify-end">
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); setEditInv(inv); }}
+                          aria-label="Editar factura"
+                          className="w-7 h-7 rounded-lg flex items-center justify-center text-text-dim hover:text-brand transition-colors"
+                          style={{ background: "rgba(61,139,255,0.07)" }}
+                        >
+                          <Pencil size={12} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); setDeleteInv(inv); }}
+                          aria-label="Eliminar factura"
+                          className="w-7 h-7 rounded-lg flex items-center justify-center text-text-dim hover:text-danger transition-colors"
+                          style={{ background: "rgba(255,77,109,0.07)" }}
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
         )}
+      </div>
+    </div>
+  );
+}
+
+// ── Edit Invoice Modal ────────────────────────────────────────────────────────
+
+function EditInvoiceModal({ invoice, onSaved, onCancel }: {
+  invoice: Invoice; onSaved: () => void; onCancel: () => void;
+}) {
+  const [total,    setTotal]    = useState(String(invoice.total_amount));
+  const [currency, setCurrency] = useState(invoice.currency);
+  const [dueDate,  setDueDate]  = useState(invoice.due_date ?? "");
+  const [status,   setStatus]   = useState(invoice.status === "vencida" ? "pending" : invoice.status);
+  const [err,      setErr]      = useState("");
+
+  const mut = useMutation({
+    mutationFn: async () => {
+      const num = parseFloat(total);
+      if (isNaN(num) || num <= 0) throw new Error("Monto inválido");
+      const { error } = await supabase
+        .from("invoices")
+        .update({
+          total_amount: num,
+          currency:     currency.trim() || "USD",
+          due_date:     dueDate || null,
+          status,
+        })
+        .eq("id", invoice.id);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: onSaved,
+    onError: (e: any) => setErr(e.message ?? "Error al guardar"),
+  });
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: "rgba(7,12,26,0.82)", backdropFilter: "blur(6px)" }}
+      onClick={(e) => e.target === e.currentTarget && onCancel()}>
+      <div className="rounded-2xl p-6 w-full max-w-sm" style={{
+        background: "linear-gradient(180deg,rgba(20,32,60,0.95),rgba(9,14,30,0.95))",
+        backdropFilter: "blur(20px) saturate(140%)",
+        border: "1px solid rgba(125,165,255,0.16)",
+      }}>
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="font-display font-semibold text-base text-text">Editar factura</h2>
+          <button onClick={onCancel} className="text-text-dim hover:text-text transition-colors"><X size={18} /></button>
+        </div>
+
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelCls}>Total *</label>
+              <input type="number" step="0.01" min="0" value={total}
+                onChange={(e) => setTotal(e.target.value)} className={fieldCls} autoFocus />
+            </div>
+            <div>
+              <label className={labelCls}>Moneda</label>
+              <input type="text" value={currency} onChange={(e) => setCurrency(e.target.value)}
+                placeholder="USD" className={fieldCls} />
+            </div>
+          </div>
+
+          <div>
+            <label className={labelCls}>Fecha de vencimiento</label>
+            <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)}
+              className={`${fieldCls} [color-scheme:dark]`} />
+          </div>
+
+          <div>
+            <label className={labelCls}>Estado</label>
+            <select value={status} onChange={(e) => setStatus(e.target.value)}
+              className={`${fieldCls} cursor-pointer`}
+              style={{ WebkitAppearance: "none" }}>
+              <option value="pending">Pendiente</option>
+              <option value="programada">Programada</option>
+              <option value="paid">Pagada</option>
+            </select>
+          </div>
+
+          {err && <div className="flex items-center gap-2 text-danger text-xs"><AlertCircle size={13} />{err}</div>}
+
+          <div className="flex gap-2 pt-1">
+            <button type="button" onClick={() => mut.mutate()} disabled={mut.isPending}
+              className="flex-1 h-10 rounded-lg font-display font-semibold text-sm text-white flex items-center justify-center gap-2 disabled:opacity-50"
+              style={{ background: "linear-gradient(150deg,#3d8bff,#1f5fe0)", boxShadow: "0 4px 16px rgba(61,139,255,0.35)" }}>
+              <Check size={14} /> {mut.isPending ? "Guardando…" : "Guardar cambios"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Delete Invoice Modal ──────────────────────────────────────────────────────
+
+function DeleteInvoiceModal({ invoice, userId, onDeleted, onCancel }: {
+  invoice: Invoice; userId: string; onDeleted: () => void; onCancel: () => void;
+}) {
+  const name = supplierName(invoice);
+  const [err, setErr] = useState("");
+
+  const mut = useMutation({
+    mutationFn: async () => {
+      // 1. Delete associated cash movement (invoice_id link)
+      const { error: movErr } = await supabase
+        .from("cash_movements")
+        .delete()
+        .eq("invoice_id", invoice.id)
+        .eq("user_id", userId);
+      if (movErr) throw new Error(`Movimiento: ${movErr.message}`);
+
+      // 2. Delete invoice (invoice_items cascade automatically)
+      const { error: invErr } = await supabase
+        .from("invoices")
+        .delete()
+        .eq("id", invoice.id);
+      if (invErr) throw new Error(`Factura: ${invErr.message}`);
+    },
+    onSuccess: onDeleted,
+    onError: (e: any) => setErr(e.message ?? "Error al eliminar"),
+  });
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: "rgba(7,12,26,0.82)", backdropFilter: "blur(6px)" }}
+      onClick={(e) => e.target === e.currentTarget && onCancel()}>
+      <div className="rounded-2xl p-6 w-full max-w-sm" style={{
+        background: "linear-gradient(180deg,rgba(20,32,60,0.95),rgba(9,14,30,0.95))",
+        backdropFilter: "blur(20px) saturate(140%)",
+        border: "1px solid rgba(255,77,109,0.20)",
+      }}>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-display font-semibold text-base text-text">Eliminar factura</h2>
+          <button onClick={onCancel} className="text-text-dim hover:text-text transition-colors"><X size={18} /></button>
+        </div>
+
+        <p className="text-text-muted text-sm mb-1">
+          ¿Eliminar la factura de <strong className="text-text">{name}</strong>?
+        </p>
+        <p className="text-text-dim text-xs mb-5">
+          Se eliminará también el movimiento de caja asociado. Esta acción no se puede deshacer.
+        </p>
+
+        {err && <div className="flex items-center gap-2 text-danger text-xs mb-3"><AlertCircle size={13} />{err}</div>}
+
+        <div className="flex gap-2">
+          <button type="button" onClick={() => mut.mutate()} disabled={mut.isPending}
+            className="flex-1 h-10 rounded-lg font-semibold text-sm text-white disabled:opacity-50 flex items-center justify-center"
+            style={{ background: "linear-gradient(150deg,#ff4d6d,#cc2244)" }}>
+            {mut.isPending ? "Eliminando…" : "Sí, eliminar"}
+          </button>
+          <button type="button" onClick={onCancel}
+            className="flex-1 h-10 rounded-lg text-sm font-medium text-text-muted transition-colors"
+            style={{ background: "rgba(125,165,255,0.07)", border: "1px solid rgba(125,165,255,0.12)" }}>
+            Cancelar
+          </button>
+        </div>
       </div>
     </div>
   );
