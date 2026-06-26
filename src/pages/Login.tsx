@@ -54,9 +54,9 @@ export default function Login() {
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <img
-            src="/logo-full-512.png"
+            src="/logo-original.png"
             alt="Smarter Restaurant Management"
-            className="h-24 w-auto max-w-[260px] object-contain"
+            className="h-40 w-auto object-contain"
           />
         </div>
 
