@@ -1,0 +1,376 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "capture": "Capture",
+    "income": "Income / Cash",
+    "invoices": "Invoices",
+    "suppliers": "Suppliers",
+    "assistant": "AI Assistant",
+    "preferences": "Settings"
+  },
+  "sidebar": {
+    "health": "Financial health",
+    "noData": "No data yet",
+    "logout": "Sign out"
+  },
+  "health": {
+    "healthy": "Healthy",
+    "warning": "Caution",
+    "risk": "At risk",
+    "liqBalance": "Negative balance",
+    "liqExcellent": "Excellent liquidity",
+    "liqVeryGood": "Very good liquidity",
+    "liqGood": "Good liquidity",
+    "liqTight": "Tight liquidity",
+    "liqCritical": "Critical liquidity",
+    "overdueMinor_one": "{{count}} minor overdue invoice",
+    "overdueMinor_other": "{{count}} minor overdue invoices",
+    "overdueModerate_one": "{{count}} overdue invoice",
+    "overdueModerate_other": "{{count}} overdue invoices",
+    "overdueSevere": "Serious overdue invoices",
+    "trendControlled": "Spending controlled",
+    "trendElevated": "Elevated spending"
+  },
+  "dashboard": {
+    "greeting": {
+      "morning": "Good morning",
+      "afternoon": "Good afternoon",
+      "evening": "Good evening"
+    },
+    "scanInvoice": "Scan invoice",
+    "kpi": {
+      "balance": "Available cash",
+      "pending": "Pending invoices",
+      "overdue": "Overdue invoices",
+      "expenses": "Monthly expenses"
+    },
+    "hint": {
+      "negativeBalance": "Negative balance",
+      "cashBalance": "Cash balance",
+      "upToDate": "Up to date",
+      "noOverdue": "No overdue",
+      "thisMonth": "This month",
+      "noExpenses": "No expenses recorded",
+      "noMovements": "No movements",
+      "invoiceCount_one": "{{count}} invoice",
+      "invoiceCount_other": "{{count}} invoices",
+      "overdueCount_one": "{{count}} overdue",
+      "overdueCount_other": "{{count}} overdue"
+    },
+    "charts": {
+      "incomeVsExpenses": "Income vs Expenses",
+      "income": "Income",
+      "expenses": "Expenses",
+      "expensesByCategory": "Expenses by category · month",
+      "noMovements6m": "No movements in the last 6 months",
+      "noExpensesMonth": "No expenses recorded this month",
+      "noCategory": "No category"
+    },
+    "cashflow": {
+      "title": "Projected cash flow",
+      "subtitle": "Next 30 days — deducts pending invoices by due date",
+      "negativeAlert": "Projected negative balance",
+      "in7days": "In 7 days",
+      "in15days": "In 15 days",
+      "in30days": "In 30 days",
+      "noInvoicesToProject": "No pending invoices to project",
+      "projectedBalance": "Projected balance",
+      "today": "Today"
+    },
+    "alerts": {
+      "title": "Smart alerts",
+      "new_one": "{{count}} new",
+      "new_other": "{{count}} new",
+      "allClear": "All clear",
+      "noAlerts": "No active alerts at this time"
+    },
+    "upcoming": {
+      "title": "Upcoming due dates",
+      "supplier": "Supplier",
+      "today": "Today",
+      "overdueN": "{{count}}d ago",
+      "inN": "{{count}}d"
+    }
+  },
+  "capture": {
+    "title": "Invoice capture",
+    "subtitle": "Upload an image and review the extracted data before saving.",
+    "dropzone": {
+      "drag": "Drag an invoice here",
+      "drop": "Drop to process",
+      "format": "JPG, PNG or WEBP · Max. 10 MB",
+      "click": "or click to select",
+      "ariaLabel": "Upload invoice"
+    },
+    "processing": {
+      "uploading": "Uploading image to Supabase Storage…",
+      "extracting": "Extracting data with Claude Vision…",
+      "imageProcessed": "Image processed",
+      "saving": "Saving invoice…"
+    },
+    "form": {
+      "title": "Confirm extracted data",
+      "subtitle": "Review and correct any field before saving.",
+      "supplier": "Supplier",
+      "invoiceNumber": "Invoice number",
+      "currency": "Currency",
+      "issueDate": "Issue date",
+      "dueDate": "Due date",
+      "subtotal": "Subtotal",
+      "tax": "Tax",
+      "total": "Total",
+      "lineItems": "Invoice line items",
+      "addLine": "Add line",
+      "noLines": "No lines detected",
+      "descPlaceholder": "Description",
+      "qtyPlaceholder": "Qty.",
+      "pricePlaceholder": "Price",
+      "totalPlaceholder": "Total",
+      "confirm": "Confirm and save",
+      "discard": "Discard"
+    },
+    "error": {
+      "title": "Something went wrong",
+      "retry": "Try again",
+      "onlyImages": "Only JPG, PNG or WEBP images are accepted.",
+      "tooLarge": "Image exceeds the 10 MB limit."
+    }
+  },
+  "income": {
+    "title": "Income / Cash",
+    "subtitle": "Record income and check your cash position.",
+    "kpi": {
+      "balance": "Current balance",
+      "today": "Today's income",
+      "month": "Monthly income"
+    },
+    "hint": {
+      "negative": "Negative position — review",
+      "available": "Available position",
+      "movement_one": "{{count}} movement",
+      "movement_other": "{{count}} movements"
+    },
+    "form": {
+      "title": "Record income",
+      "origin": "Source",
+      "method": "Payment method",
+      "amount": "Amount",
+      "date": "Date",
+      "description": "Description (optional)",
+      "descPlaceholder": "Additional notes…",
+      "submit": "Record income",
+      "saving": "Saving…"
+    },
+    "categories": {
+      "cierre": "Cash register close",
+      "terminal": "Card terminal",
+      "pedidos": "Delivery orders",
+      "propinas": "Tips",
+      "eventos": "Events / reservations"
+    },
+    "methods": {
+      "cash": "Cash",
+      "card": "Card",
+      "transfer": "Transfer"
+    },
+    "errors": {
+      "invalidAmount": "Enter a valid amount greater than 0",
+      "selectCategory": "Select the income source",
+      "selectMethod": "Select the payment method"
+    },
+    "list": {
+      "title": "Recent income",
+      "empty": "No income recorded",
+      "emptyHint": "Use the form to add the first one",
+      "defaultCategory": "Income"
+    },
+    "balance": {
+      "label": "Starting balance",
+      "notSet": "Not configured",
+      "edit": "Edit",
+      "configure": "Configure",
+      "invalidAmount": "Invalid amount"
+    }
+  },
+  "invoices": {
+    "title": "Invoices",
+    "summary_one": "{{count}} invoice · {{amount}} payable",
+    "summary_other": "{{count}} invoices · {{amount}} payable",
+    "newInvoice": "New invoice",
+    "editTitle": "Edit invoice",
+    "deleteTitle": "Delete invoice",
+    "deleteConfirm": "Delete invoice from {{name}}?",
+    "deleteWarning": "The associated cash movement will also be deleted. This action cannot be undone.",
+    "saveChanges": "Save changes",
+    "filters": {
+      "all": "All",
+      "pending": "Pending",
+      "scheduled": "Scheduled",
+      "overdue": "Overdue",
+      "paid": "Paid"
+    },
+    "status": {
+      "pending": "Pending",
+      "scheduled": "Scheduled",
+      "overdue": "Overdue",
+      "paid": "Paid",
+      "void": "Voided"
+    },
+    "table": {
+      "supplier": "Supplier",
+      "number": "Invoice #",
+      "dueDate": "Due date",
+      "amount": "Amount",
+      "status": "Status"
+    },
+    "empty": {
+      "all": "No invoices recorded",
+      "category": "No invoices in this category",
+      "cta": "Capture your first invoice →"
+    },
+    "daysAgo_one": "Overdue {{count}} day ago",
+    "daysAgo_other": "Overdue {{count}} days ago",
+    "dueToday": "Due today",
+    "inDays_one": "In {{count}} day",
+    "inDays_other": "In {{count}} days",
+    "invalidAmount": "Invalid amount",
+    "error": "Error loading invoices",
+    "eliminating": "Deleting…",
+    "yes_delete": "Yes, delete",
+    "cancel": "Cancel"
+  },
+  "suppliers": {
+    "title": "Suppliers",
+    "count_one": "{{count}} supplier",
+    "count_other": "{{count}} suppliers",
+    "newSupplier": "New supplier",
+    "empty": "No suppliers recorded",
+    "emptyCta": "Add the first one →",
+    "error": "Error loading suppliers",
+    "card": {
+      "credit": "Net {{days}} days",
+      "cash": "Cash on delivery",
+      "noContact": "No contact info",
+      "yearPurchases": "Year purchases",
+      "payable": "Payable"
+    },
+    "modal": {
+      "createTitle": "New supplier",
+      "editTitle": "Edit supplier",
+      "name": "Name",
+      "namePlaceholder": "Supplier name",
+      "nameRequired": "Name is required",
+      "email": "Email",
+      "emailPlaceholder": "email@supplier.com",
+      "phone": "Phone",
+      "phonePlaceholder": "+1 555 000 0000",
+      "creditDays": "Credit days",
+      "category": "Category",
+      "categoryPlaceholder": "Meats, Dairy…",
+      "save": "Save",
+      "saving": "Saving…",
+      "create": "Create supplier",
+      "saveChanges": "Save changes",
+      "cancel": "Cancel",
+      "delete": "Delete"
+    }
+  },
+  "assistant": {
+    "title": "AI Financial Assistant",
+    "subtitle": "Your virtual CFO. Ask anything about your finances.",
+    "emptyTitle": "Real-time financial analysis",
+    "emptyText": "I use your actual cash, invoice, and movement data to give you precise answers.",
+    "analyzing": "Analyzing your finances…",
+    "placeholder": "Type your financial question…",
+    "sessionExpired": "Session expired, please reload the page",
+    "suggestions": {
+      "priority": "Which invoices should I prioritize paying?",
+      "reduce": "How can I reduce expenses this month?",
+      "projection": "60-day cash projection"
+    }
+  },
+  "preferences": {
+    "title": "Settings",
+    "subtitle": "Configure how and when you receive financial alerts.",
+    "loading": "Loading settings…",
+    "profile": {
+      "title": "Profile",
+      "fullName": "Your full name",
+      "restaurantName": "Restaurant name"
+    },
+    "notifications": {
+      "title": "Notification channels",
+      "inApp": "In-app notifications",
+      "inAppDesc": "Bell in the top bar with real-time alerts",
+      "email": "Email notifications",
+      "emailDesc": "Daily summary sent to {{email}}",
+      "push": "Push notifications",
+      "pushDesc": "Receive alerts in the browser even when you're away",
+      "pushActive": "Active",
+      "pushBlocked": "Blocked in browser",
+      "pushActivating": "Activating…",
+      "pushActivate": "Enable push"
+    },
+    "timing": {
+      "title": "Alert timing",
+      "label": "How many days in advance to alert",
+      "hint_one": "An alert will show when an invoice is due in the next {{count}} day",
+      "hint_other": "An alert will show when an invoice is due in the next {{count}} days"
+    },
+    "theme": {
+      "title": "Color theme",
+      "blue": "Blue",
+      "pink": "Pink"
+    },
+    "language": {
+      "title": "Language"
+    },
+    "save": "Save settings",
+    "saving": "Saving…",
+    "saved": "Saved"
+  },
+  "login": {
+    "signin": "Sign in",
+    "signup": "Create account",
+    "signinSubtitle": "Access your financial dashboard.",
+    "signupSubtitle": "Start managing your restaurant's cash flow.",
+    "email": "Email address",
+    "emailPlaceholder": "chef@myrestaurant.com",
+    "password": "Password",
+    "submitSignin": "Sign in",
+    "submitSignup": "Create account",
+    "switchToSignup": "Don't have an account?",
+    "switchToSignin": "Already have an account?",
+    "confirmEmail": "Check your email to confirm your account."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAll": "Mark all read",
+    "empty": "No notifications",
+    "emptyHint": "All clear for now",
+    "now": "just now",
+    "minutesAgo": "{{count}}m ago",
+    "hoursAgo": "{{count}}h ago",
+    "daysAgo": "{{count}}d ago"
+  },
+  "onboarding": {
+    "title": "Welcome to RestaurantOS!",
+    "subtitle": "Tell us who you are to personalize your experience.",
+    "fullName": "Your full name",
+    "restaurantName": "Your restaurant name",
+    "fullNamePlaceholder": "e.g. Maria Gonzalez",
+    "restaurantPlaceholder": "e.g. Tacos El Compadre",
+    "submit": "Get started →",
+    "saving": "Saving…",
+    "error": "Error saving. Please try again."
+  },
+  "common": {
+    "error": "Error",
+    "loading": "Loading…",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "months": ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+  }
+}

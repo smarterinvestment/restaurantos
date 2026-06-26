@@ -1,0 +1,376 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "capture": "Captura",
+    "income": "Ingresos / Caja",
+    "invoices": "Facturas",
+    "suppliers": "Proveedores",
+    "assistant": "Asistente IA",
+    "preferences": "Preferencias"
+  },
+  "sidebar": {
+    "health": "Salud financiera",
+    "noData": "Sin datos aún",
+    "logout": "Cerrar sesión"
+  },
+  "health": {
+    "healthy": "Saludable",
+    "warning": "Atención",
+    "risk": "En riesgo",
+    "liqBalance": "Saldo negativo",
+    "liqExcellent": "Liquidez excelente",
+    "liqVeryGood": "Liquidez muy buena",
+    "liqGood": "Liquidez buena",
+    "liqTight": "Liquidez ajustada",
+    "liqCritical": "Liquidez crítica",
+    "overdueMinor_one": "{{count}} factura vencida menor",
+    "overdueMinor_other": "{{count}} facturas vencidas menores",
+    "overdueModerate_one": "{{count}} factura vencida",
+    "overdueModerate_other": "{{count}} facturas vencidas",
+    "overdueSevere": "Facturas vencidas graves",
+    "trendControlled": "Gastos controlados",
+    "trendElevated": "Gastos elevados"
+  },
+  "dashboard": {
+    "greeting": {
+      "morning": "Buenos días",
+      "afternoon": "Buenas tardes",
+      "evening": "Buenas noches"
+    },
+    "scanInvoice": "Escanear factura",
+    "kpi": {
+      "balance": "Dinero disponible",
+      "pending": "Facturas pendientes",
+      "overdue": "Facturas vencidas",
+      "expenses": "Gastos del mes"
+    },
+    "hint": {
+      "negativeBalance": "Saldo negativo",
+      "cashBalance": "Saldo en caja",
+      "upToDate": "Al día",
+      "noOverdue": "Sin vencidas",
+      "thisMonth": "Este mes",
+      "noExpenses": "Sin gastos registrados",
+      "noMovements": "Sin movimientos",
+      "invoiceCount_one": "{{count}} factura",
+      "invoiceCount_other": "{{count}} facturas",
+      "overdueCount_one": "{{count}} vencida",
+      "overdueCount_other": "{{count}} vencidas"
+    },
+    "charts": {
+      "incomeVsExpenses": "Ingresos vs Gastos",
+      "income": "Ingresos",
+      "expenses": "Gastos",
+      "expensesByCategory": "Gastos por categoría · mes",
+      "noMovements6m": "Sin movimientos en los últimos 6 meses",
+      "noExpensesMonth": "Sin gastos registrados este mes",
+      "noCategory": "Sin categoría"
+    },
+    "cashflow": {
+      "title": "Flujo de caja proyectado",
+      "subtitle": "Próximos 30 días — descuenta facturas pendientes por fecha de vencimiento",
+      "negativeAlert": "Saldo negativo proyectado",
+      "in7days": "En 7 días",
+      "in15days": "En 15 días",
+      "in30days": "En 30 días",
+      "noInvoicesToProject": "Sin facturas pendientes para proyectar",
+      "projectedBalance": "Saldo proyectado",
+      "today": "Hoy"
+    },
+    "alerts": {
+      "title": "Alertas inteligentes",
+      "new_one": "{{count}} nueva",
+      "new_other": "{{count}} nuevas",
+      "allClear": "Todo en orden",
+      "noAlerts": "Sin alertas activas en este momento"
+    },
+    "upcoming": {
+      "title": "Próximos vencimientos",
+      "supplier": "Proveedor",
+      "today": "Hoy",
+      "overdueN": "Hace {{count}}d",
+      "inN": "{{count}}d"
+    }
+  },
+  "capture": {
+    "title": "Captura de factura",
+    "subtitle": "Sube una imagen y revisa los datos extraídos antes de guardar.",
+    "dropzone": {
+      "drag": "Arrastra una factura aquí",
+      "drop": "Suelta para procesar",
+      "format": "JPG, PNG o WEBP · Máx. 10 MB",
+      "click": "o haz clic para seleccionar",
+      "ariaLabel": "Subir factura"
+    },
+    "processing": {
+      "uploading": "Subiendo imagen a Supabase Storage…",
+      "extracting": "Extrayendo datos con Claude Vision…",
+      "imageProcessed": "Imagen procesada",
+      "saving": "Guardando factura…"
+    },
+    "form": {
+      "title": "Confirma los datos extraídos",
+      "subtitle": "Revisa y corrige cualquier campo antes de guardar.",
+      "supplier": "Proveedor",
+      "invoiceNumber": "N° de factura",
+      "currency": "Moneda",
+      "issueDate": "Fecha de emisión",
+      "dueDate": "Fecha de vencimiento",
+      "subtotal": "Subtotal",
+      "tax": "Impuestos",
+      "total": "Total",
+      "lineItems": "Líneas de la factura",
+      "addLine": "Agregar línea",
+      "noLines": "Sin líneas detectadas",
+      "descPlaceholder": "Descripción",
+      "qtyPlaceholder": "Cant.",
+      "pricePlaceholder": "P/u",
+      "totalPlaceholder": "Total",
+      "confirm": "Confirmar y guardar",
+      "discard": "Descartar"
+    },
+    "error": {
+      "title": "Algo salió mal",
+      "retry": "Intentar de nuevo",
+      "onlyImages": "Solo se aceptan imágenes JPG, PNG o WEBP.",
+      "tooLarge": "La imagen supera el límite de 10 MB."
+    }
+  },
+  "income": {
+    "title": "Ingresos / Caja",
+    "subtitle": "Registra ingresos y consulta tu posición de caja.",
+    "kpi": {
+      "balance": "Saldo actual",
+      "today": "Ingresos de hoy",
+      "month": "Ingresos del mes"
+    },
+    "hint": {
+      "negative": "Posición negativa — revisar",
+      "available": "Posición disponible",
+      "movement_one": "{{count}} movimiento",
+      "movement_other": "{{count}} movimientos"
+    },
+    "form": {
+      "title": "Registrar ingreso",
+      "origin": "Origen",
+      "method": "Método de cobro",
+      "amount": "Monto",
+      "date": "Fecha",
+      "description": "Descripción (opcional)",
+      "descPlaceholder": "Notas adicionales…",
+      "submit": "Registrar ingreso",
+      "saving": "Guardando…"
+    },
+    "categories": {
+      "cierre": "Cierre de caja",
+      "terminal": "Terminal de tarjeta",
+      "pedidos": "Pedidos a domicilio",
+      "propinas": "Propinas",
+      "eventos": "Eventos / reservas"
+    },
+    "methods": {
+      "cash": "Efectivo",
+      "card": "Tarjeta",
+      "transfer": "Transferencia"
+    },
+    "errors": {
+      "invalidAmount": "Ingresa un monto válido mayor a 0",
+      "selectCategory": "Selecciona el origen del ingreso",
+      "selectMethod": "Selecciona el método de cobro"
+    },
+    "list": {
+      "title": "Ingresos recientes",
+      "empty": "Sin ingresos registrados",
+      "emptyHint": "Usa el formulario para agregar el primero",
+      "defaultCategory": "Ingreso"
+    },
+    "balance": {
+      "label": "Saldo inicial",
+      "notSet": "Sin configurar",
+      "edit": "Editar",
+      "configure": "Configurar",
+      "invalidAmount": "Monto inválido"
+    }
+  },
+  "invoices": {
+    "title": "Facturas",
+    "summary_one": "{{count}} factura · {{amount}} por pagar",
+    "summary_other": "{{count}} facturas · {{amount}} por pagar",
+    "newInvoice": "Nueva factura",
+    "editTitle": "Editar factura",
+    "deleteTitle": "Eliminar factura",
+    "deleteConfirm": "¿Eliminar la factura de {{name}}?",
+    "deleteWarning": "Se eliminará también el movimiento de caja asociado. Esta acción no se puede deshacer.",
+    "saveChanges": "Guardar cambios",
+    "filters": {
+      "all": "Todas",
+      "pending": "Pendientes",
+      "scheduled": "Programadas",
+      "overdue": "Vencidas",
+      "paid": "Pagadas"
+    },
+    "status": {
+      "pending": "Pendiente",
+      "scheduled": "Programada",
+      "overdue": "Vencida",
+      "paid": "Pagada",
+      "void": "Anulada"
+    },
+    "table": {
+      "supplier": "Proveedor",
+      "number": "N.º factura",
+      "dueDate": "Vencimiento",
+      "amount": "Monto",
+      "status": "Estado"
+    },
+    "empty": {
+      "all": "Sin facturas registradas",
+      "category": "Sin facturas en esta categoría",
+      "cta": "Captura tu primera factura →"
+    },
+    "daysAgo_one": "Vencida hace {{count}} día",
+    "daysAgo_other": "Vencida hace {{count}} días",
+    "dueToday": "Vence hoy",
+    "inDays_one": "En {{count}} día",
+    "inDays_other": "En {{count}} días",
+    "invalidAmount": "Monto inválido",
+    "error": "Error al cargar facturas",
+    "eliminating": "Eliminando…",
+    "yes_delete": "Sí, eliminar",
+    "cancel": "Cancelar"
+  },
+  "suppliers": {
+    "title": "Proveedores",
+    "count_one": "{{count}} proveedor",
+    "count_other": "{{count}} proveedores",
+    "newSupplier": "Nuevo proveedor",
+    "empty": "Sin proveedores registrados",
+    "emptyCta": "Agrega el primero →",
+    "error": "Error al cargar proveedores",
+    "card": {
+      "credit": "Crédito {{days}} días",
+      "cash": "Contado",
+      "noContact": "Sin datos de contacto",
+      "yearPurchases": "Compras / año",
+      "payable": "Por pagar"
+    },
+    "modal": {
+      "createTitle": "Nuevo proveedor",
+      "editTitle": "Editar proveedor",
+      "name": "Nombre",
+      "namePlaceholder": "Nombre del proveedor",
+      "nameRequired": "El nombre es obligatorio",
+      "email": "Email",
+      "emailPlaceholder": "correo@proveedor.com",
+      "phone": "Teléfono",
+      "phonePlaceholder": "+1 555 000 0000",
+      "creditDays": "Días de crédito",
+      "category": "Categoría",
+      "categoryPlaceholder": "Carnes, Lácteos…",
+      "save": "Guardar",
+      "saving": "Guardando…",
+      "create": "Crear proveedor",
+      "saveChanges": "Guardar cambios",
+      "cancel": "Cancelar",
+      "delete": "Eliminar"
+    }
+  },
+  "assistant": {
+    "title": "Asistente financiero IA",
+    "subtitle": "Tu CFO virtual. Pregunta lo que necesites sobre tus finanzas.",
+    "emptyTitle": "Análisis financiero en tiempo real",
+    "emptyText": "Consulto tus datos reales de caja, facturas y movimientos para darte respuestas precisas.",
+    "analyzing": "Analizando tus finanzas…",
+    "placeholder": "Escribe tu pregunta financiera…",
+    "sessionExpired": "Sesión expirada, recarga la página",
+    "suggestions": {
+      "priority": "¿Qué facturas debo priorizar pagar?",
+      "reduce": "¿Cómo puedo reducir gastos este mes?",
+      "projection": "Proyección de caja a 60 días"
+    }
+  },
+  "preferences": {
+    "title": "Preferencias",
+    "subtitle": "Configura cómo y cuándo recibes alertas financieras.",
+    "loading": "Cargando preferencias…",
+    "profile": {
+      "title": "Perfil",
+      "fullName": "Tu nombre completo",
+      "restaurantName": "Nombre del restaurante"
+    },
+    "notifications": {
+      "title": "Canales de notificación",
+      "inApp": "Notificaciones en la app",
+      "inAppDesc": "Campana en la barra superior con alertas en tiempo real",
+      "email": "Notificaciones por email",
+      "emailDesc": "Resumen diario enviado a {{email}}",
+      "push": "Notificaciones push",
+      "pushDesc": "Recibe alertas en el navegador aunque no estés en la app",
+      "pushActive": "Activas",
+      "pushBlocked": "Bloqueadas en el navegador",
+      "pushActivating": "Activando…",
+      "pushActivate": "Activar push"
+    },
+    "timing": {
+      "title": "Anticipación de alertas",
+      "label": "Alertar con cuántos días de anticipación",
+      "hint_one": "Se mostrará una alerta cuando una factura venza en los próximos {{count}} día",
+      "hint_other": "Se mostrará una alerta cuando una factura venza en los próximos {{count}} días"
+    },
+    "theme": {
+      "title": "Tema de color",
+      "blue": "Azul",
+      "pink": "Rosado"
+    },
+    "language": {
+      "title": "Idioma"
+    },
+    "save": "Guardar preferencias",
+    "saving": "Guardando…",
+    "saved": "Guardado"
+  },
+  "login": {
+    "signin": "Iniciar sesión",
+    "signup": "Crear cuenta",
+    "signinSubtitle": "Accede a tu panel financiero.",
+    "signupSubtitle": "Empieza a gestionar el cash flow de tu restaurante.",
+    "email": "Correo electrónico",
+    "emailPlaceholder": "chef@mirestaurante.com",
+    "password": "Contraseña",
+    "submitSignin": "Entrar",
+    "submitSignup": "Crear cuenta",
+    "switchToSignup": "¿No tienes cuenta?",
+    "switchToSignin": "¿Ya tienes cuenta?",
+    "confirmEmail": "Revisa tu correo para confirmar tu cuenta."
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "markAll": "Marcar todas",
+    "empty": "Sin notificaciones",
+    "emptyHint": "Todo en orden por ahora",
+    "now": "ahora",
+    "minutesAgo": "hace {{count}}m",
+    "hoursAgo": "hace {{count}}h",
+    "daysAgo": "hace {{count}}d"
+  },
+  "onboarding": {
+    "title": "¡Bienvenido a RestaurantOS!",
+    "subtitle": "Cuéntanos quién eres para personalizar tu experiencia.",
+    "fullName": "Tu nombre completo",
+    "restaurantName": "Nombre de tu restaurante",
+    "fullNamePlaceholder": "Ej: María González",
+    "restaurantPlaceholder": "Ej: Tacos El Compadre",
+    "submit": "Comenzar →",
+    "saving": "Guardando…",
+    "error": "Error al guardar. Intenta de nuevo."
+  },
+  "common": {
+    "error": "Error",
+    "loading": "Cargando…",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "months": ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"]
+  }
+}

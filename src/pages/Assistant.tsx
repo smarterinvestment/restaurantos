@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Send, Bot, Loader2, Sparkles } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
@@ -7,12 +8,6 @@ import { supabase } from "../lib/supabase";
 type Message = { role: "user" | "assistant"; content: string };
 
 // ── Constants ─────────────────────────────────────────────────────────────────
-
-const SUGGESTIONS = [
-  "¿Qué facturas debo priorizar pagar?",
-  "¿Cómo puedo reducir gastos este mes?",
-  "Proyección de caja a 60 días",
-];
 
 const GLASS = {
   background: "linear-gradient(180deg,rgba(20,32,60,0.55),rgba(9,14,30,0.55))",
@@ -23,6 +18,7 @@ const GLASS = {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function Assistant() {
+  const { t } = useTranslation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input,   setInput]   = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,6 +28,12 @@ export default function Assistant() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
+
+  const SUGGESTIONS = [
+    t("assistant.suggestions.priority"),
+    t("assistant.suggestions.reduce"),
+    t("assistant.suggestions.projection"),
+  ];
 
   async function send(text: string) {
     if (!text.trim() || loading) return;
@@ -45,7 +47,7 @@ export default function Assistant() {
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) throw new Error("Sesión expirada, recarga la página");
+      if (!session?.access_token) throw new Error(t("assistant.sessionExpired"));
 
       const res = await fetch("/api/assistant", {
         method: "POST",
@@ -74,10 +76,8 @@ export default function Assistant() {
     <div className="flex flex-col" style={{ height: "calc(100vh - 108px)" }}>
       {/* Header */}
       <div className="mb-6 flex-shrink-0">
-        <h1 className="font-display font-semibold text-2xl text-text">Asistente financiero IA</h1>
-        <p className="text-text-muted text-sm mt-1">
-          Tu CFO virtual. Pregunta lo que necesites sobre tus finanzas.
-        </p>
+        <h1 className="font-display font-semibold text-2xl text-text">{t("assistant.title")}</h1>
+        <p className="text-text-muted text-sm mt-1">{t("assistant.subtitle")}</p>
       </div>
 
       {/* Chat area */}
@@ -95,10 +95,8 @@ export default function Assistant() {
               <Sparkles size={28} style={{ color: "#3d8bff" }} />
             </div>
             <div>
-              <p className="text-text font-medium text-sm mb-1">Análisis financiero en tiempo real</p>
-              <p className="text-text-dim text-xs max-w-xs leading-relaxed">
-                Consulto tus datos reales de caja, facturas y movimientos para darte respuestas precisas.
-              </p>
+              <p className="text-text font-medium text-sm mb-1">{t("assistant.emptyTitle")}</p>
+              <p className="text-text-dim text-xs max-w-xs leading-relaxed">{t("assistant.emptyText")}</p>
             </div>
           </div>
         )}
@@ -121,16 +119,8 @@ export default function Assistant() {
               className="max-w-[78%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap"
               style={
                 m.role === "user"
-                  ? {
-                      background: "linear-gradient(150deg,rgba(61,139,255,0.26),rgba(31,95,224,0.20))",
-                      border: "1px solid rgba(61,139,255,0.28)",
-                      color: "#e8edf2",
-                    }
-                  : {
-                      background: "rgba(27,39,66,0.65)",
-                      border: "1px solid rgba(125,165,255,0.10)",
-                      color: "#e8edf2",
-                    }
+                  ? { background: "linear-gradient(150deg,rgba(61,139,255,0.26),rgba(31,95,224,0.20))", border: "1px solid rgba(61,139,255,0.28)", color: "#e8edf2" }
+                  : { background: "rgba(27,39,66,0.65)", border: "1px solid rgba(125,165,255,0.10)", color: "#e8edf2" }
               }
             >
               {m.content}
@@ -141,26 +131,18 @@ export default function Assistant() {
         {/* Loading bubble */}
         {loading && (
           <div className="flex gap-3">
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{
-                background: "linear-gradient(150deg,rgba(61,139,255,0.20),rgba(0,212,255,0.12))",
-                border: "1px solid rgba(61,139,255,0.22)",
-              }}
-            >
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+              style={{ background: "linear-gradient(150deg,rgba(61,139,255,0.20),rgba(0,212,255,0.12))", border: "1px solid rgba(61,139,255,0.22)" }}>
               <Bot size={15} style={{ color: "#3d8bff" }} />
             </div>
-            <div
-              className="rounded-2xl px-4 py-3 flex items-center gap-2"
-              style={{ background: "rgba(27,39,66,0.65)", border: "1px solid rgba(125,165,255,0.10)" }}
-            >
+            <div className="rounded-2xl px-4 py-3 flex items-center gap-2"
+              style={{ background: "rgba(27,39,66,0.65)", border: "1px solid rgba(125,165,255,0.10)" }}>
               <Loader2 size={14} className="animate-spin" style={{ color: "#3d8bff" }} />
-              <span className="text-text-dim text-xs">Analizando tus finanzas…</span>
+              <span className="text-text-dim text-xs">{t("assistant.analyzing")}</span>
             </div>
           </div>
         )}
 
-        {/* Error */}
         {error && (
           <div className="text-center py-1">
             <span className="text-danger text-xs">{error}</span>
@@ -170,7 +152,7 @@ export default function Assistant() {
         <div ref={bottomRef} />
       </div>
 
-      {/* Suggestion chips — only when no conversation yet */}
+      {/* Suggestion chips */}
       {messages.length === 0 && !loading && (
         <div className="flex gap-2 mb-3 flex-shrink-0 flex-wrap">
           {SUGGESTIONS.map((s) => (
@@ -178,11 +160,7 @@ export default function Assistant() {
               key={s}
               onClick={() => send(s)}
               className="flex-1 min-w-fit h-9 px-4 rounded-lg text-xs font-medium transition-all"
-              style={{
-                background: "rgba(61,139,255,0.09)",
-                border: "1px solid rgba(61,139,255,0.20)",
-                color: "#9cc4ff",
-              }}
+              style={{ background: "rgba(61,139,255,0.09)", border: "1px solid rgba(61,139,255,0.20)", color: "#9cc4ff" }}
             >
               {s}
             </button>
@@ -197,22 +175,16 @@ export default function Assistant() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && send(input)}
-          placeholder="Escribe tu pregunta financiera…"
+          placeholder={t("assistant.placeholder")}
           disabled={loading}
           className="flex-1 h-11 rounded-xl px-4 text-sm text-text outline-none transition-colors disabled:opacity-60"
-          style={{
-            background: "rgba(27,39,66,0.65)",
-            border: "1px solid rgba(125,165,255,0.14)",
-          }}
+          style={{ background: "rgba(27,39,66,0.65)", border: "1px solid rgba(125,165,255,0.14)" }}
         />
         <button
           onClick={() => send(input)}
           disabled={loading || !input.trim()}
           className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-all disabled:opacity-40"
-          style={{
-            background: "linear-gradient(150deg,#3d8bff,#1f5fe0)",
-            boxShadow: "0 4px 16px rgba(61,139,255,0.35)",
-          }}
+          style={{ background: "linear-gradient(150deg,#3d8bff,#1f5fe0)", boxShadow: "0 4px 16px rgba(61,139,255,0.35)" }}
         >
           <Send size={16} color="#ffffff" />
         </button>

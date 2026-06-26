@@ -1,14 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import {
-  Upload,
-  FileImage,
-  CheckCircle,
-  AlertCircle,
-  Plus,
-  Trash2,
-  Loader2,
+  Upload, FileImage, CheckCircle, AlertCircle, Plus, Trash2, Loader2,
 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../store/authStore";
@@ -68,6 +63,7 @@ const MAX_BYTES = 10 * 1024 * 1024;
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export default function Capture() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const qc = useQueryClient();
   const userId = useAuthStore((s) => s.session!.user.id);
@@ -84,11 +80,11 @@ export default function Capture() {
 
   async function processFile(file: File) {
     if (!ACCEPTED.includes(file.type)) {
-      setStage({ name: "error", message: "Solo se aceptan imágenes JPG, PNG o WEBP." });
+      setStage({ name: "error", message: t("capture.error.onlyImages") });
       return;
     }
     if (file.size > MAX_BYTES) {
-      setStage({ name: "error", message: "La imagen supera el límite de 10 MB." });
+      setStage({ name: "error", message: t("capture.error.tooLarge") });
       return;
     }
 
@@ -98,7 +94,6 @@ export default function Capture() {
     setStage({ name: "uploading", preview });
 
     try {
-      // 1. Upload to Supabase Storage bucket "invoices"
       const ext = file.name.split(".").pop() ?? "jpg";
       const storagePath = `${userId}/${Date.now()}.${ext}`;
       const { error: uploadError } = await supabase.storage
@@ -109,7 +104,6 @@ export default function Capture() {
 
       setStage({ name: "extracting", preview, storagePath });
 
-      // 2. Call Claude Vision API via serverless function
       const imageBase64 = await toBase64(file);
       const res = await fetch("/api/extract-invoice", {
         method: "POST",
@@ -124,7 +118,6 @@ export default function Capture() {
 
       const { invoice } = await res.json();
 
-      // 3. Build editable draft and go to confirmation
       const draft: InvoiceDraft = {
         supplier_name: invoice.supplier_name ?? "",
         invoice_number: invoice.invoice_number ?? "",
@@ -151,7 +144,6 @@ export default function Capture() {
   async function handleConfirm(draft: InvoiceDraft, storagePath: string) {
     setStage({ name: "saving" });
     try {
-      // 1. Find or create supplier
       let supplierId: string;
       const { data: existing } = await supabase
         .from("suppliers")
@@ -172,7 +164,6 @@ export default function Capture() {
         supplierId = newSup.id;
       }
 
-      // 2. Create invoice record
       const { data: inv, error: invErr } = await supabase
         .from("invoices")
         .insert({
@@ -192,7 +183,6 @@ export default function Capture() {
         .single();
       if (invErr) throw new Error(`Factura: ${invErr.message}`);
 
-      // 3. Create line items
       const validLines = draft.line_items.filter((li) => li.description.trim());
       if (validLines.length > 0) {
         const { error: liErr } = await supabase.from("invoice_items").insert(
@@ -207,7 +197,6 @@ export default function Capture() {
         if (liErr) throw new Error(`Líneas: ${liErr.message}`);
       }
 
-      // 4. Create cash movement (expense) — triggered by confirmed invoice
       const today = new Date().toISOString().split("T")[0];
       const { error: movErr } = await supabase.from("cash_movements").insert({
         user_id: userId,
@@ -221,7 +210,6 @@ export default function Capture() {
       });
       if (movErr) throw new Error(`Movimiento: ${movErr.message}`);
 
-      // 5. Refresh dashboard data and navigate
       qc.invalidateQueries({ queryKey: ["upcoming-invoices", userId] });
       qc.invalidateQueries({ queryKey: ["cash-position",    userId] });
       qc.invalidateQueries({ queryKey: ["dashboard-data",   userId] });
@@ -247,12 +235,8 @@ export default function Capture() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="font-display font-semibold text-2xl text-text">
-          Captura de factura
-        </h1>
-        <p className="text-text-muted text-sm mt-1">
-          Sube una imagen y revisa los datos extraídos antes de guardar.
-        </p>
+        <h1 className="font-display font-semibold text-2xl text-text">{t("capture.title")}</h1>
+        <p className="text-text-muted text-sm mt-1">{t("capture.subtitle")}</p>
       </div>
 
       {stage.name === "idle" && (
@@ -270,11 +254,7 @@ export default function Capture() {
       {(stage.name === "uploading" || stage.name === "extracting") && (
         <ProcessingCard
           preview={stage.preview}
-          status={
-            stage.name === "uploading"
-              ? "Subiendo imagen a Supabase Storage…"
-              : "Extrayendo datos con Claude Vision…"
-          }
+          statusKey={stage.name === "uploading" ? "capture.processing.uploading" : "capture.processing.extracting"}
         />
       )}
 
@@ -291,7 +271,7 @@ export default function Capture() {
       {stage.name === "saving" && (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
           <Loader2 className="text-brand animate-spin" size={32} />
-          <p className="text-text-muted text-sm">Guardando factura…</p>
+          <p className="text-text-muted text-sm">{t("capture.processing.saving")}</p>
         </div>
       )}
 
@@ -308,13 +288,7 @@ export default function Capture() {
 // ── Dropzone ──────────────────────────────────────────────────────────────────
 
 function Dropzone({
-  dragOver,
-  inputRef,
-  onDrop,
-  onDragOver,
-  onDragLeave,
-  onFileChange,
-  onClick,
+  dragOver, inputRef, onDrop, onDragOver, onDragLeave, onFileChange, onClick,
 }: {
   dragOver: boolean;
   inputRef: React.RefObject<HTMLInputElement>;
@@ -324,11 +298,12 @@ function Dropzone({
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onClick: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div
       role="button"
       tabIndex={0}
-      aria-label="Subir factura"
+      aria-label={t("capture.dropzone.ariaLabel")}
       onClick={onClick}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onClick()}
       onDrop={onDrop}
@@ -355,33 +330,24 @@ function Dropzone({
           transform: dragOver ? "scale(1.08)" : "scale(1)",
         }}
       >
-        {dragOver ? (
-          <FileImage size={28} className="text-brand" />
-        ) : (
-          <Upload size={28} className="text-brand" />
-        )}
+        {dragOver ? <FileImage size={28} className="text-brand" /> : <Upload size={28} className="text-brand" />}
       </div>
 
       <p className="font-display font-semibold text-base text-text mb-1.5">
-        {dragOver ? "Suelta para procesar" : "Arrastra una factura aquí"}
+        {dragOver ? t("capture.dropzone.drop") : t("capture.dropzone.drag")}
       </p>
-      <p className="text-text-faint text-sm">JPG, PNG o WEBP · Máx. 10 MB</p>
-      <p className="text-text-dim text-xs mt-3">o haz clic para seleccionar</p>
+      <p className="text-text-faint text-sm">{t("capture.dropzone.format")}</p>
+      <p className="text-text-dim text-xs mt-3">{t("capture.dropzone.click")}</p>
 
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/jpeg,image/png,image/webp"
-        className="hidden"
-        onChange={onFileChange}
-      />
+      <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={onFileChange} />
     </div>
   );
 }
 
 // ── ProcessingCard ────────────────────────────────────────────────────────────
 
-function ProcessingCard({ preview, status }: { preview: string; status: string }) {
+function ProcessingCard({ preview, statusKey }: { preview: string; statusKey: string }) {
+  const { t } = useTranslation();
   return (
     <div
       className="rounded-2xl p-8 flex flex-col items-center gap-6"
@@ -391,27 +357,15 @@ function ProcessingCard({ preview, status }: { preview: string; status: string }
         border: "1px solid rgba(125,165,255,0.12)",
       }}
     >
-      <img
-        src={preview}
-        alt="Factura en proceso"
-        className="rounded-xl object-contain"
-        style={{ maxHeight: 260, maxWidth: "100%", opacity: 0.7 }}
-      />
+      <img src={preview} alt={t("capture.processing.imageProcessed")} className="rounded-xl object-contain"
+        style={{ maxHeight: 260, maxWidth: "100%", opacity: 0.7 }} />
       <div className="flex items-center gap-2.5 text-text-muted text-sm">
         <Loader2 className="text-brand animate-spin flex-shrink-0" size={17} />
-        {status}
+        {t(statusKey)}
       </div>
-      <div
-        className="h-0.5 rounded-full w-52 overflow-hidden"
-        style={{ background: "rgba(125,165,255,0.12)" }}
-      >
-        <div
-          className="h-full rounded-full animate-pulse"
-          style={{
-            background: "linear-gradient(90deg, #3d8bff, #00d4ff)",
-            width: "55%",
-          }}
-        />
+      <div className="h-0.5 rounded-full w-52 overflow-hidden" style={{ background: "rgba(125,165,255,0.12)" }}>
+        <div className="h-full rounded-full animate-pulse"
+          style={{ background: "linear-gradient(90deg, #3d8bff, #00d4ff)", width: "55%" }} />
       </div>
     </div>
   );
@@ -420,11 +374,7 @@ function ProcessingCard({ preview, status }: { preview: string; status: string }
 // ── ConfirmForm ───────────────────────────────────────────────────────────────
 
 function ConfirmForm({
-  preview,
-  initialDraft,
-  storagePath,
-  onConfirm,
-  onDiscard,
+  preview, initialDraft, storagePath, onConfirm, onDiscard,
 }: {
   preview: string;
   initialDraft: InvoiceDraft;
@@ -432,6 +382,7 @@ function ConfirmForm({
   onConfirm: (draft: InvoiceDraft, storagePath: string) => void;
   onDiscard: () => void;
 }) {
+  const { t } = useTranslation();
   const [draft, setDraft] = useState<InvoiceDraft>(initialDraft);
 
   function set<K extends keyof InvoiceDraft>(key: K, value: InvoiceDraft[K]) {
@@ -448,10 +399,7 @@ function ConfirmForm({
   function addLine() {
     setDraft((d) => ({
       ...d,
-      line_items: [
-        ...d.line_items,
-        { description: "", quantity: "", unit_price: "", line_total: "" },
-      ],
+      line_items: [...d.line_items, { description: "", quantity: "", unit_price: "", line_total: "" }],
     }));
   }
 
@@ -464,194 +412,114 @@ function ConfirmForm({
   return (
     <div className="grid gap-6" style={{ gridTemplateColumns: "1fr 1.45fr", alignItems: "start" }}>
       {/* Left: image preview */}
-      <div
-        className="rounded-2xl p-5 sticky top-8"
-        style={{
-          background: "linear-gradient(180deg, rgba(20,32,60,0.55), rgba(9,14,30,0.55))",
-          backdropFilter: "blur(20px) saturate(140%)",
-          border: "1px solid rgba(125,165,255,0.12)",
-        }}
-      >
+      <div className="rounded-2xl p-5 sticky top-8" style={{
+        background: "linear-gradient(180deg, rgba(20,32,60,0.55), rgba(9,14,30,0.55))",
+        backdropFilter: "blur(20px) saturate(140%)",
+        border: "1px solid rgba(125,165,255,0.12)",
+      }}>
         <div className="flex items-center gap-2 mb-4">
           <CheckCircle size={13} className="text-brand" />
           <span className="text-text-dim text-[10px] font-medium uppercase tracking-widest">
-            Imagen procesada
+            {t("capture.processing.imageProcessed")}
           </span>
         </div>
-        <img
-          src={preview}
-          alt="Factura capturada"
-          className="rounded-xl w-full object-contain"
-          style={{ maxHeight: 500 }}
-        />
+        <img src={preview} alt={t("capture.processing.imageProcessed")}
+          className="rounded-xl w-full object-contain" style={{ maxHeight: 500 }} />
       </div>
 
       {/* Right: editable form */}
-      <div
-        className="rounded-2xl p-6"
-        style={{
-          background: "linear-gradient(180deg, rgba(20,32,60,0.55), rgba(9,14,30,0.55))",
-          backdropFilter: "blur(20px) saturate(140%)",
-          border: "1px solid rgba(125,165,255,0.12)",
-        }}
-      >
-        <h2 className="font-display font-semibold text-base text-text mb-1">
-          Confirma los datos extraídos
-        </h2>
-        <p className="text-text-dim text-xs mb-6">
-          Revisa y corrige cualquier campo antes de guardar.
-        </p>
+      <div className="rounded-2xl p-6" style={{
+        background: "linear-gradient(180deg, rgba(20,32,60,0.55), rgba(9,14,30,0.55))",
+        backdropFilter: "blur(20px) saturate(140%)",
+        border: "1px solid rgba(125,165,255,0.12)",
+      }}>
+        <h2 className="font-display font-semibold text-base text-text mb-1">{t("capture.form.title")}</h2>
+        <p className="text-text-dim text-xs mb-6">{t("capture.form.subtitle")}</p>
 
         <div className="space-y-4">
-          <Field label="Proveedor *">
-            <input
-              type="text"
-              value={draft.supplier_name}
-              onChange={(e) => set("supplier_name", e.target.value)}
-              placeholder="Nombre del proveedor"
-              className={fieldCls}
-            />
+          <Field label={`${t("capture.form.supplier")} *`}>
+            <input type="text" value={draft.supplier_name} onChange={(e) => set("supplier_name", e.target.value)}
+              placeholder={t("capture.form.supplier")} className={fieldCls} />
           </Field>
 
           <div className="grid grid-cols-2 gap-3">
-            <Field label="N° de factura">
-              <input
-                type="text"
-                value={draft.invoice_number}
-                onChange={(e) => set("invoice_number", e.target.value)}
-                placeholder="001-001-0001"
-                className={fieldCls}
-              />
+            <Field label={t("capture.form.invoiceNumber")}>
+              <input type="text" value={draft.invoice_number} onChange={(e) => set("invoice_number", e.target.value)}
+                placeholder="001-001-0001" className={fieldCls} />
             </Field>
-            <Field label="Moneda">
-              <input
-                type="text"
-                value={draft.currency}
-                onChange={(e) => set("currency", e.target.value)}
-                placeholder="USD"
-                className={fieldCls}
-              />
+            <Field label={t("capture.form.currency")}>
+              <input type="text" value={draft.currency} onChange={(e) => set("currency", e.target.value)}
+                placeholder="USD" className={fieldCls} />
             </Field>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Fecha de emisión">
-              <input
-                type="date"
-                value={draft.issue_date}
-                onChange={(e) => set("issue_date", e.target.value)}
-                className={`${fieldCls} [color-scheme:dark]`}
-              />
+            <Field label={t("capture.form.issueDate")}>
+              <input type="date" value={draft.issue_date} onChange={(e) => set("issue_date", e.target.value)}
+                className={`${fieldCls} [color-scheme:dark]`} />
             </Field>
-            <Field label="Fecha de vencimiento">
-              <input
-                type="date"
-                value={draft.due_date}
-                onChange={(e) => set("due_date", e.target.value)}
-                className={`${fieldCls} [color-scheme:dark]`}
-              />
+            <Field label={t("capture.form.dueDate")}>
+              <input type="date" value={draft.due_date} onChange={(e) => set("due_date", e.target.value)}
+                className={`${fieldCls} [color-scheme:dark]`} />
             </Field>
           </div>
 
           <div className="grid grid-cols-3 gap-3">
-            <Field label="Subtotal">
-              <input
-                type="number"
-                value={draft.subtotal}
-                onChange={(e) => set("subtotal", e.target.value)}
-                placeholder="0.00"
-                step="0.01"
-                min="0"
-                className={fieldCls}
-              />
+            <Field label={t("capture.form.subtotal")}>
+              <input type="number" value={draft.subtotal} onChange={(e) => set("subtotal", e.target.value)}
+                placeholder="0.00" step="0.01" min="0" className={fieldCls} />
             </Field>
-            <Field label="Impuestos">
-              <input
-                type="number"
-                value={draft.tax}
-                onChange={(e) => set("tax", e.target.value)}
-                placeholder="0.00"
-                step="0.01"
-                min="0"
-                className={fieldCls}
-              />
+            <Field label={t("capture.form.tax")}>
+              <input type="number" value={draft.tax} onChange={(e) => set("tax", e.target.value)}
+                placeholder="0.00" step="0.01" min="0" className={fieldCls} />
             </Field>
-            <Field label="Total *">
-              <input
-                type="number"
-                value={draft.total_amount}
-                onChange={(e) => set("total_amount", e.target.value)}
-                placeholder="0.00"
-                step="0.01"
-                min="0"
-                className={fieldCls}
-              />
+            <Field label={`${t("capture.form.total")} *`}>
+              <input type="number" value={draft.total_amount} onChange={(e) => set("total_amount", e.target.value)}
+                placeholder="0.00" step="0.01" min="0" className={fieldCls} />
             </Field>
           </div>
 
           {/* Line items */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <span className={labelCls}>Líneas de la factura</span>
-              <button
-                type="button"
-                onClick={addLine}
-                className="flex items-center gap-1.5 text-brand text-xs font-medium hover:text-brand-soft transition-colors"
-              >
-                <Plus size={13} /> Agregar línea
+              <span className={labelCls}>{t("capture.form.lineItems")}</span>
+              <button type="button" onClick={addLine}
+                className="flex items-center gap-1.5 text-brand text-xs font-medium hover:text-brand-soft transition-colors">
+                <Plus size={13} /> {t("capture.form.addLine")}
               </button>
             </div>
 
             {draft.line_items.length === 0 ? (
-              <p className="text-text-faint text-xs py-1">Sin líneas detectadas</p>
+              <p className="text-text-faint text-xs py-1">{t("capture.form.noLines")}</p>
             ) : (
               <div className="space-y-2">
                 {draft.line_items.map((li, idx) => (
-                  <LineItemRow
-                    key={idx}
-                    item={li}
-                    onChange={(k, v) => setLine(idx, k, v)}
-                    onRemove={() => removeLine(idx)}
-                  />
+                  <LineItemRow key={idx} item={li} onChange={(k, v) => setLine(idx, k, v)} onRemove={() => removeLine(idx)} />
                 ))}
               </div>
             )}
           </div>
         </div>
 
-        {/* Action buttons */}
-        <div
-          className="flex items-center gap-3 mt-8 pt-6"
-          style={{ borderTop: "1px solid rgba(125,165,255,0.10)" }}
-        >
+        <div className="flex items-center gap-3 mt-8 pt-6" style={{ borderTop: "1px solid rgba(125,165,255,0.10)" }}>
           <button
-            type="button"
-            onClick={() => onConfirm(draft, storagePath)}
-            disabled={!canSave}
+            type="button" onClick={() => onConfirm(draft, storagePath)} disabled={!canSave}
             className="flex-1 h-11 rounded-lg font-display font-semibold text-sm text-white transition-all"
             style={{
-              background: canSave
-                ? "linear-gradient(150deg, #3d8bff, #1f5fe0)"
-                : "rgba(61,139,255,0.20)",
-              boxShadow: canSave
-                ? "0 6px 22px rgba(61,139,255,0.40), inset 0 1px 1px rgba(255,255,255,0.12)"
-                : undefined,
+              background: canSave ? "linear-gradient(150deg, #3d8bff, #1f5fe0)" : "rgba(61,139,255,0.20)",
+              boxShadow: canSave ? "0 6px 22px rgba(61,139,255,0.40), inset 0 1px 1px rgba(255,255,255,0.12)" : undefined,
               cursor: canSave ? "pointer" : "not-allowed",
               color: canSave ? "#ffffff" : "rgba(232,237,242,0.35)",
             }}
           >
-            Confirmar y guardar
+            {t("capture.form.confirm")}
           </button>
           <button
-            type="button"
-            onClick={onDiscard}
+            type="button" onClick={onDiscard}
             className="h-11 px-5 rounded-lg font-medium text-sm text-text-muted hover:text-text transition-colors"
-            style={{
-              background: "rgba(125,165,255,0.07)",
-              border: "1px solid rgba(125,165,255,0.12)",
-            }}
+            style={{ background: "rgba(125,165,255,0.07)", border: "1px solid rgba(125,165,255,0.12)" }}
           >
-            Descartar
+            {t("capture.form.discard")}
           </button>
         </div>
       </div>
@@ -661,61 +529,25 @@ function ConfirmForm({
 
 // ── LineItemRow ───────────────────────────────────────────────────────────────
 
-function LineItemRow({
-  item,
-  onChange,
-  onRemove,
-}: {
+function LineItemRow({ item, onChange, onRemove }: {
   item: LineItem;
   onChange: (key: keyof LineItem, value: string) => void;
   onRemove: () => void;
 }) {
+  const { t } = useTranslation();
   return (
-    <div
-      className="flex items-center gap-2 rounded-xl p-2.5"
-      style={{ background: "rgba(27,39,66,0.55)" }}
-    >
-      <input
-        type="text"
-        value={item.description}
-        onChange={(e) => onChange("description", e.target.value)}
-        placeholder="Descripción"
-        className={`${fieldCls} flex-1 min-w-0`}
-      />
-      <input
-        type="number"
-        value={item.quantity}
-        onChange={(e) => onChange("quantity", e.target.value)}
-        placeholder="Cant."
-        step="0.01"
-        min="0"
-        className={`${fieldCls} w-20 flex-shrink-0`}
-      />
-      <input
-        type="number"
-        value={item.unit_price}
-        onChange={(e) => onChange("unit_price", e.target.value)}
-        placeholder="P/u"
-        step="0.01"
-        min="0"
-        className={`${fieldCls} w-24 flex-shrink-0`}
-      />
-      <input
-        type="number"
-        value={item.line_total}
-        onChange={(e) => onChange("line_total", e.target.value)}
-        placeholder="Total"
-        step="0.01"
-        min="0"
-        className={`${fieldCls} w-24 flex-shrink-0`}
-      />
-      <button
-        type="button"
-        onClick={onRemove}
-        aria-label="Eliminar línea"
+    <div className="flex items-center gap-2 rounded-xl p-2.5" style={{ background: "rgba(27,39,66,0.55)" }}>
+      <input type="text" value={item.description} onChange={(e) => onChange("description", e.target.value)}
+        placeholder={t("capture.form.descPlaceholder")} className={`${fieldCls} flex-1 min-w-0`} />
+      <input type="number" value={item.quantity} onChange={(e) => onChange("quantity", e.target.value)}
+        placeholder={t("capture.form.qtyPlaceholder")} step="0.01" min="0" className={`${fieldCls} w-20 flex-shrink-0`} />
+      <input type="number" value={item.unit_price} onChange={(e) => onChange("unit_price", e.target.value)}
+        placeholder={t("capture.form.pricePlaceholder")} step="0.01" min="0" className={`${fieldCls} w-24 flex-shrink-0`} />
+      <input type="number" value={item.line_total} onChange={(e) => onChange("line_total", e.target.value)}
+        placeholder={t("capture.form.totalPlaceholder")} step="0.01" min="0" className={`${fieldCls} w-24 flex-shrink-0`} />
+      <button type="button" onClick={onRemove}
         className="flex items-center justify-center w-8 h-8 rounded-lg flex-shrink-0 text-text-dim hover:text-danger transition-colors"
-        style={{ background: "rgba(255,77,109,0.07)" }}
-      >
+        style={{ background: "rgba(255,77,109,0.07)" }}>
         <Trash2 size={13} />
       </button>
     </div>
@@ -725,35 +557,24 @@ function LineItemRow({
 // ── ErrorCard ─────────────────────────────────────────────────────────────────
 
 function ErrorCard({ message, onRetry }: { message: string; onRetry: () => void }) {
+  const { t } = useTranslation();
   return (
-    <div
-      className="rounded-2xl p-10 flex flex-col items-center gap-4 text-center"
-      style={{
-        background: "linear-gradient(180deg, rgba(20,32,60,0.55), rgba(9,14,30,0.55))",
-        backdropFilter: "blur(20px) saturate(140%)",
-        border: "1px solid rgba(255,77,109,0.18)",
-      }}
-    >
-      <div
-        className="w-14 h-14 rounded-2xl flex items-center justify-center"
-        style={{ background: "rgba(255,77,109,0.10)" }}
-      >
+    <div className="rounded-2xl p-10 flex flex-col items-center gap-4 text-center" style={{
+      background: "linear-gradient(180deg, rgba(20,32,60,0.55), rgba(9,14,30,0.55))",
+      backdropFilter: "blur(20px) saturate(140%)",
+      border: "1px solid rgba(255,77,109,0.18)",
+    }}>
+      <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: "rgba(255,77,109,0.10)" }}>
         <AlertCircle size={24} className="text-danger" />
       </div>
       <div>
-        <p className="text-text font-medium mb-1.5">Algo salió mal</p>
+        <p className="text-text font-medium mb-1.5">{t("capture.error.title")}</p>
         <p className="text-text-dim text-sm max-w-sm">{message}</p>
       </div>
-      <button
-        type="button"
-        onClick={onRetry}
+      <button type="button" onClick={onRetry}
         className="mt-1 h-10 px-6 rounded-lg text-sm font-semibold text-white transition-all"
-        style={{
-          background: "linear-gradient(150deg, #3d8bff, #1f5fe0)",
-          boxShadow: "0 4px 16px rgba(61,139,255,0.35)",
-        }}
-      >
-        Intentar de nuevo
+        style={{ background: "linear-gradient(150deg, #3d8bff, #1f5fe0)", boxShadow: "0 4px 16px rgba(61,139,255,0.35)" }}>
+        {t("capture.error.retry")}
       </button>
     </div>
   );

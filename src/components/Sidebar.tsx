@@ -1,37 +1,57 @@
 import { NavLink } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import {
-  LayoutDashboard,
-  ScanLine,
-  Banknote,
-  FileText,
-  Truck,
-  Sparkles,
-  TrendingUp,
-  User,
-  LogOut,
-  Settings,
+  LayoutDashboard, ScanLine, Banknote, FileText,
+  Truck, Sparkles, TrendingUp, User, LogOut, Settings,
 } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
 import { useProfile } from "../hooks/useProfile";
-import { useHealthScore } from "../hooks/useHealthScore";
+import { useHealthScore, type HintPart } from "../hooks/useHealthScore";
 
-const NAV = [
-  { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { to: "/captura", icon: ScanLine, label: "Captura" },
-  { to: "/ingresos", icon: Banknote, label: "Ingresos / Caja" },
-  { to: "/facturas", icon: FileText, label: "Facturas" },
-  { to: "/proveedores", icon: Truck, label: "Proveedores" },
-  { to: "/asistente", icon: Sparkles, label: "Asistente IA" },
-];
+function renderHint(parts: HintPart[], t: TFunction): string {
+  return parts.map(part => {
+    if (part.kind === "liq") {
+      const keyMap = {
+        balance: "health.liqBalance", excellent: "health.liqExcellent",
+        veryGood: "health.liqVeryGood", good: "health.liqGood",
+        tight: "health.liqTight", critical: "health.liqCritical",
+      } as const;
+      return t(keyMap[part.level]);
+    }
+    if (part.kind === "overdue") {
+      const key = part.severity === "severe" ? "health.overdueSevere"
+        : part.severity === "moderate" ? "health.overdueModerate"
+        : "health.overdueMinor";
+      return t(key, { count: part.count });
+    }
+    if (part.kind === "trend") {
+      return t(part.level === "controlled" ? "health.trendControlled" : "health.trendElevated");
+    }
+    return "";
+  }).filter(Boolean).join(" · ");
+}
 
 export default function Sidebar() {
+  const { t, i18n } = useTranslation();
   const { session, signOut } = useAuthStore();
   const email   = session?.user.email ?? "";
   const userId  = session?.user.id ?? "";
-  const { data: profile } = useProfile(userId);
+  const { data: profile }  = useProfile(userId);
   const restaurantName = profile?.restaurant_name?.trim() || "Mi Restaurante";
   const displayName    = profile?.full_name?.trim() || email;
   const { data: health } = useHealthScore(userId);
+
+  const NAV = [
+    { to: "/dashboard",   icon: LayoutDashboard, label: t("nav.dashboard") },
+    { to: "/captura",     icon: ScanLine,        label: t("nav.capture")   },
+    { to: "/ingresos",    icon: Banknote,        label: t("nav.income")    },
+    { to: "/facturas",    icon: FileText,        label: t("nav.invoices")  },
+    { to: "/proveedores", icon: Truck,           label: t("nav.suppliers") },
+    { to: "/asistente",   icon: Sparkles,        label: t("nav.assistant") },
+  ];
+
+  const hintText = health ? renderHint(health.hintParts, t) : "";
 
   return (
     <aside
@@ -54,26 +74,21 @@ export default function Sidebar() {
             <TrendingUp size={16} className="text-white" />
           </div>
           <div>
-            <div className="font-display font-semibold text-sm text-text leading-tight">
-              CashFlow AI
-            </div>
+            <div className="font-display font-semibold text-sm text-text leading-tight">CashFlow AI</div>
             <div className="text-text-faint text-[10px] leading-tight">RestaurantOS</div>
           </div>
         </div>
       </div>
 
-      {/* Salud financiera card */}
+      {/* Salud financiera */}
       <div className="mx-4 mb-6 rounded-xl p-4" style={{ background: "rgba(27,39,66,0.6)", border: "1px solid rgba(125,165,255,0.10)" }}>
         <div className="text-text-faint text-[10px] uppercase tracking-widest mb-1.5 font-medium">
-          Salud financiera
+          {t("sidebar.health")}
         </div>
         {health ? (
           <>
             <div className="flex items-end justify-between gap-1">
-              <span
-                className="font-display font-bold text-xl leading-none"
-                style={{ color: health.color }}
-              >
+              <span className="font-display font-bold text-xl leading-none" style={{ color: health.color }}>
                 {health.score}
               </span>
               <span className="text-[10px] font-semibold leading-none mb-0.5" style={{ color: health.color }}>
@@ -87,11 +102,11 @@ export default function Sidebar() {
               />
             </div>
             <div className="mt-1.5 text-[10px] font-medium" style={{ color: health.color }}>
-              {health.label}
+              {t(health.labelKey)}
             </div>
-            {health.hint && (
+            {hintText && (
               <div className="mt-0.5 text-[9px] leading-tight" style={{ color: "rgba(159,176,192,0.65)" }}>
-                {health.hint}
+                {hintText}
               </div>
             )}
           </>
@@ -101,7 +116,7 @@ export default function Sidebar() {
               <span className="font-display font-bold text-xl text-text-faint leading-none">—</span>
             </div>
             <div className="mt-2 h-1.5 rounded-full" style={{ background: "rgba(125,165,255,0.10)" }} />
-            <div className="mt-1.5 text-text-faint text-[10px]">Sin datos aún</div>
+            <div className="mt-1.5 text-text-faint text-[10px]">{t("sidebar.noData")}</div>
           </>
         )}
       </div>
@@ -113,29 +128,17 @@ export default function Sidebar() {
             key={to}
             to={to}
             className={({ isActive }) =>
-              [
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
-                isActive
-                  ? "text-text"
-                  : "text-text-dim hover:text-text-muted hover:bg-white/5",
+              ["flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
+               isActive ? "text-text" : "text-text-dim hover:text-text-muted hover:bg-white/5",
               ].join(" ")
             }
             style={({ isActive }) =>
-              isActive
-                ? {
-                    background: "rgba(61,139,255,0.12)",
-                    boxShadow: "inset 2px 0 0 #3d8bff",
-                  }
-                : undefined
+              isActive ? { background: "rgba(61,139,255,0.12)", boxShadow: "inset 2px 0 0 #3d8bff" } : undefined
             }
           >
             {({ isActive }) => (
               <>
-                <Icon
-                  size={17}
-                  className={isActive ? "text-brand" : "text-text-faint"}
-                  strokeWidth={isActive ? 2.2 : 1.8}
-                />
+                <Icon size={17} className={isActive ? "text-brand" : "text-text-faint"} strokeWidth={isActive ? 2.2 : 1.8} />
                 {label}
               </>
             )}
@@ -143,16 +146,32 @@ export default function Sidebar() {
         ))}
       </nav>
 
+      {/* Language toggle */}
+      <div className="px-5 pb-1 flex items-center gap-1">
+        <span className="text-text-faint text-[10px] mr-1 uppercase tracking-widest">{t("preferences.language.title")}</span>
+        {(["es", "en"] as const).map(lang => (
+          <button
+            key={lang}
+            onClick={() => i18n.changeLanguage(lang)}
+            className="text-[11px] font-bold px-2 py-0.5 rounded-md uppercase transition-all"
+            style={{
+              background: i18n.language.startsWith(lang) ? "rgba(61,139,255,0.18)" : "transparent",
+              color: i18n.language.startsWith(lang) ? "#3d8bff" : "#5f6b7a",
+              border: i18n.language.startsWith(lang) ? "1px solid rgba(61,139,255,0.25)" : "1px solid transparent",
+            }}
+          >
+            {lang}
+          </button>
+        ))}
+      </div>
+
       {/* Preferences link */}
       <div className="px-3 pb-1">
         <NavLink
           to="/preferencias"
           className={({ isActive }) =>
-            [
-              "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
-              isActive
-                ? "text-text"
-                : "text-text-dim hover:text-text-muted hover:bg-white/5",
+            ["flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
+             isActive ? "text-text" : "text-text-dim hover:text-text-muted hover:bg-white/5",
             ].join(" ")
           }
           style={({ isActive }) =>
@@ -162,7 +181,7 @@ export default function Sidebar() {
           {({ isActive }) => (
             <>
               <Settings size={17} className={isActive ? "text-brand" : "text-text-faint"} strokeWidth={isActive ? 2.2 : 1.8} />
-              Preferencias
+              {t("nav.preferences")}
             </>
           )}
         </NavLink>
@@ -183,7 +202,7 @@ export default function Sidebar() {
           </div>
           <button
             onClick={signOut}
-            title="Cerrar sesión"
+            title={t("sidebar.logout")}
             className="text-text-faint hover:text-danger transition-colors flex-shrink-0"
           >
             <LogOut size={14} />

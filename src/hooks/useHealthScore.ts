@@ -1,12 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 
+export type HintPart =
+  | { kind: "liq"; level: "balance" | "excellent" | "veryGood" | "good" | "tight" | "critical" }
+  | { kind: "overdue"; count: number; severity: "minor" | "moderate" | "severe" }
+  | { kind: "trend"; level: "controlled" | "elevated" };
+
 export type HealthResult = {
   score: number;
-  label: "Saludable" | "Atención" | "En riesgo";
+  labelKey: "health.healthy" | "health.warning" | "health.risk";
   color: string;
   barStyle: React.CSSProperties;
-  hint: string;
+  hintParts: HintPart[];
   hasData: boolean;
 };
 
@@ -63,30 +68,26 @@ export function useHealthScore(userId: string) {
       const monthExpense = monthMov.filter(m => m.type !== "income").reduce((s, m) => s + Number(m.amount), 0);
 
       // ── Component 1: Liquidez (0–50 pts) ────────────────────────────────────
-      // Full score at ratio ≥ 3× — balance covers 3× the next 30d obligations
       const liqRatio = balance > 0 && upcoming30 > 0 ? balance / upcoming30 : balance > 0 ? Infinity : 0;
       const liq = balance <= 0 ? 0
         : upcoming30 === 0 ? 50
         : Math.min(50, (liqRatio / 3) * 50);
 
       // ── Component 2: Facturas vencidas (0–30 pts) ────────────────────────────
-      // Proportional penalty: overdue/balance. At <5% of balance the hit is tiny.
       const overdueRatio = balance > 0 ? totalOverdue / balance : (totalOverdue > 0 ? 1 : 0);
       const ov = 30 * Math.max(0, 1 - Math.min(1, overdueRatio * 2));
 
       // ── Component 3: Tendencia mensual (0–20 pts) ────────────────────────────
       let trend: number;
       if (monthIncome === 0 && monthExpense === 0) {
-        trend = 10; // neutral, no movements this month
+        trend = 10;
       } else if (monthIncome === 0) {
-        // Only expenses recorded — judge against cash on hand, not income
         const expBal = balance > 0 ? monthExpense / balance : 1;
         if (expBal < 0.05)      trend = 18;
         else if (expBal < 0.15) trend = 14;
         else if (expBal < 0.30) trend = 10;
         else                    trend = Math.max(0, 20 * (1 - expBal));
       } else {
-        // Penalize when expense/income ratio exceeds 0.8 (spending >80% of income)
         const r = monthExpense / monthIncome;
         trend = Math.max(0, Math.min(20, 20 - Math.max(0, r - 0.8) * 10));
       }
@@ -94,51 +95,45 @@ export function useHealthScore(userId: string) {
       const score = Math.round(Math.min(100, Math.max(0, liq + ov + trend)));
 
       // ── Label & color ────────────────────────────────────────────────────────
-      const label  = score >= 70 ? "Saludable" : score >= 40 ? "Atención" : "En riesgo";
-      const color  = score >= 70 ? "#00d4ff"   : score >= 40 ? "#ffb84d"  : "#ff4d6d";
+      const labelKey = score >= 70 ? "health.healthy" as const
+        : score >= 40 ? "health.warning" as const
+        : "health.risk" as const;
+      const color  = score >= 70 ? "#00d4ff" : score >= 40 ? "#ffb84d" : "#ff4d6d";
       const barStyle: React.CSSProperties = score >= 70
         ? { background: "linear-gradient(90deg,#3d8bff,#00d4ff)", boxShadow: "0 0 8px rgba(0,212,255,0.4)" }
         : score >= 40
           ? { background: "#ffb84d" }
           : { background: "#ff4d6d" };
 
-      // ── Explanatory hint ─────────────────────────────────────────────────────
-      const parts: string[] = [];
+      // ── Hint parts (structured for i18n) ─────────────────────────────────────
+      const hintParts: HintPart[] = [];
 
       if (balance <= 0) {
-        parts.push("Saldo negativo");
+        hintParts.push({ kind: "liq", level: "balance" });
       } else if (upcoming30 === 0 || liqRatio >= 5) {
-        parts.push("Liquidez excelente");
+        hintParts.push({ kind: "liq", level: "excellent" });
       } else if (liqRatio >= 3) {
-        parts.push("Liquidez muy buena");
+        hintParts.push({ kind: "liq", level: "veryGood" });
       } else if (liqRatio >= 1.5) {
-        parts.push("Liquidez buena");
+        hintParts.push({ kind: "liq", level: "good" });
       } else if (liqRatio >= 1) {
-        parts.push("Liquidez ajustada");
+        hintParts.push({ kind: "liq", level: "tight" });
       } else {
-        parts.push("Liquidez crítica");
+        hintParts.push({ kind: "liq", level: "critical" });
       }
 
       if (overdueCount > 0) {
-        const pl = overdueCount > 1;
-        if (overdueRatio < 0.05) {
-          parts.push(`${overdueCount} factura${pl ? "s" : ""} vencida${pl ? "s" : ""} menor${pl ? "es" : ""}`);
-        } else if (overdueRatio < 0.25) {
-          parts.push(`${overdueCount} factura${pl ? "s" : ""} vencida${pl ? "s" : ""}`);
-        } else {
-          parts.push("Facturas vencidas graves");
-        }
+        const severity = overdueRatio < 0.05 ? "minor" : overdueRatio < 0.25 ? "moderate" : "severe";
+        hintParts.push({ kind: "overdue", count: overdueCount, severity });
       }
 
       if (monthIncome > 0) {
         const r = monthExpense / monthIncome;
-        if (r < 0.8)      parts.push("Gastos controlados");
-        else if (r > 1.5) parts.push("Gastos elevados");
+        if (r < 0.8)      hintParts.push({ kind: "trend", level: "controlled" });
+        else if (r > 1.5) hintParts.push({ kind: "trend", level: "elevated" });
       }
 
-      const hint = parts.join(" · ");
-
-      return { score, label, color, barStyle, hint, hasData };
+      return { score, labelKey, color, barStyle, hintParts, hasData };
     },
     enabled: !!userId,
     staleTime: 5 * 60_000,

@@ -1,10 +1,12 @@
 import { useState, type FormEvent } from "react";
 import { Navigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { TrendingUp, Loader2 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../store/authStore";
 
 export default function Login() {
+  const { t } = useTranslation();
   const { session } = useAuthStore();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
@@ -27,7 +29,7 @@ export default function Login() {
     } else {
       const { error: err } = await supabase.auth.signUp({ email, password });
       if (err) setError(err.message);
-      else setInfo("Revisa tu correo para confirmar tu cuenta.");
+      else setInfo(t("login.confirmEmail"));
     }
 
     setBusy(false);
@@ -64,41 +66,32 @@ export default function Login() {
         </div>
 
         <h1 className="font-display font-semibold text-xl text-text mb-1">
-          {mode === "signin" ? "Iniciar sesión" : "Crear cuenta"}
+          {mode === "signin" ? t("login.signin") : t("login.signup")}
         </h1>
         <p className="text-text-dim text-sm mb-6">
-          {mode === "signin"
-            ? "Accede a tu panel financiero."
-            : "Empieza a gestionar el cash flow de tu restaurante."}
+          {mode === "signin" ? t("login.signinSubtitle") : t("login.signupSubtitle")}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-text-muted text-xs font-medium mb-1.5">
-              Correo electrónico
+              {t("login.email")}
             </label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="chef@mirestaurante.com"
+              placeholder={t("login.emailPlaceholder")}
               className="w-full rounded-lg px-3.5 py-2.5 text-sm text-text placeholder:text-text-faint outline-none transition-all"
-              style={{
-                background: "rgba(27,39,66,0.7)",
-                border: "1px solid rgba(125,165,255,0.15)",
-              }}
-              onFocus={(e) =>
-                (e.currentTarget.style.borderColor = "rgba(61,139,255,0.5)")
-              }
-              onBlur={(e) =>
-                (e.currentTarget.style.borderColor = "rgba(125,165,255,0.15)")
-              }
+              style={{ background: "rgba(27,39,66,0.7)", border: "1px solid rgba(125,165,255,0.15)" }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(61,139,255,0.5)")}
+              onBlur={(e)  => (e.currentTarget.style.borderColor = "rgba(125,165,255,0.15)")}
             />
           </div>
           <div>
             <label className="block text-text-muted text-xs font-medium mb-1.5">
-              Contraseña
+              {t("login.password")}
             </label>
             <input
               type="password"
@@ -108,32 +101,19 @@ export default function Login() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               className="w-full rounded-lg px-3.5 py-2.5 text-sm text-text placeholder:text-text-faint outline-none transition-all"
-              style={{
-                background: "rgba(27,39,66,0.7)",
-                border: "1px solid rgba(125,165,255,0.15)",
-              }}
-              onFocus={(e) =>
-                (e.currentTarget.style.borderColor = "rgba(61,139,255,0.5)")
-              }
-              onBlur={(e) =>
-                (e.currentTarget.style.borderColor = "rgba(125,165,255,0.15)")
-              }
+              style={{ background: "rgba(27,39,66,0.7)", border: "1px solid rgba(125,165,255,0.15)" }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(61,139,255,0.5)")}
+              onBlur={(e)  => (e.currentTarget.style.borderColor = "rgba(125,165,255,0.15)")}
             />
           </div>
 
           {error && (
-            <div
-              className="rounded-lg px-3.5 py-2.5 text-sm"
-              style={{ background: "rgba(255,77,109,0.12)", color: "#ff4d6d" }}
-            >
+            <div className="rounded-lg px-3.5 py-2.5 text-sm" style={{ background: "rgba(255,77,109,0.12)", color: "#ff4d6d" }}>
               {error}
             </div>
           )}
           {info && (
-            <div
-              className="rounded-lg px-3.5 py-2.5 text-sm"
-              style={{ background: "rgba(61,139,255,0.12)", color: "#9cc4ff" }}
-            >
+            <div className="rounded-lg px-3.5 py-2.5 text-sm" style={{ background: "rgba(61,139,255,0.12)", color: "#9cc4ff" }}>
               {info}
             </div>
           )}
@@ -142,27 +122,20 @@ export default function Login() {
             type="submit"
             disabled={busy}
             className="w-full rounded-lg py-2.5 font-semibold text-sm text-white flex items-center justify-center gap-2 transition-opacity disabled:opacity-60"
-            style={{
-              background: "linear-gradient(150deg,#3d8bff,#1f5fe0)",
-              boxShadow: "0 6px 22px rgba(61,139,255,0.40)",
-            }}
+            style={{ background: "linear-gradient(150deg,#3d8bff,#1f5fe0)", boxShadow: "0 6px 22px rgba(61,139,255,0.40)" }}
           >
             {busy && <Loader2 size={15} className="animate-spin" />}
-            {mode === "signin" ? "Entrar" : "Crear cuenta"}
+            {mode === "signin" ? t("login.submitSignin") : t("login.submitSignup")}
           </button>
         </form>
 
         <p className="mt-5 text-center text-text-dim text-xs">
-          {mode === "signin" ? "¿No tienes cuenta?" : "¿Ya tienes cuenta?"}{" "}
+          {mode === "signin" ? t("login.switchToSignup") : t("login.switchToSignin")}{" "}
           <button
-            onClick={() => {
-              setMode(mode === "signin" ? "signup" : "signin");
-              setError("");
-              setInfo("");
-            }}
+            onClick={() => { setMode(mode === "signin" ? "signup" : "signin"); setError(""); setInfo(""); }}
             className="text-brand hover:text-brand-soft transition-colors font-medium"
           >
-            {mode === "signin" ? "Crear cuenta" : "Iniciar sesión"}
+            {mode === "signin" ? t("login.signup") : t("login.signin")}
           </button>
         </p>
       </div>

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Bell, X, CheckCheck, AlertCircle, TrendingUp, Info, Loader2 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../store/authStore";
@@ -15,7 +16,7 @@ type Notification = {
 };
 
 const ALERT_THROTTLE_KEY = "ros-last-alert-check";
-const ALERT_THROTTLE_MS  = 60 * 60 * 1000; // 1 hour
+const ALERT_THROTTLE_MS  = 60 * 60 * 1000;
 
 async function runCheckAlerts(accessToken: string) {
   const last = Number(localStorage.getItem(ALERT_THROTTLE_KEY) ?? 0);
@@ -42,17 +43,8 @@ function severityColor(sev: string) {
   return "#3d8bff";
 }
 
-function relativeTime(iso: string) {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diff / 60_000);
-  if (mins < 1) return "ahora";
-  if (mins < 60) return `hace ${mins}m`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `hace ${hrs}h`;
-  return `hace ${Math.floor(hrs / 24)}d`;
-}
-
 export default function NotificationBell() {
+  const { t } = useTranslation();
   const [open, setOpen]       = useState(false);
   const panelRef              = useRef<HTMLDivElement>(null);
   const queryClient           = useQueryClient();
@@ -60,7 +52,6 @@ export default function NotificationBell() {
   const accessToken           = session?.access_token ?? "";
   const userId                = session?.user.id ?? "";
 
-  // Run alert engine on mount (throttled)
   useEffect(() => {
     if (!accessToken) return;
     runCheckAlerts(accessToken).then(() => {
@@ -68,7 +59,6 @@ export default function NotificationBell() {
     });
   }, [accessToken, userId, queryClient]);
 
-  // Read notifications directly via Supabase (RLS handles auth)
   const { data: notifications = [], isLoading } = useQuery<Notification[]>({
     queryKey: ["notifications", userId],
     queryFn: async () => {
@@ -101,7 +91,6 @@ export default function NotificationBell() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications", userId] }),
   });
 
-  // Close panel on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (panelRef.current && !panelRef.current.contains(e.target as Node)) setOpen(false);
@@ -110,9 +99,18 @@ export default function NotificationBell() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  function relativeTime(iso: string): string {
+    const diff = Date.now() - new Date(iso).getTime();
+    const mins = Math.floor(diff / 60_000);
+    if (mins < 1) return t("notifications.now");
+    if (mins < 60) return t("notifications.minutesAgo", { count: mins });
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return t("notifications.hoursAgo", { count: hrs });
+    return t("notifications.daysAgo", { count: Math.floor(hrs / 24) });
+  }
+
   return (
     <div ref={panelRef} className="relative">
-      {/* Bell button */}
       <button
         onClick={() => setOpen(v => !v)}
         className="relative w-9 h-9 rounded-lg flex items-center justify-center transition-all"
@@ -120,7 +118,7 @@ export default function NotificationBell() {
           background: open ? "rgba(61,139,255,0.14)" : "rgba(27,39,66,0.50)",
           border: "1px solid rgba(125,165,255,0.12)",
         }}
-        title="Notificaciones"
+        title={t("notifications.title")}
       >
         {isLoading
           ? <Loader2 size={15} className="text-text-dim animate-spin" />
@@ -136,7 +134,6 @@ export default function NotificationBell() {
         )}
       </button>
 
-      {/* Dropdown panel */}
       {open && (
         <div
           className="absolute right-0 top-11 w-80 rounded-2xl overflow-hidden z-50"
@@ -147,12 +144,11 @@ export default function NotificationBell() {
             boxShadow: "0 24px 64px rgba(0,0,0,0.6)",
           }}
         >
-          {/* Header */}
           <div
             className="flex items-center justify-between px-4 py-3"
             style={{ borderBottom: "1px solid rgba(125,165,255,0.08)" }}
           >
-            <span className="font-display font-semibold text-sm text-text">Notificaciones</span>
+            <span className="font-display font-semibold text-sm text-text">{t("notifications.title")}</span>
             <div className="flex items-center gap-2">
               {unread > 0 && (
                 <button
@@ -161,7 +157,7 @@ export default function NotificationBell() {
                   className="flex items-center gap-1 text-[11px] text-brand hover:text-cyan transition-colors"
                 >
                   <CheckCheck size={12} />
-                  Marcar todas
+                  {t("notifications.markAll")}
                 </button>
               )}
               <button onClick={() => setOpen(false)} className="text-text-faint hover:text-text transition-colors ml-1">
@@ -170,13 +166,12 @@ export default function NotificationBell() {
             </div>
           </div>
 
-          {/* List */}
           <div className="max-h-[340px] overflow-y-auto">
             {notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 text-center px-4">
                 <Bell size={22} className="text-text-faint mb-2 opacity-40" />
-                <p className="text-text-dim text-sm">Sin notificaciones</p>
-                <p className="text-text-faint text-xs mt-0.5">Todo en orden por ahora</p>
+                <p className="text-text-dim text-sm">{t("notifications.empty")}</p>
+                <p className="text-text-faint text-xs mt-0.5">{t("notifications.emptyHint")}</p>
               </div>
             ) : (
               notifications.map(n => {
@@ -185,10 +180,7 @@ export default function NotificationBell() {
                   <div
                     key={n.id}
                     className="flex gap-3 px-4 py-3 cursor-pointer transition-colors hover:bg-white/[0.025]"
-                    style={{
-                      borderBottom: "1px solid rgba(125,165,255,0.05)",
-                      opacity: n.read ? 0.55 : 1,
-                    }}
+                    style={{ borderBottom: "1px solid rgba(125,165,255,0.05)", opacity: n.read ? 0.55 : 1 }}
                     onClick={() => { if (!n.read) markRead.mutate(n.id); }}
                   >
                     <div
@@ -200,9 +192,7 @@ export default function NotificationBell() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <p className="text-text text-[12.5px] font-medium leading-tight">{n.title}</p>
-                        {!n.read && (
-                          <div className="w-1.5 h-1.5 rounded-full bg-brand flex-shrink-0 mt-1.5" />
-                        )}
+                        {!n.read && <div className="w-1.5 h-1.5 rounded-full bg-brand flex-shrink-0 mt-1.5" />}
                       </div>
                       <p className="text-text-dim text-[11px] leading-relaxed mt-0.5 line-clamp-2">{n.body}</p>
                       <p className="text-text-faint text-[10px] mt-1">{relativeTime(n.created_at)}</p>

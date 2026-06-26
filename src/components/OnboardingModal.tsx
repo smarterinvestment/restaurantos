@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { TrendingUp, ChefHat } from "lucide-react";
 import { useProfile } from "../hooks/useProfile";
 
 export default function OnboardingModal({ userId }: { userId: string }) {
+  const { t } = useTranslation();
   const [fullName,       setFullName]       = useState("");
   const [restaurantName, setRestaurantName] = useState("");
   const { upsert }                          = useProfile(userId);
@@ -47,29 +49,29 @@ export default function OnboardingModal({ userId }: { userId: string }) {
         <div className="flex items-start gap-3 mb-2">
           <ChefHat size={26} style={{ color: "#3d8bff", flexShrink: 0, marginTop: 2 }} />
           <h1 className="font-display font-bold text-[22px] text-text leading-tight">
-            ¡Bienvenido a RestaurantOS!
+            {t("onboarding.title")}
           </h1>
         </div>
         <p className="text-text-muted text-sm mb-7 leading-relaxed pl-[38px]">
-          Cuéntanos quién eres para personalizar tu experiencia.
+          {t("onboarding.subtitle")}
         </p>
 
         {/* Fields */}
         <div className="space-y-4">
           <Field
-            label="Tu nombre completo"
+            label={t("onboarding.fullName")}
             required
             value={fullName}
             onChange={setFullName}
-            placeholder="Ej: María González"
+            placeholder={t("onboarding.fullNamePlaceholder")}
             onEnter={submit}
             autoFocus
           />
           <Field
-            label="Nombre de tu restaurante"
+            label={t("onboarding.restaurantName")}
             value={restaurantName}
             onChange={setRestaurantName}
-            placeholder="Ej: Tacos El Compadre"
+            placeholder={t("onboarding.restaurantPlaceholder")}
             onEnter={submit}
           />
         </div>
@@ -78,18 +80,13 @@ export default function OnboardingModal({ userId }: { userId: string }) {
           onClick={submit}
           disabled={!fullName.trim() || upsert.isPending}
           className="w-full h-11 mt-7 rounded-xl font-semibold text-sm text-white transition-all disabled:opacity-40"
-          style={{
-            background: "linear-gradient(150deg,#3d8bff,#1f5fe0)",
-            boxShadow: "0 4px 20px rgba(61,139,255,0.45)",
-          }}
+          style={{ background: "linear-gradient(150deg,#3d8bff,#1f5fe0)", boxShadow: "0 4px 20px rgba(61,139,255,0.45)" }}
         >
-          {upsert.isPending ? "Guardando…" : "Comenzar →"}
+          {upsert.isPending ? t("onboarding.saving") : t("onboarding.submit")}
         </button>
 
         {upsert.isError && (
-          <p className="text-danger text-xs text-center mt-3">
-            Error al guardar. Intenta de nuevo.
-          </p>
+          <p className="text-danger text-xs text-center mt-3">{t("onboarding.error")}</p>
         )}
       </div>
     </div>

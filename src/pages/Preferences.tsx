@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Bell, Mail, Save, Check, Smartphone, User, Store } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../store/authStore";
@@ -20,15 +21,13 @@ const GLASS = {
 } as const;
 
 export default function Preferences() {
+  const { t, i18n } = useTranslation();
   const { session }           = useAuthStore();
   const userId                = session?.user.id ?? "";
   const { data: profile, upsert: upsertProfile } = useProfile(userId);
 
-  // Profile fields
   const [fullName,       setFullName]       = useState("");
   const [restaurantName, setRestaurantName] = useState("");
-
-  // Notification prefs
   const [webEnabled,    setWebEnabled]    = useState(true);
   const [emailEnabled,  setEmailEnabled]  = useState(true);
   const [daysBefore,    setDaysBefore]    = useState(3);
@@ -37,14 +36,12 @@ export default function Preferences() {
   const [saved,         setSaved]         = useState(false);
   const [pushStatus,    setPushStatus]    = useState<"idle" | "requesting" | "granted" | "denied">("idle");
 
-  // Seed profile fields when profile loads
   useEffect(() => {
     if (profile === undefined) return;
     setFullName(profile?.full_name ?? "");
     setRestaurantName(profile?.restaurant_name ?? "");
   }, [profile]);
 
-  // Load notification preferences
   useEffect(() => {
     if (!userId) return;
     supabase
@@ -61,7 +58,6 @@ export default function Preferences() {
         setLoading(false);
       });
 
-    // Detect current push permission
     if ("Notification" in window) {
       setPushStatus(
         Notification.permission === "granted" ? "granted"
@@ -90,23 +86,14 @@ export default function Preferences() {
   }
 
   async function registerPush() {
-    if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
-      alert("Tu navegador no soporta notificaciones push.");
-      return;
-    }
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
     setPushStatus("requesting");
     const permission = await Notification.requestPermission();
-    if (permission !== "granted") {
-      setPushStatus("denied");
-      return;
-    }
+    if (permission !== "granted") { setPushStatus("denied"); return; }
     setPushStatus("granted");
 
     const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undefined;
-    if (!vapidKey) {
-      console.warn("[push] VITE_VAPID_PUBLIC_KEY not set — skipping subscription");
-      return;
-    }
+    if (!vapidKey) return;
 
     try {
       const reg  = await navigator.serviceWorker.register("/sw.js");
@@ -129,32 +116,32 @@ export default function Preferences() {
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h1 className="font-display font-semibold text-2xl text-text">Preferencias</h1>
-        <p className="text-text-muted text-sm mt-1">Configura cómo y cuándo recibes alertas financieras.</p>
+        <h1 className="font-display font-semibold text-2xl text-text">{t("preferences.title")}</h1>
+        <p className="text-text-muted text-sm mt-1">{t("preferences.subtitle")}</p>
       </div>
 
       {loading ? (
         <div className="flex items-center gap-3 text-text-dim text-sm py-8">
           <div className="w-4 h-4 rounded-full border-2 border-brand border-t-transparent animate-spin" />
-          Cargando preferencias…
+          {t("preferences.loading")}
         </div>
       ) : (
         <>
           {/* ── Profile ── */}
           <div className="rounded-2xl p-6 space-y-4" style={GLASS}>
-            <h2 className="font-display font-semibold text-sm text-text">Perfil</h2>
+            <h2 className="font-display font-semibold text-sm text-text">{t("preferences.profile.title")}</h2>
 
             <div className="grid gap-4" style={{ gridTemplateColumns: "1fr 1fr" }}>
               <div>
                 <label className="block text-text-dim text-xs font-medium mb-1.5">
                   <User size={11} className="inline mr-1 opacity-70" />
-                  Tu nombre completo
+                  {t("preferences.profile.fullName")}
                 </label>
                 <input
                   type="text"
                   value={fullName}
                   onChange={e => setFullName(e.target.value)}
-                  placeholder="Ej: María González"
+                  placeholder={t("onboarding.fullNamePlaceholder")}
                   className="w-full h-10 rounded-xl px-3.5 text-sm text-text outline-none transition-all"
                   style={{
                     background: "rgba(27,39,66,0.65)",
@@ -165,13 +152,13 @@ export default function Preferences() {
               <div>
                 <label className="block text-text-dim text-xs font-medium mb-1.5">
                   <Store size={11} className="inline mr-1 opacity-70" />
-                  Nombre del restaurante
+                  {t("preferences.profile.restaurantName")}
                 </label>
                 <input
                   type="text"
                   value={restaurantName}
                   onChange={e => setRestaurantName(e.target.value)}
-                  placeholder="Ej: Tacos El Compadre"
+                  placeholder={t("onboarding.restaurantPlaceholder")}
                   className="w-full h-10 rounded-xl px-3.5 text-sm text-text outline-none transition-all"
                   style={{
                     background: "rgba(27,39,66,0.65)",
@@ -182,14 +169,35 @@ export default function Preferences() {
             </div>
           </div>
 
+          {/* Language */}
+          <div className="rounded-2xl p-6" style={GLASS}>
+            <h2 className="font-display font-semibold text-sm text-text mb-4">{t("preferences.language.title")}</h2>
+            <div className="flex gap-2">
+              {(["es", "en"] as const).map(lang => (
+                <button
+                  key={lang}
+                  onClick={() => i18n.changeLanguage(lang)}
+                  className="h-9 px-5 rounded-lg text-sm font-semibold uppercase transition-all"
+                  style={{
+                    background: i18n.language.startsWith(lang) ? "rgba(61,139,255,0.16)" : "rgba(27,39,66,0.55)",
+                    border:     i18n.language.startsWith(lang) ? "1px solid rgba(61,139,255,0.40)" : "1px solid rgba(125,165,255,0.10)",
+                    color:      i18n.language.startsWith(lang) ? "#3d8bff" : "#7c8896",
+                  }}
+                >
+                  {lang === "es" ? "Español" : "English"}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Notification channels */}
           <div className="rounded-2xl p-6 space-y-5" style={GLASS}>
-            <h2 className="font-display font-semibold text-sm text-text">Canales de notificación</h2>
+            <h2 className="font-display font-semibold text-sm text-text">{t("preferences.notifications.title")}</h2>
 
             <Toggle
               icon={<Bell size={16} className="text-brand" />}
-              label="Notificaciones en la app"
-              description="Campana en la barra superior con alertas en tiempo real"
+              label={t("preferences.notifications.inApp")}
+              description={t("preferences.notifications.inAppDesc")}
               checked={webEnabled}
               onChange={setWebEnabled}
             />
@@ -198,8 +206,8 @@ export default function Preferences() {
 
             <Toggle
               icon={<Mail size={16} className="text-cyan" />}
-              label="Notificaciones por email"
-              description={`Resumen diario enviado a ${session?.user.email ?? "tu correo"}`}
+              label={t("preferences.notifications.email")}
+              description={t("preferences.notifications.emailDesc", { email: session?.user.email ?? "" })}
               checked={emailEnabled}
               onChange={setEmailEnabled}
             />
@@ -217,20 +225,18 @@ export default function Preferences() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-4">
                       <div>
-                        <p className="text-text text-sm font-medium">Notificaciones push</p>
-                        <p className="text-text-dim text-xs mt-0.5">
-                          Recibe alertas en el navegador aunque no estés en la app
-                        </p>
+                        <p className="text-text text-sm font-medium">{t("preferences.notifications.push")}</p>
+                        <p className="text-text-dim text-xs mt-0.5">{t("preferences.notifications.pushDesc")}</p>
                       </div>
                       {pushStatus === "granted" ? (
                         <span
                           className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg flex-shrink-0"
                           style={{ background: "rgba(16,185,129,0.12)", color: "#10b981", border: "1px solid rgba(16,185,129,0.20)" }}
                         >
-                          <Check size={12} /> Activas
+                          <Check size={12} /> {t("preferences.notifications.pushActive")}
                         </span>
                       ) : pushStatus === "denied" ? (
-                        <span className="text-xs text-danger">Bloqueadas en el navegador</span>
+                        <span className="text-xs text-danger">{t("preferences.notifications.pushBlocked")}</span>
                       ) : (
                         <button
                           onClick={registerPush}
@@ -238,7 +244,7 @@ export default function Preferences() {
                           className="text-xs font-semibold px-3 py-1.5 rounded-lg flex-shrink-0 transition-all disabled:opacity-60"
                           style={{ background: "rgba(168,85,247,0.14)", color: "#a855f7", border: "1px solid rgba(168,85,247,0.22)" }}
                         >
-                          {pushStatus === "requesting" ? "Activando…" : "Activar push"}
+                          {pushStatus === "requesting" ? t("preferences.notifications.pushActivating") : t("preferences.notifications.pushActivate")}
                         </button>
                       )}
                     </div>
@@ -250,13 +256,12 @@ export default function Preferences() {
 
           {/* Alert timing */}
           <div className="rounded-2xl p-6" style={GLASS}>
-            <h2 className="font-display font-semibold text-sm text-text mb-4">Anticipación de alertas</h2>
+            <h2 className="font-display font-semibold text-sm text-text mb-4">{t("preferences.timing.title")}</h2>
             <div className="flex items-center gap-5">
               <div className="flex-1">
-                <p className="text-text-muted text-sm">Alertar con cuántos días de anticipación</p>
+                <p className="text-text-muted text-sm">{t("preferences.timing.label")}</p>
                 <p className="text-text-faint text-xs mt-0.5">
-                  Se mostrará una alerta cuando una factura venza en los próximos{" "}
-                  <strong className="text-text">{daysBefore}</strong> día{daysBefore !== 1 ? "s" : ""}
+                  {t("preferences.timing.hint", { count: daysBefore })}
                 </p>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
@@ -293,11 +298,11 @@ export default function Preferences() {
               style={{ background: "linear-gradient(150deg,#3d8bff,#1f5fe0)", boxShadow: "0 4px 16px rgba(61,139,255,0.35)" }}
             >
               {saved ? (
-                <><Check size={15} /> Guardado</>
+                <><Check size={15} /> {t("preferences.saved")}</>
               ) : saving ? (
-                <><div className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" /> Guardando…</>
+                <><div className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" /> {t("preferences.saving")}</>
               ) : (
-                <><Save size={15} /> Guardar preferencias</>
+                <><Save size={15} /> {t("preferences.save")}</>
               )}
             </button>
           </div>

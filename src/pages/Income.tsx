@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import {
   Store, Smartphone, Package, Heart, CalendarDays,
   Banknote, CreditCard, ArrowLeftRight,
@@ -25,17 +26,17 @@ type CashAccount = { id: string; starting_balance: number; currency: string };
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const CATEGORIES = [
-  { key: "Cierre de caja",       icon: Store },
-  { key: "Terminal de tarjeta",  icon: Smartphone },
-  { key: "Pedidos a domicilio",  icon: Package },
-  { key: "Propinas",             icon: Heart },
-  { key: "Eventos / reservas",   icon: CalendarDays },
+  { key: "Cierre de caja",       i18nKey: "income.categories.cierre",   icon: Store },
+  { key: "Terminal de tarjeta",  i18nKey: "income.categories.terminal", icon: Smartphone },
+  { key: "Pedidos a domicilio",  i18nKey: "income.categories.pedidos",  icon: Package },
+  { key: "Propinas",             i18nKey: "income.categories.propinas", icon: Heart },
+  { key: "Eventos / reservas",   i18nKey: "income.categories.eventos",  icon: CalendarDays },
 ] as const;
 
 const METHODS = [
-  { key: "efectivo",       label: "Efectivo",       icon: Banknote },
-  { key: "tarjeta",        label: "Tarjeta",        icon: CreditCard },
-  { key: "transferencia",  label: "Transferencia",  icon: ArrowLeftRight },
+  { key: "efectivo",      i18nKey: "income.methods.cash",     icon: Banknote },
+  { key: "tarjeta",       i18nKey: "income.methods.card",     icon: CreditCard },
+  { key: "transferencia", i18nKey: "income.methods.transfer", icon: ArrowLeftRight },
 ] as const;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -126,6 +127,7 @@ function useCashAccount(userId: string) {
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 export default function Income() {
+  const { t } = useTranslation();
   const userId = useAuthStore((s) => s.session!.user.id);
   const qc = useQueryClient();
 
@@ -147,30 +149,30 @@ export default function Income() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="font-display font-semibold text-2xl text-text">Ingresos / Caja</h1>
-        <p className="text-text-muted text-sm mt-1">Registra ingresos y consulta tu posición de caja.</p>
+        <h1 className="font-display font-semibold text-2xl text-text">{t("income.title")}</h1>
+        <p className="text-text-muted text-sm mt-1">{t("income.subtitle")}</p>
       </div>
 
       {/* KPIs */}
       <div className="grid grid-cols-3 gap-4 mb-6">
         <KpiCard
-          label="Saldo actual"
+          label={t("income.kpi.balance")}
           value={kpis ? fmt(kpis.balance, currency) : null}
-          hint={kpis ? (kpis.balance < 0 ? "Posición negativa — revisar" : "Posición disponible") : undefined}
+          hint={kpis ? (kpis.balance < 0 ? t("income.hint.negative") : t("income.hint.available")) : undefined}
           accent={kpis && kpis.balance < 0 ? "danger" : "brand"}
           loading={kpisQ.isLoading}
         />
         <KpiCard
-          label="Ingresos de hoy"
+          label={t("income.kpi.today")}
           value={kpis ? fmt(kpis.todayTotal, currency) : null}
-          hint={kpis ? `${kpis.todayCount} movimiento${kpis.todayCount !== 1 ? "s" : ""}` : undefined}
+          hint={kpis ? t("income.hint.movement", { count: kpis.todayCount }) : undefined}
           accent="cyan"
           loading={kpisQ.isLoading}
         />
         <KpiCard
-          label="Ingresos del mes"
+          label={t("income.kpi.month")}
           value={kpis ? fmt(kpis.monthTotal, currency) : null}
-          hint={kpis ? `${kpis.monthCount} movimiento${kpis.monthCount !== 1 ? "s" : ""}` : undefined}
+          hint={kpis ? t("income.hint.movement", { count: kpis.monthCount }) : undefined}
           accent="brand"
           loading={kpisQ.isLoading}
         />
@@ -223,6 +225,7 @@ function KpiCard({ label, value, hint, accent, loading }: {
 function IncomeForm({ userId, currency, onSaved }: {
   userId: string; currency: string; onSaved: () => void;
 }) {
+  const { t } = useTranslation();
   const [category, setCategory] = useState("");
   const [method,   setMethod]   = useState("");
   const [amount,   setAmount]   = useState("");
@@ -233,9 +236,9 @@ function IncomeForm({ userId, currency, onSaved }: {
   const mutation = useMutation({
     mutationFn: async () => {
       const num = parseFloat(amount);
-      if (isNaN(num) || num <= 0) throw new Error("Ingresa un monto válido mayor a 0");
-      if (!category)              throw new Error("Selecciona el origen del ingreso");
-      if (!method)                throw new Error("Selecciona el método de cobro");
+      if (isNaN(num) || num <= 0) throw new Error(t("income.errors.invalidAmount"));
+      if (!category)              throw new Error(t("income.errors.selectCategory"));
+      if (!method)                throw new Error(t("income.errors.selectMethod"));
       const { error } = await supabase.from("cash_movements").insert({
         user_id: userId, type: "income", amount: num, currency,
         occurred_at: date, description: desc.trim() || null,
@@ -249,13 +252,13 @@ function IncomeForm({ userId, currency, onSaved }: {
 
   return (
     <div className="rounded-2xl p-6" style={GLASS}>
-      <h2 className="font-display font-semibold text-base text-text mb-5">Registrar ingreso</h2>
+      <h2 className="font-display font-semibold text-base text-text mb-5">{t("income.form.title")}</h2>
 
       {/* Origin */}
       <div className="mb-5">
-        <label className={labelCls}>Origen</label>
+        <label className={labelCls}>{t("income.form.origin")}</label>
         <div className="space-y-1.5">
-          {CATEGORIES.map(({ key, icon: Icon }) => {
+          {CATEGORIES.map(({ key, i18nKey, icon: Icon }) => {
             const active = category === key;
             return (
               <button
@@ -267,7 +270,7 @@ function IncomeForm({ userId, currency, onSaved }: {
                   color:      active ? "#3d8bff" : "#9fb0c0",
                 }}
               >
-                <Icon size={14} style={{ flexShrink: 0 }} /> {key}
+                <Icon size={14} style={{ flexShrink: 0 }} /> {t(i18nKey)}
               </button>
             );
           })}
@@ -276,9 +279,9 @@ function IncomeForm({ userId, currency, onSaved }: {
 
       {/* Method */}
       <div className="mb-5">
-        <label className={labelCls}>Método de cobro</label>
+        <label className={labelCls}>{t("income.form.method")}</label>
         <div className="flex gap-2">
-          {METHODS.map(({ key, label, icon: Icon }) => {
+          {METHODS.map(({ key, i18nKey, icon: Icon }) => {
             const active = method === key;
             return (
               <button
@@ -290,7 +293,7 @@ function IncomeForm({ userId, currency, onSaved }: {
                   color:      active ? "#3d8bff" : "#7c8896",
                 }}
               >
-                <Icon size={13} /> {label}
+                <Icon size={13} /> {t(i18nKey)}
               </button>
             );
           })}
@@ -299,23 +302,23 @@ function IncomeForm({ userId, currency, onSaved }: {
 
       {/* Amount */}
       <div className="mb-4">
-        <label className={labelCls}>Monto *</label>
+        <label className={labelCls}>{t("income.form.amount")} *</label>
         <input type="number" step="0.01" min="0" value={amount}
           onChange={(e) => setAmount(e.target.value)} placeholder="0.00" className={fieldCls} />
       </div>
 
       {/* Date */}
       <div className="mb-4">
-        <label className={labelCls}>Fecha</label>
+        <label className={labelCls}>{t("income.form.date")}</label>
         <input type="date" value={date} onChange={(e) => setDate(e.target.value)}
           className={`${fieldCls} [color-scheme:dark]`} />
       </div>
 
       {/* Description */}
       <div className="mb-5">
-        <label className={labelCls}>Descripción (opcional)</label>
+        <label className={labelCls}>{t("income.form.description")}</label>
         <input type="text" value={desc} onChange={(e) => setDesc(e.target.value)}
-          placeholder="Notas adicionales…" className={fieldCls} />
+          placeholder={t("income.form.descPlaceholder")} className={fieldCls} />
       </div>
 
       {err && (
@@ -330,7 +333,7 @@ function IncomeForm({ userId, currency, onSaved }: {
         style={{ background: "linear-gradient(150deg,#3d8bff,#1f5fe0)", boxShadow: "0 6px 22px rgba(61,139,255,0.40)" }}
       >
         <TrendingUp size={15} />
-        {mutation.isPending ? "Guardando…" : "Registrar ingreso"}
+        {mutation.isPending ? t("income.form.saving") : t("income.form.submit")}
       </button>
     </div>
   );
@@ -342,6 +345,7 @@ function IncomeList({ movements, loading, error, currency, userId, onDeleted }: 
   movements: Movement[]; loading: boolean; error: boolean;
   currency: string; userId: string; onDeleted: () => void;
 }) {
+  const { t } = useTranslation();
   const del = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("cash_movements").delete().eq("id", id).eq("user_id", userId);
@@ -352,15 +356,15 @@ function IncomeList({ movements, loading, error, currency, userId, onDeleted }: 
 
   return (
     <div className="rounded-2xl p-6" style={GLASS}>
-      <h2 className="font-display font-semibold text-base text-text mb-5">Ingresos recientes</h2>
+      <h2 className="font-display font-semibold text-base text-text mb-5">{t("income.list.title")}</h2>
 
       {loading && <div className="flex justify-center py-8"><Loader2 className="text-brand animate-spin" size={20} /></div>}
-      {error  && <div className="flex items-center gap-2 text-danger text-sm py-4"><AlertCircle size={16} /> Error al cargar</div>}
+      {error && <div className="flex items-center gap-2 text-danger text-sm py-4"><AlertCircle size={16} /> {t("common.error")}</div>}
 
       {!loading && !error && movements.length === 0 && (
         <div className="text-center py-8 text-text-faint text-sm">
-          <p>Sin ingresos registrados</p>
-          <p className="text-xs mt-1">Usa el formulario para agregar el primero</p>
+          <p>{t("income.list.empty")}</p>
+          <p className="text-xs mt-1">{t("income.list.emptyHint")}</p>
         </div>
       )}
 
@@ -370,6 +374,7 @@ function IncomeList({ movements, loading, error, currency, userId, onDeleted }: 
             const catConfig = CATEGORIES.find(c => c.key === m.category);
             const Icon = catConfig?.icon ?? TrendingUp;
             const isDel = del.isPending && del.variables === m.id;
+            const categoryLabel = catConfig ? t(catConfig.i18nKey) : (m.category || t("income.list.defaultCategory"));
             return (
               <div
                 key={m.id}
@@ -381,7 +386,7 @@ function IncomeList({ movements, loading, error, currency, userId, onDeleted }: 
                   <Icon size={14} style={{ color: "#3d8bff" }} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-text text-sm font-medium truncate">{m.category || "Ingreso"}</div>
+                  <div className="text-text text-sm font-medium truncate">{categoryLabel}</div>
                   <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                     <span className="text-text-faint text-xs">{m.occurred_at}</span>
                     {m.method && <><span className="text-text-faint text-xs">·</span><span className="text-text-dim text-xs capitalize">{m.method}</span></>}
@@ -393,7 +398,6 @@ function IncomeList({ movements, loading, error, currency, userId, onDeleted }: 
                     +{fmt(m.amount, m.currency ?? currency)}
                   </span>
                   <button type="button" onClick={() => del.mutate(m.id)} disabled={isDel}
-                    aria-label="Eliminar ingreso"
                     className="w-7 h-7 rounded-lg flex items-center justify-center text-text-dim hover:text-danger transition-colors disabled:opacity-40"
                     style={{ background: "rgba(255,77,109,0.07)" }}>
                     <Trash2 size={13} />
@@ -413,6 +417,7 @@ function IncomeList({ movements, loading, error, currency, userId, onDeleted }: 
 function StartingBalanceRow({ account, userId, onSaved }: {
   account: CashAccount | null; userId: string; onSaved: () => void;
 }) {
+  const { t } = useTranslation();
   const [editing, setEditing] = useState(false);
   const [value,   setValue]   = useState("");
   const [saving,  setSaving]  = useState(false);
@@ -422,7 +427,7 @@ function StartingBalanceRow({ account, userId, onSaved }: {
 
   async function save() {
     const num = parseFloat(value);
-    if (isNaN(num)) { setErr("Monto inválido"); return; }
+    if (isNaN(num)) { setErr(t("income.balance.invalidAmount")); return; }
     setSaving(true);
     try {
       if (account) {
@@ -444,14 +449,14 @@ function StartingBalanceRow({ account, userId, onSaved }: {
       {!editing ? (
         <>
           <div className="flex-1">
-            <div className="text-text-dim text-xs font-medium">Saldo inicial</div>
+            <div className="text-text-dim text-xs font-medium">{t("income.balance.label")}</div>
             <div className="text-text text-sm font-semibold mt-0.5">
-              {account ? fmt(account.starting_balance, account.currency) : "Sin configurar"}
+              {account ? fmt(account.starting_balance, account.currency) : t("income.balance.notSet")}
             </div>
           </div>
           <button onClick={startEdit}
             className="flex items-center gap-1.5 text-brand text-xs font-medium hover:text-brand-soft transition-colors flex-shrink-0">
-            <Pencil size={12} /> {account ? "Editar" : "Configurar"}
+            <Pencil size={12} /> {account ? t("income.balance.edit") : t("income.balance.configure")}
           </button>
         </>
       ) : (

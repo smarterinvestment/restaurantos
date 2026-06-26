@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Plus, Mail, Phone, X, Check, AlertCircle, Building2 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../store/authStore";
@@ -93,6 +94,7 @@ function useSupplierStats(userId: string) {
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 export default function Suppliers() {
+  const { t } = useTranslation();
   const userId = useAuthStore((s) => s.session!.user.id);
   const qc     = useQueryClient();
 
@@ -115,10 +117,10 @@ export default function Suppliers() {
       {/* Header */}
       <div className="flex items-start justify-between mb-8">
         <div>
-          <h1 className="font-display font-semibold text-2xl text-text">Proveedores</h1>
+          <h1 className="font-display font-semibold text-2xl text-text">{t("suppliers.title")}</h1>
           {!suppliersQ.isLoading && (
             <p className="text-text-muted text-sm mt-1">
-              {suppliers.length} proveedor{suppliers.length !== 1 ? "es" : ""}
+              {t("suppliers.count", { count: suppliers.length })}
             </p>
           )}
         </div>
@@ -127,7 +129,7 @@ export default function Suppliers() {
           className="flex items-center gap-2 h-9 px-4 rounded-lg font-semibold text-sm text-white flex-shrink-0"
           style={{ background: "linear-gradient(150deg,#3d8bff,#1f5fe0)", boxShadow: "0 4px 16px rgba(61,139,255,0.35)" }}
         >
-          <Plus size={15} /> Nuevo proveedor
+          <Plus size={15} /> {t("suppliers.newSupplier")}
         </button>
       </div>
 
@@ -142,35 +144,31 @@ export default function Suppliers() {
         />
       )}
 
-      {/* Loading */}
       {suppliersQ.isLoading && (
         <div className="flex justify-center py-16">
           <div className="w-5 h-5 rounded-full border-2 border-brand border-t-transparent animate-spin" />
         </div>
       )}
 
-      {/* Error */}
       {suppliersQ.error && (
         <div className="flex items-center gap-2 text-danger text-sm p-4">
-          <AlertCircle size={16} /> Error al cargar proveedores
+          <AlertCircle size={16} /> {t("suppliers.error")}
         </div>
       )}
 
-      {/* Empty */}
       {!suppliersQ.isLoading && suppliers.length === 0 && (
         <div className="rounded-2xl flex flex-col items-center py-16 text-text-faint text-sm" style={GLASS}>
           <Building2 size={32} className="mb-3 opacity-30" />
-          <p>Sin proveedores registrados</p>
+          <p>{t("suppliers.empty")}</p>
           <button
             onClick={() => { setTarget(null); setMode("create"); }}
             className="mt-4 text-brand text-xs font-medium hover:text-brand-soft transition-colors"
           >
-            Agrega el primero →
+            {t("suppliers.emptyCta")}
           </button>
         </div>
       )}
 
-      {/* Cards grid */}
       {!suppliersQ.isLoading && suppliers.length > 0 && (
         <div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fill,minmax(300px,1fr))" }}>
           {suppliers.map(sup => (
@@ -192,6 +190,7 @@ export default function Suppliers() {
 function SupplierCard({ supplier: s, stats, onClick }: {
   supplier: Supplier; stats: Stats; onClick: () => void;
 }) {
+  const { t } = useTranslation();
   const color = avatarColor(s.name);
   return (
     <div
@@ -199,7 +198,6 @@ function SupplierCard({ supplier: s, stats, onClick }: {
       style={GLASS}
       onClick={onClick}
     >
-      {/* Avatar + name */}
       <div className="flex items-start gap-3 mb-4">
         <div
           className="w-11 h-11 rounded-xl flex items-center justify-center font-display font-bold text-base flex-shrink-0"
@@ -210,7 +208,7 @@ function SupplierCard({ supplier: s, stats, onClick }: {
         <div className="min-w-0">
           <div className="text-text font-semibold text-sm leading-tight">{s.name}</div>
           <div className="text-text-dim text-xs mt-0.5">
-            {s.credit_days > 0 ? `Crédito ${s.credit_days} días` : "Contado"}
+            {s.credit_days > 0 ? t("suppliers.card.credit", { days: s.credit_days }) : t("suppliers.card.cash")}
           </div>
           {s.category && (
             <span className="inline-block text-[10px] font-medium rounded px-1.5 py-0.5 mt-1"
@@ -221,7 +219,6 @@ function SupplierCard({ supplier: s, stats, onClick }: {
         </div>
       </div>
 
-      {/* Contact */}
       <div className="space-y-1.5 mb-4 min-h-[2.5rem]">
         {s.email && (
           <div className="flex items-center gap-2 text-text-dim text-xs">
@@ -236,19 +233,21 @@ function SupplierCard({ supplier: s, stats, onClick }: {
           </div>
         )}
         {!s.email && !s.phone && (
-          <div className="text-text-faint text-xs">Sin datos de contacto</div>
+          <div className="text-text-faint text-xs">{t("suppliers.card.noContact")}</div>
         )}
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 gap-3 rounded-xl p-3"
-        style={{ background: "rgba(27,39,66,0.50)" }}>
+      <div className="grid grid-cols-2 gap-3 rounded-xl p-3" style={{ background: "rgba(27,39,66,0.50)" }}>
         <div>
-          <div className="text-text-faint text-[10px] uppercase tracking-wider font-medium mb-1">Compras / año</div>
+          <div className="text-text-faint text-[10px] uppercase tracking-wider font-medium mb-1">
+            {t("suppliers.card.yearPurchases")}
+          </div>
           <div className="font-display font-semibold text-sm text-text">{fmt(stats.yearPurchases)}</div>
         </div>
         <div>
-          <div className="text-text-faint text-[10px] uppercase tracking-wider font-medium mb-1">Por pagar</div>
+          <div className="text-text-faint text-[10px] uppercase tracking-wider font-medium mb-1">
+            {t("suppliers.card.payable")}
+          </div>
           <div className="font-display font-semibold text-sm"
             style={{ color: stats.pending > 0 ? "#ff4d6d" : "#7c8896" }}>
             {fmt(stats.pending)}
@@ -268,6 +267,7 @@ function SupplierModal({ mode, initial, userId, onSaved, onCancel }: {
   onSaved: () => void;
   onCancel: () => void;
 }) {
+  const { t } = useTranslation();
   const [name,       setName]       = useState(initial?.name ?? "");
   const [email,      setEmail]      = useState(initial?.email ?? "");
   const [phone,      setPhone]      = useState(initial?.phone ?? "");
@@ -277,7 +277,7 @@ function SupplierModal({ mode, initial, userId, onSaved, onCancel }: {
 
   const saveMut = useMutation({
     mutationFn: async () => {
-      if (!name.trim()) throw new Error("El nombre es obligatorio");
+      if (!name.trim()) throw new Error(t("suppliers.modal.nameRequired"));
       const payload = {
         name:        name.trim(),
         email:       email.trim() || null,
@@ -294,7 +294,7 @@ function SupplierModal({ mode, initial, userId, onSaved, onCancel }: {
       }
     },
     onSuccess: onSaved,
-    onError: (e: any) => setErr(e.message ?? "Error al guardar"),
+    onError: (e: any) => setErr(e.message ?? "Error"),
   });
 
   const delMut = useMutation({
@@ -303,7 +303,7 @@ function SupplierModal({ mode, initial, userId, onSaved, onCancel }: {
       if (error) throw new Error(error.message);
     },
     onSuccess: onSaved,
-    onError: (e: any) => setErr(e.message ?? "Error al eliminar"),
+    onError: (e: any) => setErr(e.message ?? "Error"),
   });
 
   return (
@@ -313,10 +313,9 @@ function SupplierModal({ mode, initial, userId, onSaved, onCancel }: {
       onClick={(e) => e.target === e.currentTarget && onCancel()}
     >
       <div className="rounded-2xl p-6 w-full max-w-md" style={GLASS}>
-        {/* Modal header */}
         <div className="flex items-center justify-between mb-5">
           <h2 className="font-display font-semibold text-base text-text">
-            {mode === "create" ? "Nuevo proveedor" : "Editar proveedor"}
+            {mode === "create" ? t("suppliers.modal.createTitle") : t("suppliers.modal.editTitle")}
           </h2>
           <button onClick={onCancel} className="text-text-dim hover:text-text transition-colors">
             <X size={18} />
@@ -324,38 +323,35 @@ function SupplierModal({ mode, initial, userId, onSaved, onCancel }: {
         </div>
 
         <div className="space-y-4">
-          {/* Name */}
           <div>
-            <label className={labelCls}>Nombre *</label>
+            <label className={labelCls}>{t("suppliers.modal.name")} *</label>
             <input type="text" value={name} onChange={(e) => setName(e.target.value)}
-              placeholder="Nombre del proveedor" className={fieldCls} autoFocus />
+              placeholder={t("suppliers.modal.namePlaceholder")} className={fieldCls} autoFocus />
           </div>
 
-          {/* Email + Phone */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className={labelCls}>Email</label>
+              <label className={labelCls}>{t("suppliers.modal.email")}</label>
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                placeholder="correo@proveedor.com" className={fieldCls} />
+                placeholder={t("suppliers.modal.emailPlaceholder")} className={fieldCls} />
             </div>
             <div>
-              <label className={labelCls}>Teléfono</label>
+              <label className={labelCls}>{t("suppliers.modal.phone")}</label>
               <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
-                placeholder="+1 555 000 0000" className={fieldCls} />
+                placeholder={t("suppliers.modal.phonePlaceholder")} className={fieldCls} />
             </div>
           </div>
 
-          {/* Credit days + Category */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className={labelCls}>Días de crédito</label>
+              <label className={labelCls}>{t("suppliers.modal.creditDays")}</label>
               <input type="number" min="0" value={creditDays} onChange={(e) => setCreditDays(e.target.value)}
                 placeholder="0" className={fieldCls} />
             </div>
             <div>
-              <label className={labelCls}>Categoría</label>
+              <label className={labelCls}>{t("suppliers.modal.category")}</label>
               <input type="text" value={category} onChange={(e) => setCategory(e.target.value)}
-                placeholder="Carnes, Lácteos…" className={fieldCls} />
+                placeholder={t("suppliers.modal.categoryPlaceholder")} className={fieldCls} />
             </div>
           </div>
 
@@ -365,7 +361,6 @@ function SupplierModal({ mode, initial, userId, onSaved, onCancel }: {
             </div>
           )}
 
-          {/* Actions */}
           <div className="flex gap-2 pt-1">
             <button
               type="button" onClick={() => saveMut.mutate()} disabled={saveMut.isPending}
@@ -373,7 +368,9 @@ function SupplierModal({ mode, initial, userId, onSaved, onCancel }: {
               style={{ background: "linear-gradient(150deg,#3d8bff,#1f5fe0)", boxShadow: "0 4px 16px rgba(61,139,255,0.35)" }}
             >
               <Check size={14} />
-              {saveMut.isPending ? "Guardando…" : mode === "create" ? "Crear proveedor" : "Guardar cambios"}
+              {saveMut.isPending
+                ? t("suppliers.modal.saving")
+                : mode === "create" ? t("suppliers.modal.create") : t("suppliers.modal.saveChanges")}
             </button>
 
             {mode === "edit" && (
@@ -382,7 +379,7 @@ function SupplierModal({ mode, initial, userId, onSaved, onCancel }: {
                 className="h-10 px-4 rounded-lg text-sm font-semibold text-danger transition-colors disabled:opacity-50"
                 style={{ border: "1px solid rgba(255,77,109,0.25)", background: "rgba(255,77,109,0.06)" }}
               >
-                {delMut.isPending ? "…" : "Eliminar"}
+                {delMut.isPending ? "…" : t("suppliers.modal.delete")}
               </button>
             )}
           </div>

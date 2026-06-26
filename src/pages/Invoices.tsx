@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Plus, AlertCircle, FileText, Pencil, Trash2, X, Check } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../store/authStore";
@@ -43,8 +44,8 @@ function getDisplayStatus(inv: Invoice): DisplayStatus {
 }
 
 function supplierName(inv: Invoice): string {
-  if (!inv.suppliers) return "Proveedor";
-  if (Array.isArray(inv.suppliers)) return inv.suppliers[0]?.name ?? "Proveedor";
+  if (!inv.suppliers) return "";
+  if (Array.isArray(inv.suppliers)) return inv.suppliers[0]?.name ?? "";
   return (inv.suppliers as { name: string }).name;
 }
 
@@ -55,21 +56,13 @@ function initials(name: string) {
 const PALETTE = ["#3d8bff", "#00d4ff", "#a855f7", "#ffb84d", "#ff4d6d"];
 function avatarColor(name: string) { return PALETTE[name.charCodeAt(0) % PALETTE.length]; }
 
-const STATUS_CFG: Record<DisplayStatus, { label: string; bg: string; color: string }> = {
-  pending:    { label: "Pendiente",  bg: "rgba(61,139,255,0.12)",  color: "#3d8bff" },
-  programada: { label: "Programada", bg: "rgba(168,85,247,0.12)",  color: "#a855f7" },
-  vencida:    { label: "Vencida",    bg: "rgba(255,77,109,0.12)",  color: "#ff4d6d" },
-  paid:       { label: "Pagada",     bg: "rgba(0,212,255,0.10)",   color: "#00d4ff" },
-  void:       { label: "Anulada",    bg: "rgba(124,136,150,0.12)", color: "#7c8896" },
+const STATUS_STYLE: Record<DisplayStatus, { bg: string; color: string }> = {
+  pending:    { bg: "rgba(61,139,255,0.12)",  color: "#3d8bff" },
+  programada: { bg: "rgba(168,85,247,0.12)",  color: "#a855f7" },
+  vencida:    { bg: "rgba(255,77,109,0.12)",  color: "#ff4d6d" },
+  paid:       { bg: "rgba(0,212,255,0.10)",   color: "#00d4ff" },
+  void:       { bg: "rgba(124,136,150,0.12)", color: "#7c8896" },
 };
-
-const FILTERS: { key: FilterKey; label: string }[] = [
-  { key: "todas",      label: "Todas" },
-  { key: "pending",    label: "Pendientes" },
-  { key: "programada", label: "Programadas" },
-  { key: "vencida",    label: "Vencidas" },
-  { key: "paid",       label: "Pagadas" },
-];
 
 const GLASS = {
   background: "linear-gradient(180deg,rgba(20,32,60,0.55),rgba(9,14,30,0.55))",
@@ -105,6 +98,7 @@ function useInvoices(userId: string) {
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 export default function Invoices() {
+  const { t } = useTranslation();
   const userId   = useAuthStore((s) => s.session!.user.id);
   const navigate = useNavigate();
   const qc       = useQueryClient();
@@ -119,6 +113,25 @@ export default function Invoices() {
     qc.invalidateQueries({ queryKey: ["upcoming-invoices", userId] });
     qc.invalidateQueries({ queryKey: ["cash-position",     userId] });
     qc.invalidateQueries({ queryKey: ["dashboard-data",    userId] });
+  };
+
+  const FILTERS: { key: FilterKey; labelKey: string }[] = [
+    { key: "todas",      labelKey: "invoices.filters.all" },
+    { key: "pending",    labelKey: "invoices.filters.pending" },
+    { key: "programada", labelKey: "invoices.filters.scheduled" },
+    { key: "vencida",    labelKey: "invoices.filters.overdue" },
+    { key: "paid",       labelKey: "invoices.filters.paid" },
+  ];
+
+  const statusLabel = (s: DisplayStatus): string => {
+    const map: Record<DisplayStatus, string> = {
+      pending:    t("invoices.status.pending"),
+      programada: t("invoices.status.scheduled"),
+      vencida:    t("invoices.status.overdue"),
+      paid:       t("invoices.status.paid"),
+      void:       t("invoices.status.void"),
+    };
+    return map[s];
   };
 
   const enriched = (q.data ?? []).map(inv => ({ ...inv, displayStatus: getDisplayStatus(inv) }));
@@ -140,7 +153,6 @@ export default function Invoices() {
 
   return (
     <div>
-      {/* Edit modal */}
       {editInv && (
         <EditInvoiceModal
           invoice={editInv}
@@ -149,7 +161,6 @@ export default function Invoices() {
         />
       )}
 
-      {/* Delete confirm modal */}
       {deleteInv && (
         <DeleteInvoiceModal
           invoice={deleteInv}
@@ -162,10 +173,10 @@ export default function Invoices() {
       {/* Header */}
       <div className="flex items-start justify-between mb-8">
         <div>
-          <h1 className="font-display font-semibold text-2xl text-text">Facturas</h1>
+          <h1 className="font-display font-semibold text-2xl text-text">{t("invoices.title")}</h1>
           {!q.isLoading && (
             <p className="text-text-muted text-sm mt-1">
-              {enriched.length} factura{enriched.length !== 1 ? "s" : ""} · {fmt(totalPayable)} por pagar
+              {t("invoices.summary", { count: enriched.length, amount: fmt(totalPayable) })}
             </p>
           )}
         </div>
@@ -174,13 +185,13 @@ export default function Invoices() {
           className="flex items-center gap-2 h-9 px-4 rounded-lg font-semibold text-sm text-white flex-shrink-0"
           style={{ background: "linear-gradient(150deg,#3d8bff,#1f5fe0)", boxShadow: "0 4px 16px rgba(61,139,255,0.35)" }}
         >
-          <Plus size={15} /> Nueva factura
+          <Plus size={15} /> {t("invoices.newInvoice")}
         </button>
       </div>
 
       {/* Filter tabs */}
       <div className="flex gap-2 mb-4 flex-wrap">
-        {FILTERS.map(({ key, label }) => {
+        {FILTERS.map(({ key, labelKey }) => {
           const active = filter === key;
           return (
             <button
@@ -192,7 +203,7 @@ export default function Invoices() {
                 color:      active ? "#3d8bff" : "#7c8896",
               }}
             >
-              {label}
+              {t(labelKey)}
               <span className="text-[10px] font-bold rounded px-1.5 py-0.5"
                 style={{ background: active ? "rgba(61,139,255,0.18)" : "rgba(125,165,255,0.08)", color: active ? "#3d8bff" : "#5f6b7a" }}>
                 {counts[key]}
@@ -211,17 +222,17 @@ export default function Invoices() {
         )}
         {q.error && (
           <div className="flex items-center gap-2 text-danger text-sm p-8">
-            <AlertCircle size={16} /> Error al cargar facturas
+            <AlertCircle size={16} /> {t("invoices.error")}
           </div>
         )}
         {!q.isLoading && !q.error && filtered.length === 0 && (
           <div className="flex flex-col items-center py-16 text-text-faint text-sm">
             <FileText size={32} className="mb-3 opacity-30" />
-            <p>{filter === "todas" ? "Sin facturas registradas" : "Sin facturas en esta categoría"}</p>
+            <p>{filter === "todas" ? t("invoices.empty.all") : t("invoices.empty.category")}</p>
             {filter === "todas" && (
               <button onClick={() => navigate("/captura")}
                 className="mt-4 text-brand text-xs font-medium hover:text-brand-soft transition-colors">
-                Captura tu primera factura →
+                {t("invoices.empty.cta")}
               </button>
             )}
           </div>
@@ -231,7 +242,14 @@ export default function Invoices() {
           <table className="w-full">
             <thead>
               <tr style={{ borderBottom: "1px solid rgba(125,165,255,0.08)" }}>
-                {["Proveedor", "N.º factura", "Vencimiento", "Monto", "Estado", ""].map((col, i) => (
+                {[
+                  t("invoices.table.supplier"),
+                  t("invoices.table.number"),
+                  t("invoices.table.dueDate"),
+                  t("invoices.table.amount"),
+                  t("invoices.table.status"),
+                  "",
+                ].map((col, i) => (
                   <th key={i} className="text-left text-[10px] uppercase tracking-widest font-medium text-text-faint px-5 py-3.5">
                     {col}
                   </th>
@@ -240,10 +258,16 @@ export default function Invoices() {
             </thead>
             <tbody>
               {filtered.map((inv, idx) => {
-                const name  = supplierName(inv);
+                const rawName = supplierName(inv);
+                const name  = rawName || t("dashboard.upcoming.supplier");
                 const color = avatarColor(name);
-                const cfg   = STATUS_CFG[inv.displayStatus];
+                const style = STATUS_STYLE[inv.displayStatus];
                 const days  = inv.due_date ? daysUntil(inv.due_date) : null;
+
+                const dayLabel = days === null ? "—"
+                  : days < 0 ? t("invoices.daysAgo", { count: Math.abs(days) })
+                  : days === 0 ? t("invoices.dueToday")
+                  : t("invoices.inDays", { count: days });
 
                 return (
                   <tr
@@ -253,7 +277,6 @@ export default function Invoices() {
                     onMouseEnter={e => (e.currentTarget.style.background = "rgba(61,139,255,0.04)")}
                     onMouseLeave={e => (e.currentTarget.style.background = "")}
                   >
-                    {/* Proveedor */}
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-2.5">
                         <div className="w-8 h-8 rounded-lg flex items-center justify-center font-display font-bold text-xs flex-shrink-0"
@@ -263,13 +286,11 @@ export default function Invoices() {
                         <span className="text-text text-sm font-medium">{name}</span>
                       </div>
                     </td>
-                    {/* N.º */}
                     <td className="px-5 py-3.5">
                       <span className="text-text-muted text-sm">
                         {inv.invoice_number ? `#${inv.invoice_number}` : "—"}
                       </span>
                     </td>
-                    {/* Vencimiento */}
                     <td className="px-5 py-3.5">
                       {inv.due_date && days !== null ? (
                         <div>
@@ -277,34 +298,28 @@ export default function Invoices() {
                           <div className="text-xs mt-0.5" style={{
                             color: days < 0 ? "#ff4d6d" : days <= 3 ? "#ffb84d" : "#7c8896",
                           }}>
-                            {days < 0
-                              ? `Vencida hace ${Math.abs(days)} día${Math.abs(days) !== 1 ? "s" : ""}`
-                              : days === 0 ? "Vence hoy"
-                              : `En ${days} día${days !== 1 ? "s" : ""}`}
+                            {dayLabel}
                           </div>
                         </div>
                       ) : <span className="text-text-faint text-sm">—</span>}
                     </td>
-                    {/* Monto */}
                     <td className="px-5 py-3.5">
                       <span className="font-display font-semibold text-sm text-text">
                         {fmt(inv.total_amount, inv.currency)}
                       </span>
                     </td>
-                    {/* Estado */}
                     <td className="px-5 py-3.5">
                       <span className="text-xs font-semibold rounded-md px-2.5 py-1"
-                        style={{ background: cfg.bg, color: cfg.color }}>
-                        {cfg.label}
+                        style={{ background: style.bg, color: style.color }}>
+                        {statusLabel(inv.displayStatus)}
                       </span>
                     </td>
-                    {/* Acciones */}
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-1.5 justify-end">
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); setEditInv(inv); }}
-                          aria-label="Editar factura"
+                          aria-label={t("common.edit")}
                           className="w-7 h-7 rounded-lg flex items-center justify-center text-text-dim hover:text-brand transition-colors"
                           style={{ background: "rgba(61,139,255,0.07)" }}
                         >
@@ -313,7 +328,7 @@ export default function Invoices() {
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); setDeleteInv(inv); }}
-                          aria-label="Eliminar factura"
+                          aria-label={t("common.delete")}
                           className="w-7 h-7 rounded-lg flex items-center justify-center text-text-dim hover:text-danger transition-colors"
                           style={{ background: "rgba(255,77,109,0.07)" }}
                         >
@@ -337,6 +352,7 @@ export default function Invoices() {
 function EditInvoiceModal({ invoice, onSaved, onCancel }: {
   invoice: Invoice; onSaved: () => void; onCancel: () => void;
 }) {
+  const { t } = useTranslation();
   const [total,    setTotal]    = useState(String(invoice.total_amount));
   const [currency, setCurrency] = useState(invoice.currency);
   const [dueDate,  setDueDate]  = useState(invoice.due_date ?? "");
@@ -346,20 +362,15 @@ function EditInvoiceModal({ invoice, onSaved, onCancel }: {
   const mut = useMutation({
     mutationFn: async () => {
       const num = parseFloat(total);
-      if (isNaN(num) || num <= 0) throw new Error("Monto inválido");
+      if (isNaN(num) || num <= 0) throw new Error(t("invoices.invalidAmount"));
       const { error } = await supabase
         .from("invoices")
-        .update({
-          total_amount: num,
-          currency:     currency.trim() || "USD",
-          due_date:     dueDate || null,
-          status,
-        })
+        .update({ total_amount: num, currency: currency.trim() || "USD", due_date: dueDate || null, status })
         .eq("id", invoice.id);
       if (error) throw new Error(error.message);
     },
     onSuccess: onSaved,
-    onError: (e: any) => setErr(e.message ?? "Error al guardar"),
+    onError: (e: any) => setErr(e.message ?? "Error"),
   });
 
   return (
@@ -372,38 +383,38 @@ function EditInvoiceModal({ invoice, onSaved, onCancel }: {
         border: "1px solid rgba(125,165,255,0.16)",
       }}>
         <div className="flex items-center justify-between mb-5">
-          <h2 className="font-display font-semibold text-base text-text">Editar factura</h2>
+          <h2 className="font-display font-semibold text-base text-text">{t("invoices.editTitle")}</h2>
           <button onClick={onCancel} className="text-text-dim hover:text-text transition-colors"><X size={18} /></button>
         </div>
 
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className={labelCls}>Total *</label>
+              <label className={labelCls}>{t("capture.form.total")} *</label>
               <input type="number" step="0.01" min="0" value={total}
                 onChange={(e) => setTotal(e.target.value)} className={fieldCls} autoFocus />
             </div>
             <div>
-              <label className={labelCls}>Moneda</label>
+              <label className={labelCls}>{t("capture.form.currency")}</label>
               <input type="text" value={currency} onChange={(e) => setCurrency(e.target.value)}
                 placeholder="USD" className={fieldCls} />
             </div>
           </div>
 
           <div>
-            <label className={labelCls}>Fecha de vencimiento</label>
+            <label className={labelCls}>{t("capture.form.dueDate")}</label>
             <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)}
               className={`${fieldCls} [color-scheme:dark]`} />
           </div>
 
           <div>
-            <label className={labelCls}>Estado</label>
+            <label className={labelCls}>{t("invoices.table.status")}</label>
             <select value={status} onChange={(e) => setStatus(e.target.value)}
               className={`${fieldCls} cursor-pointer`}
               style={{ WebkitAppearance: "none" }}>
-              <option value="pending">Pendiente</option>
-              <option value="programada">Programada</option>
-              <option value="paid">Pagada</option>
+              <option value="pending">{t("invoices.status.pending")}</option>
+              <option value="programada">{t("invoices.status.scheduled")}</option>
+              <option value="paid">{t("invoices.status.paid")}</option>
             </select>
           </div>
 
@@ -413,7 +424,7 @@ function EditInvoiceModal({ invoice, onSaved, onCancel }: {
             <button type="button" onClick={() => mut.mutate()} disabled={mut.isPending}
               className="flex-1 h-10 rounded-lg font-display font-semibold text-sm text-white flex items-center justify-center gap-2 disabled:opacity-50"
               style={{ background: "linear-gradient(150deg,#3d8bff,#1f5fe0)", boxShadow: "0 4px 16px rgba(61,139,255,0.35)" }}>
-              <Check size={14} /> {mut.isPending ? "Guardando…" : "Guardar cambios"}
+              <Check size={14} /> {mut.isPending ? t("preferences.saving") : t("invoices.saveChanges")}
             </button>
           </div>
         </div>
@@ -427,28 +438,21 @@ function EditInvoiceModal({ invoice, onSaved, onCancel }: {
 function DeleteInvoiceModal({ invoice, userId, onDeleted, onCancel }: {
   invoice: Invoice; userId: string; onDeleted: () => void; onCancel: () => void;
 }) {
-  const name = supplierName(invoice);
+  const { t } = useTranslation();
+  const rawName = supplierName(invoice);
+  const name = rawName || t("dashboard.upcoming.supplier");
   const [err, setErr] = useState("");
 
   const mut = useMutation({
     mutationFn: async () => {
-      // 1. Delete associated cash movement (invoice_id link)
       const { error: movErr } = await supabase
-        .from("cash_movements")
-        .delete()
-        .eq("invoice_id", invoice.id)
-        .eq("user_id", userId);
+        .from("cash_movements").delete().eq("invoice_id", invoice.id).eq("user_id", userId);
       if (movErr) throw new Error(`Movimiento: ${movErr.message}`);
-
-      // 2. Delete invoice (invoice_items cascade automatically)
-      const { error: invErr } = await supabase
-        .from("invoices")
-        .delete()
-        .eq("id", invoice.id);
+      const { error: invErr } = await supabase.from("invoices").delete().eq("id", invoice.id);
       if (invErr) throw new Error(`Factura: ${invErr.message}`);
     },
     onSuccess: onDeleted,
-    onError: (e: any) => setErr(e.message ?? "Error al eliminar"),
+    onError: (e: any) => setErr(e.message ?? "Error"),
   });
 
   return (
@@ -461,16 +465,14 @@ function DeleteInvoiceModal({ invoice, userId, onDeleted, onCancel }: {
         border: "1px solid rgba(255,77,109,0.20)",
       }}>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-display font-semibold text-base text-text">Eliminar factura</h2>
+          <h2 className="font-display font-semibold text-base text-text">{t("invoices.deleteTitle")}</h2>
           <button onClick={onCancel} className="text-text-dim hover:text-text transition-colors"><X size={18} /></button>
         </div>
 
         <p className="text-text-muted text-sm mb-1">
-          ¿Eliminar la factura de <strong className="text-text">{name}</strong>?
+          {t("invoices.deleteConfirm", { name })}
         </p>
-        <p className="text-text-dim text-xs mb-5">
-          Se eliminará también el movimiento de caja asociado. Esta acción no se puede deshacer.
-        </p>
+        <p className="text-text-dim text-xs mb-5">{t("invoices.deleteWarning")}</p>
 
         {err && <div className="flex items-center gap-2 text-danger text-xs mb-3"><AlertCircle size={13} />{err}</div>}
 
@@ -478,12 +480,12 @@ function DeleteInvoiceModal({ invoice, userId, onDeleted, onCancel }: {
           <button type="button" onClick={() => mut.mutate()} disabled={mut.isPending}
             className="flex-1 h-10 rounded-lg font-semibold text-sm text-white disabled:opacity-50 flex items-center justify-center"
             style={{ background: "linear-gradient(150deg,#ff4d6d,#cc2244)" }}>
-            {mut.isPending ? "Eliminando…" : "Sí, eliminar"}
+            {mut.isPending ? t("invoices.eliminating") : t("invoices.yes_delete")}
           </button>
           <button type="button" onClick={onCancel}
             className="flex-1 h-10 rounded-lg text-sm font-medium text-text-muted transition-colors"
             style={{ background: "rgba(125,165,255,0.07)", border: "1px solid rgba(125,165,255,0.12)" }}>
-            Cancelar
+            {t("invoices.cancel")}
           </button>
         </div>
       </div>
