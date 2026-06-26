@@ -4,7 +4,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, AreaChart, Area,
 } from "recharts";
-import { ScanLine, AlertCircle, TrendingDown, Info } from "lucide-react";
+import { ScanLine, AlertCircle, TrendingDown, Info, CheckCircle } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../store/authStore";
 
@@ -304,69 +304,73 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ── Projected cash flow ── */}
-      <div className="rounded-2xl p-6" style={GLASS}>
-        <div className="flex items-start justify-between mb-5">
-          <div>
-            <h2 className="font-display font-semibold text-sm text-text">Flujo de caja proyectado</h2>
-            <p className="text-text-dim text-xs mt-0.5">Próximos 30 días — descuenta facturas pendientes por fecha de vencimiento</p>
-          </div>
-          {data && data.b30 < 0 && (
-            <div className="flex items-center gap-1.5 text-danger text-xs font-medium flex-shrink-0"
-              style={{ background: "rgba(255,77,109,0.10)", border: "1px solid rgba(255,77,109,0.20)", borderRadius: 8, padding: "4px 10px" }}>
-              <AlertCircle size={12} /> Saldo negativo proyectado
+      {/* ── Projected cash flow (60%) + Alertas inteligentes (40%) ── */}
+      <div className="grid gap-4" style={{ gridTemplateColumns: "3fr 2fr" }}>
+
+        {/* Left: projected cash flow */}
+        <div className="rounded-2xl p-6" style={GLASS}>
+          <div className="flex items-start justify-between mb-5">
+            <div>
+              <h2 className="font-display font-semibold text-sm text-text">Flujo de caja proyectado</h2>
+              <p className="text-text-dim text-xs mt-0.5">Próximos 30 días — descuenta facturas pendientes por fecha de vencimiento</p>
             </div>
+            {data && data.b30 < 0 && (
+              <div className="flex items-center gap-1.5 text-danger text-xs font-medium flex-shrink-0"
+                style={{ background: "rgba(255,77,109,0.10)", border: "1px solid rgba(255,77,109,0.20)", borderRadius: 8, padding: "4px 10px" }}>
+                <AlertCircle size={12} /> Saldo negativo proyectado
+              </div>
+            )}
+          </div>
+
+          {/* Milestone cards */}
+          <div className="grid grid-cols-3 gap-3 mb-6">
+            {([
+              { label: "En 7 días",  val: data?.b7  },
+              { label: "En 15 días", val: data?.b15 },
+              { label: "En 30 días", val: data?.b30 },
+            ] as const).map(({ label, val }) => (
+              <div key={label} className="rounded-xl p-4 text-center"
+                style={{ background: "rgba(27,39,66,0.50)", border: "1px solid rgba(125,165,255,0.08)" }}>
+                <div className="text-text-faint text-[10px] uppercase tracking-wider font-medium mb-1">{label}</div>
+                {isLoading ? (
+                  <div className="h-6 w-20 mx-auto rounded bg-elevated animate-pulse" />
+                ) : (
+                  <div className="font-display font-bold text-lg leading-none"
+                    style={{ color: (val ?? 0) < 0 ? "#ff4d6d" : "#3d8bff" }}>
+                    {val !== undefined ? fmt(val, data?.currency) : "—"}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Area chart */}
+          {data && !data.hasInvoices ? (
+            <EmptyChart label="Sin facturas pendientes para proyectar" height={140} />
+          ) : (
+            <ResponsiveContainer width="100%" height={160}>
+              <AreaChart data={data?.projLine ?? []}>
+                <defs>
+                  <linearGradient id="projGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor="#3d8bff" stopOpacity={0.22} />
+                    <stop offset="95%" stopColor="#3d8bff" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(125,165,255,0.07)" vertical={false} />
+                <XAxis dataKey="label" tick={{ fill: "#5f6b7a", fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis tickFormatter={(v: number) => v >= 1000 ? `$${(v/1000).toFixed(0)}k` : `$${v}`}
+                  tick={{ fill: "#5f6b7a", fontSize: 10 }} axisLine={false} tickLine={false} width={42} />
+                <Tooltip {...TOOLTIP_STYLE} formatter={(v: number) => [fmt(v), "Saldo proyectado"]} />
+                <Area type="monotone" dataKey="balance" name="Saldo proyectado"
+                  stroke="#3d8bff" strokeWidth={2} fill="url(#projGrad)" dot={{ fill: "#3d8bff", r: 3, strokeWidth: 0 }} />
+              </AreaChart>
+            </ResponsiveContainer>
           )}
         </div>
 
-        {/* Milestone cards */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
-          {([
-            { label: "En 7 días",  val: data?.b7  },
-            { label: "En 15 días", val: data?.b15 },
-            { label: "En 30 días", val: data?.b30 },
-          ] as const).map(({ label, val }) => (
-            <div key={label} className="rounded-xl p-4 text-center"
-              style={{ background: "rgba(27,39,66,0.50)", border: "1px solid rgba(125,165,255,0.08)" }}>
-              <div className="text-text-faint text-[10px] uppercase tracking-wider font-medium mb-1">{label}</div>
-              {isLoading ? (
-                <div className="h-6 w-20 mx-auto rounded bg-elevated animate-pulse" />
-              ) : (
-                <div className="font-display font-bold text-lg leading-none"
-                  style={{ color: (val ?? 0) < 0 ? "#ff4d6d" : "#3d8bff" }}>
-                  {val !== undefined ? fmt(val, data?.currency) : "—"}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Area chart */}
-        {data && !data.hasInvoices ? (
-          <EmptyChart label="Sin facturas pendientes para proyectar" height={140} />
-        ) : (
-          <ResponsiveContainer width="100%" height={160}>
-            <AreaChart data={data?.projLine ?? []}>
-              <defs>
-                <linearGradient id="projGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%"  stopColor="#3d8bff" stopOpacity={0.22} />
-                  <stop offset="95%" stopColor="#3d8bff" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(125,165,255,0.07)" vertical={false} />
-              <XAxis dataKey="label" tick={{ fill: "#5f6b7a", fontSize: 10 }} axisLine={false} tickLine={false} />
-              <YAxis tickFormatter={(v: number) => v >= 1000 ? `$${(v/1000).toFixed(0)}k` : `$${v}`}
-                tick={{ fill: "#5f6b7a", fontSize: 10 }} axisLine={false} tickLine={false} width={42} />
-              <Tooltip {...TOOLTIP_STYLE} formatter={(v: number) => [fmt(v), "Saldo proyectado"]} />
-              <Area type="monotone" dataKey="balance" name="Saldo proyectado"
-                stroke="#3d8bff" strokeWidth={2} fill="url(#projGrad)" dot={{ fill: "#3d8bff", r: 3, strokeWidth: 0 }} />
-            </AreaChart>
-          </ResponsiveContainer>
-        )}
+        {/* Right: alerts */}
+        <AlertsWidget userId={userId} />
       </div>
-
-      {/* ── Smart alerts panel ── */}
-      <AlertsWidget userId={userId} />
 
       {/* ── Upcoming invoices quick list ── */}
       {data && data.pendingCount > 0 && (
@@ -420,58 +424,116 @@ function EmptyChart({ label, height = 200 }: { label: string; height?: number })
 }
 
 function AlertsWidget({ userId }: { userId: string }) {
-  const { data: alerts = [] } = useQuery({
-    queryKey: ["alerts-widget", userId],
+  const session = useAuthStore((s) => s.session);
+
+  const { data: alerts = [], isLoading } = useQuery({
+    queryKey: ["alerts-panel", userId],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data: existing } = await supabase
         .from("notifications")
         .select("id,title,body,severity,read,created_at")
         .eq("user_id", userId)
-        .eq("read", false)
-        .in("severity", ["danger", "warning"])
         .order("created_at", { ascending: false })
-        .limit(4);
-      return data ?? [];
+        .limit(5);
+
+      if (existing && existing.length > 0) return existing;
+
+      // Nothing yet — trigger check-alerts to seed the first batch
+      const token = session?.access_token;
+      if (!token) return [];
+      await fetch("/api/check-alerts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accessToken: token }),
+      }).catch(console.error);
+
+      const { data: fresh } = await supabase
+        .from("notifications")
+        .select("id,title,body,severity,read,created_at")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(5);
+      return fresh ?? [];
     },
     staleTime: 30_000,
   });
 
-  if (alerts.length === 0) return null;
-
   const colorOf = (sev: string) =>
-    sev === "danger" ? "#ff4d6d" : sev === "warning" ? "#ffb84d" : "#3d8bff";
+    ({ danger: "#ff4d6d", warning: "#ffb84d", success: "#10b981", info: "#3d8bff" }[sev] ?? "#3d8bff");
 
-  const iconOf = (sev: string) =>
-    sev === "danger" || sev === "warning"
-      ? <AlertCircle size={13} style={{ color: colorOf(sev) }} />
-      : <Info size={13} style={{ color: colorOf(sev) }} />;
+  const iconOf = (sev: string) => {
+    const c = colorOf(sev);
+    if (sev === "danger" || sev === "warning") return <AlertCircle size={14} style={{ color: c }} />;
+    if (sev === "success") return <CheckCircle size={14} style={{ color: c }} />;
+    return <Info size={14} style={{ color: c }} />;
+  };
+
+  const newCount = alerts.filter((a: any) => !a.read).length;
+  const hasUrgent = alerts.some((a: any) => a.severity === "danger");
 
   return (
-    <div className="rounded-2xl p-6" style={GLASS}>
-      <h2 className="font-display font-semibold text-sm text-text mb-4">Alertas inteligentes</h2>
-      <div className="grid gap-2.5" style={{ gridTemplateColumns: alerts.length > 2 ? "1fr 1fr" : "1fr" }}>
-        {alerts.map((a: any) => {
-          const color = colorOf(a.severity);
-          return (
-            <div
-              key={a.id}
-              className="flex items-start gap-3 rounded-xl px-4 py-3"
-              style={{ background: color + "0d", border: `1px solid ${color}22` }}
-            >
-              <div
-                className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5"
-                style={{ background: color + "1a" }}
-              >
-                {iconOf(a.severity)}
-              </div>
-              <div className="min-w-0">
-                <p className="text-text text-[12.5px] font-medium leading-snug">{a.title}</p>
-                <p className="text-text-dim text-[11px] mt-0.5 leading-relaxed line-clamp-2">{a.body}</p>
-              </div>
-            </div>
-          );
-        })}
+    <div className="rounded-2xl p-5 flex flex-col" style={GLASS}>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4 flex-shrink-0">
+        <h2 className="font-display font-semibold text-sm text-text">Alertas inteligentes</h2>
+        {newCount > 0 && (
+          <span
+            className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+            style={{
+              background: hasUrgent ? "rgba(255,77,109,0.14)" : "rgba(255,184,77,0.14)",
+              color: hasUrgent ? "#ff4d6d" : "#ffb84d",
+              border: `1px solid ${hasUrgent ? "rgba(255,77,109,0.25)" : "rgba(255,184,77,0.25)"}`,
+            }}
+          >
+            {newCount} nueva{newCount !== 1 ? "s" : ""}
+          </span>
+        )}
       </div>
+
+      {/* Body */}
+      {isLoading ? (
+        <div className="flex-1 flex flex-col gap-2.5">
+          {[0, 1, 2].map(i => (
+            <div key={i} className="h-[62px] rounded-xl animate-pulse" style={{ background: "rgba(27,39,66,0.4)" }} />
+          ))}
+        </div>
+      ) : alerts.length === 0 ? (
+        <div className="flex-1 flex flex-col items-center justify-center text-center gap-2 py-4">
+          <CheckCircle size={26} style={{ color: "#10b981", opacity: 0.35 }} />
+          <p className="text-text-dim text-sm font-medium">Todo en orden</p>
+          <p className="text-text-faint text-xs leading-relaxed max-w-[160px]">
+            Sin alertas activas en este momento
+          </p>
+        </div>
+      ) : (
+        <div className="flex-1 flex flex-col gap-2 overflow-y-auto" style={{ maxHeight: 320 }}>
+          {alerts.map((a: any) => {
+            const color = colorOf(a.severity);
+            return (
+              <div
+                key={a.id}
+                className="flex items-start gap-3 rounded-xl px-3.5 py-3 flex-shrink-0"
+                style={{
+                  background: color + "0c",
+                  border: `1px solid ${color}1e`,
+                  opacity: a.read ? 0.6 : 1,
+                }}
+              >
+                <div
+                  className="w-[26px] h-[26px] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
+                  style={{ background: color + "18" }}
+                >
+                  {iconOf(a.severity)}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-text text-[12.5px] font-semibold leading-snug">{a.title}</p>
+                  <p className="text-text-dim text-[11px] mt-0.5 leading-relaxed">{a.body}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
