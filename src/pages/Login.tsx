@@ -56,7 +56,7 @@ export default function Login() {
           <img
             src="/logo-full-512.png"
             alt="Smarter Restaurant Management"
-            className="h-14 w-auto max-w-[220px] object-contain"
+            className="h-24 w-auto max-w-[260px] object-contain"
           />
         </div>
 

@@ -101,7 +101,7 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
           <img
             src="/icon-192.png"
             alt="Logo"
-            className="w-10 h-10 rounded-xl object-contain flex-shrink-0"
+            className="w-12 h-12 rounded-xl object-contain flex-shrink-0"
           />
           <div>
             <div className="font-display font-semibold text-sm text-text leading-tight">Smarter Restaurant</div>
