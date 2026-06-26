@@ -2,20 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .bg-elevated-input {
+    background: rgb(var(--elevated-rgb) / 0.65);
+  }
+}
+
 :root {
-  /* Backgrounds / surfaces (theme-independent) */
+  /* ── Surfaces ── */
   --base: #070c1a;
   --surface: #0c1426;
   --surface-2: #0a1020;
   --elevated: #1b2742;
+  --elevated-rgb: 27 39 66;    /* for rgb(var(--elevated-rgb)/X) patterns */
+  --base-rgb: 7 12 26;
 
-  /* Text (theme-independent) */
+  /* ── Text ── */
   --text: #e8edf2;
   --text-muted: #9fb0c0;
   --text-dim: #7c8896;
   --text-faint: #5f6b7a;
 
-  /* Semantic (theme-independent) */
+  /* ── Semantic ── */
   --danger: #ff4d6d;
   --gold: #ffb84d;
   --violet: #a855f7;
@@ -25,22 +33,73 @@
   --brand-deep: #1f5fe0;
   --brand-deeper: #1746b0;
   --brand-cyan: #00d4ff;
-  --brand-rgb: 61 139 255;       /* space-separated for Tailwind opacity modifiers */
+  --brand-rgb: 61 139 255;
   --brand-cyan-rgb: 0 212 255;
   --brand-border-active: rgba(61, 139, 255, 0.45);
   --glass-border: rgba(125, 165, 255, 0.12);
+
+  /* ── Glass panel backgrounds ── */
+  --glass-bg: linear-gradient(180deg, rgba(20,32,60,0.55), rgba(9,14,30,0.55));
+  --glass-modal-bg: linear-gradient(180deg, rgba(20,32,60,0.97), rgba(9,14,30,0.98));
+  --sidebar-bg: linear-gradient(180deg, rgba(20,32,60,0.70), rgba(9,14,30,0.80));
+
+  /* ── KPI accent card tokens ── */
+  --kpi-card-bg: linear-gradient(180deg, rgba(20,32,60,0.55), rgba(9,14,30,0.55));
+  --kpi-card-border: rgba(125, 165, 255, 0.12);
+  --kpi-label-color: #5f6b7a;
+  --kpi-value-brand: var(--brand);
+  --kpi-value-danger: #ff4d6d;
+  --kpi-value-cyan: var(--brand-cyan);
+  --kpi-hint-color: #7c8896;
 }
 
-/* ── PINK THEME ── */
+/* ── PINK THEME — vino oscuro / fucsia vibrante ── */
 [data-theme="pink"] {
-  --brand: #ff5d8f;
-  --brand-deep: #d43a6a;
-  --brand-deeper: #b02257;
-  --brand-cyan: #ff8fb3;
-  --brand-rgb: 255 93 143;
-  --brand-cyan-rgb: 255 143 179;
-  --brand-border-active: rgba(255, 93, 143, 0.45);
-  --glass-border: rgba(255, 125, 165, 0.12);
+  /* Brand */
+  --brand: #ec3a9a;
+  --brand-deep: #a01a6e;
+  --brand-deeper: #7a1254;
+  --brand-cyan: #00e0a0;
+  --brand-rgb: 236 58 154;
+  --brand-cyan-rgb: 0 224 160;
+  --brand-border-active: rgba(236, 58, 154, 0.50);
+  --glass-border: rgba(236, 58, 154, 0.22);
+
+  /* Surfaces — vino oscuro */
+  --base: #1a0617;
+  --surface: #200a1c;
+  --surface-2: #180716;
+  --elevated: #3a0f2e;
+  --elevated-rgb: 58 15 46;
+  --base-rgb: 26 6 23;
+
+  /* Text — tonos cálidos sobre vino */
+  --text: #f9edf5;
+  --text-muted: #e8c8dc;
+  --text-dim: #c79bb5;
+  --text-faint: #9a6880;
+
+  /* Glass — tinte vino/morado */
+  --glass-bg: linear-gradient(180deg, rgba(58,15,46,0.65), rgba(24,7,22,0.72));
+  --glass-modal-bg: linear-gradient(180deg, rgba(58,15,46,0.97), rgba(24,7,22,0.98));
+  --sidebar-bg: linear-gradient(180deg, rgba(58,15,46,0.80), rgba(24,7,22,0.90));
+
+  /* KPI accent cards — gradiente fucsia vibrante */
+  --kpi-card-bg: linear-gradient(135deg, #d6248f 0%, #a01a6e 100%);
+  --kpi-card-border: rgba(236, 58, 154, 0.40);
+  --kpi-label-color: rgba(255, 255, 255, 0.65);
+  --kpi-value-brand: #ffffff;
+  --kpi-value-danger: #ffe8ee;
+  --kpi-value-cyan: #d0fff5;
+  --kpi-hint-color: rgba(255, 255, 255, 0.55);
+}
+
+/* Fondo vino con glow fucsia + teal en tema rosado */
+[data-theme="pink"] body {
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(236,58,154,0.18), transparent 60%),
+    radial-gradient(900px 500px at -5% 110%, rgba(0,224,160,0.06), transparent 55%),
+    linear-gradient(160deg, #2d0a24 0%, #1a0617 100%);
 }
 
 * {
@@ -70,7 +129,7 @@ h1, h2, h3, h4, .font-display {
 }
 
 .glass {
-  background: linear-gradient(180deg, rgba(20, 32, 60, 0.55), rgba(9, 14, 30, 0.55));
+  background: var(--glass-bg);
   backdrop-filter: blur(20px) saturate(140%);
   -webkit-backdrop-filter: blur(20px) saturate(140%);
   border: 1px solid var(--glass-border);

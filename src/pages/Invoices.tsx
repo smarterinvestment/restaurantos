@@ -65,14 +65,14 @@ const STATUS_STYLE: Record<DisplayStatus, { bg: string; color: string }> = {
 };
 
 const GLASS = {
-  background: "linear-gradient(180deg,rgba(20,32,60,0.55),rgba(9,14,30,0.55))",
+  background: "var(--glass-bg)",
   backdropFilter: "blur(20px) saturate(140%)",
   border: "1px solid var(--glass-border)",
 } as const;
 
 const fieldCls = [
   "h-10 rounded-lg px-3 text-sm text-text w-full",
-  "bg-[rgba(27,39,66,0.65)]",
+  "bg-elevated-input",
   "border border-[rgba(125,165,255,0.14)] focus:border-[var(--brand-border-active)]",
   "outline-none transition-colors placeholder:text-text-faint",
 ].join(" ");
@@ -198,7 +198,7 @@ export default function Invoices() {
               key={key} onClick={() => setFilter(key)}
               className="flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-semibold transition-all"
               style={{
-                background: active ? "rgb(var(--brand-rgb) / 0.16)" : "rgba(27,39,66,0.55)",
+                background: active ? "rgb(var(--brand-rgb) / 0.16)" : "rgb(var(--elevated-rgb) / 0.55)",
                 border:     active ? "1px solid rgb(var(--brand-rgb) / 0.35)" : "1px solid rgba(125,165,255,0.10)",
                 color:      active ? "var(--brand)" : "#7c8896",
               }}
@@ -380,7 +380,7 @@ function EditInvoiceModal({ invoice, onSaved, onCancel }: {
       style={{ background: "rgba(7,12,26,0.82)", backdropFilter: "blur(6px)" }}
       onClick={(e) => e.target === e.currentTarget && onCancel()}>
       <div className="rounded-2xl p-6 w-full max-w-sm" style={{
-        background: "linear-gradient(180deg,rgba(20,32,60,0.95),rgba(9,14,30,0.95))",
+        background: "var(--glass-modal-bg)",
         backdropFilter: "blur(20px) saturate(140%)",
         border: "1px solid rgba(125,165,255,0.16)",
       }}>
@@ -462,7 +462,7 @@ function DeleteInvoiceModal({ invoice, userId, onDeleted, onCancel }: {
       style={{ background: "rgba(7,12,26,0.82)", backdropFilter: "blur(6px)" }}
       onClick={(e) => e.target === e.currentTarget && onCancel()}>
       <div className="rounded-2xl p-6 w-full max-w-sm" style={{
-        background: "linear-gradient(180deg,rgba(20,32,60,0.95),rgba(9,14,30,0.95))",
+        background: "var(--glass-modal-bg)",
         backdropFilter: "blur(20px) saturate(140%)",
         border: "1px solid rgba(255,77,109,0.20)",
       }}>

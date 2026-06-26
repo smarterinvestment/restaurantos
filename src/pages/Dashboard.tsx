@@ -33,7 +33,7 @@ function todayLabel(lang: string): string {
 }
 
 const GLASS = {
-  background: "linear-gradient(180deg,rgba(20,32,60,0.55),rgba(9,14,30,0.55))",
+  background: "var(--glass-bg)",
   backdropFilter: "blur(20px) saturate(140%)",
   border: "1px solid var(--glass-border)",
 } as const;
@@ -309,7 +309,7 @@ export default function Dashboard() {
                       {cat ? fmt(cat.amount) : <span className="inline-block w-12 h-3 rounded bg-elevated animate-pulse" />}
                     </span>
                   </div>
-                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(27,39,66,0.80)" }}>
+                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgb(var(--elevated-rgb) / 0.80)" }}>
                     <div
                       className="h-full rounded-full transition-all duration-700"
                       style={{
@@ -351,7 +351,7 @@ export default function Dashboard() {
               { labelKey: "dashboard.cashflow.in30days", val: data?.b30 },
             ] as const).map(({ labelKey, val }) => (
               <div key={labelKey} className="rounded-xl p-4 text-center"
-                style={{ background: "rgba(27,39,66,0.50)", border: "1px solid var(--glass-border)" }}>
+                style={{ background: "rgb(var(--elevated-rgb) / 0.50)", border: "1px solid var(--glass-border)" }}>
                 <div className="text-text-faint text-[10px] uppercase tracking-wider font-medium mb-1">{t(labelKey)}</div>
                 {isLoading ? (
                   <div className="h-6 w-20 mx-auto rounded bg-elevated animate-pulse" />
@@ -412,18 +412,22 @@ function KpiCard({ label, loading, error, value, hint, accent, empty, emptyHint 
   empty?: boolean; emptyHint?: string;
 }) {
   const { t } = useTranslation();
-  const color = accent === "brand" ? "var(--brand)" : "#ff4d6d";
+  const color = accent === "brand" ? "var(--kpi-value-brand)" : "var(--kpi-value-danger)";
   return (
-    <div className="rounded-2xl p-5" style={GLASS}>
-      <div className="text-text-faint text-[10px] uppercase tracking-widest font-medium mb-3">{label}</div>
+    <div className="rounded-2xl p-5" style={{
+      background: "var(--kpi-card-bg)",
+      backdropFilter: "blur(20px) saturate(140%)",
+      border: "1px solid var(--kpi-card-border)",
+    }}>
+      <div className="text-[10px] uppercase tracking-widest font-medium mb-3" style={{ color: "var(--kpi-label-color)" }}>{label}</div>
       {loading && <div className="w-5 h-5 rounded-full border-2 border-brand border-t-transparent animate-spin mb-2" />}
       {error   && <div className="text-danger text-sm font-medium mb-2">{t("common.error")}</div>}
       {!loading && !error && (
         empty
-          ? <div className="font-display font-bold text-2xl leading-none mb-1.5 text-text-faint">—</div>
+          ? <div className="font-display font-bold text-2xl leading-none mb-1.5" style={{ color: "var(--kpi-label-color)" }}>—</div>
           : <div className="font-display font-bold text-2xl leading-none mb-1.5" style={{ color }}>{value ?? "—"}</div>
       )}
-      <div className="text-text-dim text-xs">{empty ? emptyHint : hint}</div>
+      <div className="text-xs" style={{ color: "var(--kpi-hint-color)" }}>{empty ? emptyHint : hint}</div>
     </div>
   );
 }
@@ -440,7 +444,7 @@ function Legend({ color, label }: { color: string; label: string }) {
 function EmptyChart({ label, height = 200 }: { label: string; height?: number }) {
   return (
     <div className="flex flex-col items-center justify-center text-text-faint text-xs gap-2 rounded-xl"
-      style={{ height, background: "rgba(27,39,66,0.25)" }}>
+      style={{ height, background: "rgb(var(--elevated-rgb) / 0.25)" }}>
       <TrendingDown size={20} className="opacity-30" />
       {label}
     </div>
@@ -513,7 +517,7 @@ function AlertsWidget({ userId }: { userId: string }) {
       {isLoading ? (
         <div className="flex-1 flex flex-col gap-2.5">
           {[0, 1, 2].map(i => (
-            <div key={i} className="h-[62px] rounded-xl animate-pulse" style={{ background: "rgba(27,39,66,0.4)" }} />
+            <div key={i} className="h-[62px] rounded-xl animate-pulse" style={{ background: "rgb(var(--elevated-rgb) / 0.40)" }} />
           ))}
         </div>
       ) : alerts.length === 0 ? (
@@ -596,7 +600,7 @@ function UpcomingInvoices({ userId }: { userId: string }) {
 
           return (
             <div key={inv.id} className="flex items-center justify-between rounded-xl px-4 py-3"
-              style={{ background: "rgba(27,39,66,0.40)" }}>
+              style={{ background: "rgb(var(--elevated-rgb) / 0.40)" }}>
               <div className="min-w-0">
                 <div className="text-text text-sm font-medium truncate">{name}</div>
                 {inv.invoice_number && <div className="text-text-faint text-xs">#{inv.invoice_number}</div>}

@@ -48,14 +48,14 @@ function fmt(n: number, cur = "USD") {
 function todayStr() { return new Date().toISOString().split("T")[0]; }
 
 const GLASS = {
-  background: "linear-gradient(180deg,rgba(20,32,60,0.55),rgba(9,14,30,0.55))",
+  background: "var(--glass-bg)",
   backdropFilter: "blur(20px) saturate(140%)",
   border: "1px solid var(--glass-border)",
 } as const;
 
 const fieldCls = [
   "h-10 rounded-lg px-3 text-sm text-text w-full",
-  "bg-[rgba(27,39,66,0.65)]",
+  "bg-elevated-input",
   "border border-[rgba(125,165,255,0.14)] focus:border-[var(--brand-border-active)]",
   "outline-none transition-colors placeholder:text-text-faint",
 ].join(" ");
@@ -207,15 +207,19 @@ function KpiCard({ label, value, hint, accent, loading }: {
   label: string; value: string | null; hint?: string;
   accent: "brand" | "danger" | "cyan"; loading: boolean;
 }) {
-  const color = accent === "brand" ? "var(--brand)" : accent === "danger" ? "#ff4d6d" : "var(--brand-cyan)";
+  const color = accent === "brand" ? "var(--kpi-value-brand)" : accent === "danger" ? "var(--kpi-value-danger)" : "var(--kpi-value-cyan)";
   return (
-    <div className="rounded-2xl p-6" style={GLASS}>
-      <div className="text-text-faint text-[10px] uppercase tracking-widest font-medium mb-3">{label}</div>
+    <div className="rounded-2xl p-6" style={{
+      background: "var(--kpi-card-bg)",
+      backdropFilter: "blur(20px) saturate(140%)",
+      border: "1px solid var(--kpi-card-border)",
+    }}>
+      <div className="text-[10px] uppercase tracking-widest font-medium mb-3" style={{ color: "var(--kpi-label-color)" }}>{label}</div>
       {loading
         ? <div className="w-5 h-5 rounded-full border-2 border-brand border-t-transparent animate-spin mb-2" />
         : <div className="font-display font-bold text-3xl leading-none mb-2" style={{ color }}>{value ?? "—"}</div>
       }
-      {hint && <div className="text-text-dim text-xs">{hint}</div>}
+      {hint && <div className="text-xs" style={{ color: "var(--kpi-hint-color)" }}>{hint}</div>}
     </div>
   );
 }
@@ -265,7 +269,7 @@ function IncomeForm({ userId, currency, onSaved }: {
                 key={key} type="button" onClick={() => setCategory(key)}
                 className="flex items-center gap-3 w-full h-10 px-3 rounded-lg text-sm font-medium transition-all text-left"
                 style={{
-                  background: active ? "rgb(var(--brand-rgb) / 0.16)" : "rgba(27,39,66,0.55)",
+                  background: active ? "rgb(var(--brand-rgb) / 0.16)" : "rgb(var(--elevated-rgb) / 0.55)",
                   border:     active ? "1px solid rgb(var(--brand-rgb) / 0.40)" : "1px solid rgba(125,165,255,0.10)",
                   color:      active ? "var(--brand)" : "#9fb0c0",
                 }}
@@ -288,7 +292,7 @@ function IncomeForm({ userId, currency, onSaved }: {
                 key={key} type="button" onClick={() => setMethod(key)}
                 className="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg text-xs font-semibold transition-all"
                 style={{
-                  background: active ? "rgb(var(--brand-rgb) / 0.16)" : "rgba(27,39,66,0.55)",
+                  background: active ? "rgb(var(--brand-rgb) / 0.16)" : "rgb(var(--elevated-rgb) / 0.55)",
                   border:     active ? "1px solid rgb(var(--brand-rgb) / 0.40)" : "1px solid rgba(125,165,255,0.10)",
                   color:      active ? "var(--brand)" : "#7c8896",
                 }}
@@ -379,7 +383,7 @@ function IncomeList({ movements, loading, error, currency, userId, onDeleted }: 
               <div
                 key={m.id}
                 className="flex items-center gap-3 rounded-xl px-4 py-3 transition-opacity"
-                style={{ background: "rgba(27,39,66,0.40)", opacity: isDel ? 0.4 : 1 }}
+                style={{ background: "rgb(var(--elevated-rgb) / 0.40)", opacity: isDel ? 0.4 : 1 }}
               >
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
                   style={{ background: "rgb(var(--brand-rgb) / 0.12)" }}>
@@ -445,7 +449,7 @@ function StartingBalanceRow({ account, userId, onSaved }: {
 
   return (
     <div className="rounded-xl px-5 py-4 flex items-center gap-4"
-      style={{ background: "rgba(27,39,66,0.35)", border: "1px solid rgba(125,165,255,0.08)" }}>
+      style={{ background: "rgb(var(--elevated-rgb) / 0.35)", border: "1px solid var(--glass-border)" }}>
       {!editing ? (
         <>
           <div className="flex-1">

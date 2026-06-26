@@ -314,7 +314,7 @@ function Dropzone({
         minHeight: 340,
         background: dragOver
           ? "linear-gradient(180deg, rgb(var(--brand-rgb) / 0.12), rgba(9,14,30,0.60))"
-          : "linear-gradient(180deg, rgba(20,32,60,0.55), rgba(9,14,30,0.55))",
+          : "var(--glass-bg)",
         backdropFilter: "blur(20px) saturate(140%)",
         border: dragOver
           ? "1.5px dashed rgb(var(--brand-rgb) / 0.65)"
@@ -352,7 +352,7 @@ function ProcessingCard({ preview, statusKey }: { preview: string; statusKey: st
     <div
       className="rounded-2xl p-8 flex flex-col items-center gap-6"
       style={{
-        background: "linear-gradient(180deg, rgba(20,32,60,0.55), rgba(9,14,30,0.55))",
+        background: "var(--glass-bg)",
         backdropFilter: "blur(20px) saturate(140%)",
         border: "1px solid rgba(125,165,255,0.12)",
       }}
@@ -413,7 +413,7 @@ function ConfirmForm({
     <div className="grid gap-6 grid-cols-1 md:grid-cols-[1fr_1.45fr] items-start">
       {/* Left: image preview */}
       <div className="rounded-2xl p-5 md:sticky md:top-8" style={{
-        background: "linear-gradient(180deg, rgba(20,32,60,0.55), rgba(9,14,30,0.55))",
+        background: "var(--glass-bg)",
         backdropFilter: "blur(20px) saturate(140%)",
         border: "1px solid rgba(125,165,255,0.12)",
       }}>
@@ -429,7 +429,7 @@ function ConfirmForm({
 
       {/* Right: editable form */}
       <div className="rounded-2xl p-6" style={{
-        background: "linear-gradient(180deg, rgba(20,32,60,0.55), rgba(9,14,30,0.55))",
+        background: "var(--glass-bg)",
         backdropFilter: "blur(20px) saturate(140%)",
         border: "1px solid rgba(125,165,255,0.12)",
       }}>
@@ -536,7 +536,7 @@ function LineItemRow({ item, onChange, onRemove }: {
 }) {
   const { t } = useTranslation();
   return (
-    <div className="flex items-center gap-2 rounded-xl p-2.5" style={{ background: "rgba(27,39,66,0.55)" }}>
+    <div className="flex items-center gap-2 rounded-xl p-2.5" style={{ background: "rgb(var(--elevated-rgb) / 0.55)" }}>
       <input type="text" value={item.description} onChange={(e) => onChange("description", e.target.value)}
         placeholder={t("capture.form.descPlaceholder")} className={`${fieldCls} flex-1 min-w-0`} />
       <input type="number" value={item.quantity} onChange={(e) => onChange("quantity", e.target.value)}
@@ -560,7 +560,7 @@ function ErrorCard({ message, onRetry }: { message: string; onRetry: () => void 
   const { t } = useTranslation();
   return (
     <div className="rounded-2xl p-10 flex flex-col items-center gap-4 text-center" style={{
-      background: "linear-gradient(180deg, rgba(20,32,60,0.55), rgba(9,14,30,0.55))",
+      background: "var(--glass-bg)",
       backdropFilter: "blur(20px) saturate(140%)",
       border: "1px solid rgba(255,77,109,0.18)",
     }}>
@@ -586,7 +586,7 @@ const labelCls = "block text-text-dim text-xs font-medium mb-1.5";
 
 const fieldCls = [
   "h-9 rounded-lg px-3 text-sm text-text",
-  "bg-[rgba(27,39,66,0.65)]",
+  "bg-elevated-input",
   "border border-[rgba(125,165,255,0.14)] focus:border-[var(--brand-border-active)]",
   "outline-none transition-colors placeholder:text-text-faint",
   "w-full",

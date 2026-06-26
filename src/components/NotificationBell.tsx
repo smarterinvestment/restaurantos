@@ -116,7 +116,7 @@ export default function NotificationBell() {
         onClick={() => setOpen(v => !v)}
         className="relative w-9 h-9 rounded-lg flex items-center justify-center transition-all"
         style={{
-          background: open ? "rgb(var(--brand-rgb) / 0.14)" : "rgba(27,39,66,0.50)",
+          background: open ? "rgb(var(--brand-rgb) / 0.14)" : "rgb(var(--elevated-rgb) / 0.50)",
           border: "1px solid var(--glass-border)",
         }}
         title={t("notifications.title")}

@@ -32,14 +32,14 @@ const PALETTE = ["#3d8bff", "#00d4ff", "#a855f7", "#ffb84d", "#ff4d6d"];
 function avatarColor(name: string) { return PALETTE[name.charCodeAt(0) % PALETTE.length]; }
 
 const GLASS = {
-  background: "linear-gradient(180deg,rgba(20,32,60,0.55),rgba(9,14,30,0.55))",
+  background: "var(--glass-bg)",
   backdropFilter: "blur(20px) saturate(140%)",
   border: "1px solid var(--glass-border)",
 } as const;
 
 const fieldCls = [
   "h-10 rounded-lg px-3 text-sm text-text w-full",
-  "bg-[rgba(27,39,66,0.65)]",
+  "bg-elevated-input",
   "border border-[rgba(125,165,255,0.14)] focus:border-[var(--brand-border-active)]",
   "outline-none transition-colors placeholder:text-text-faint",
 ].join(" ");
@@ -237,7 +237,7 @@ function SupplierCard({ supplier: s, stats, onClick }: {
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-3 rounded-xl p-3" style={{ background: "rgba(27,39,66,0.50)" }}>
+      <div className="grid grid-cols-2 gap-3 rounded-xl p-3" style={{ background: "rgb(var(--elevated-rgb) / 0.50)" }}>
         <div>
           <div className="text-text-faint text-[10px] uppercase tracking-wider font-medium mb-1">
             {t("suppliers.card.yearPurchases")}

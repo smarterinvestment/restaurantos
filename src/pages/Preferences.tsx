@@ -16,7 +16,7 @@ function urlBase64ToUint8Array(base64String: string) {
 }
 
 const GLASS = {
-  background: "linear-gradient(180deg,rgba(20,32,60,0.55),rgba(9,14,30,0.55))",
+  background: "var(--glass-bg)",
   backdropFilter: "blur(20px) saturate(140%)",
   border: "1px solid var(--glass-border)",
 } as const;
@@ -146,7 +146,7 @@ export default function Preferences() {
                   placeholder={t("onboarding.fullNamePlaceholder")}
                   className="w-full h-10 rounded-xl px-3.5 text-sm text-text outline-none transition-all"
                   style={{
-                    background: "rgba(27,39,66,0.65)",
+                    background: "rgb(var(--elevated-rgb) / 0.65)",
                     border: fullName ? "1px solid rgb(var(--brand-rgb) / 0.28)" : "1px solid rgba(125,165,255,0.14)",
                   }}
                 />
@@ -163,7 +163,7 @@ export default function Preferences() {
                   placeholder={t("onboarding.restaurantPlaceholder")}
                   className="w-full h-10 rounded-xl px-3.5 text-sm text-text outline-none transition-all"
                   style={{
-                    background: "rgba(27,39,66,0.65)",
+                    background: "rgb(var(--elevated-rgb) / 0.65)",
                     border: restaurantName ? "1px solid rgb(var(--brand-rgb) / 0.28)" : "1px solid rgba(125,165,255,0.14)",
                   }}
                 />
@@ -181,7 +181,7 @@ export default function Preferences() {
                   onClick={() => i18n.changeLanguage(lang)}
                   className="h-9 px-5 rounded-lg text-sm font-semibold uppercase transition-all"
                   style={{
-                    background: i18n.language.startsWith(lang) ? "rgb(var(--brand-rgb) / 0.16)" : "rgba(27,39,66,0.55)",
+                    background: i18n.language.startsWith(lang) ? "rgb(var(--brand-rgb) / 0.16)" : "rgb(var(--elevated-rgb) / 0.55)",
                     border:     i18n.language.startsWith(lang) ? "1px solid rgb(var(--brand-rgb) / 0.40)" : "1px solid rgba(125,165,255,0.10)",
                     color:      i18n.language.startsWith(lang) ? "var(--brand)" : "#7c8896",
                   }}
@@ -213,7 +213,7 @@ export default function Preferences() {
                     onClick={() => setTheme(th)}
                     className="flex items-center gap-2.5 h-10 px-4 rounded-lg text-sm font-medium transition-all"
                     style={{
-                      background: active ? (th === "blue" ? accentBlue : accentPink) : "rgba(27,39,66,0.55)",
+                      background: active ? (th === "blue" ? accentBlue : accentPink) : "rgb(var(--elevated-rgb) / 0.55)",
                       border: active
                         ? `1px solid ${th === "blue" ? borderBlue : borderPink}`
                         : "1px solid rgba(125,165,255,0.10)",
@@ -309,7 +309,7 @@ export default function Preferences() {
                 <button
                   onClick={() => setDaysBefore(v => Math.max(1, v - 1))}
                   className="w-8 h-8 rounded-lg text-text-muted hover:text-text transition-colors flex items-center justify-center font-bold"
-                  style={{ background: "rgba(27,39,66,0.6)", border: "1px solid rgba(125,165,255,0.10)" }}
+                  style={{ background: "rgb(var(--elevated-rgb) / 0.60)", border: "1px solid var(--glass-border)" }}
                 >
                   −
                 </button>
@@ -322,7 +322,7 @@ export default function Preferences() {
                 <button
                   onClick={() => setDaysBefore(v => Math.min(30, v + 1))}
                   className="w-8 h-8 rounded-lg text-text-muted hover:text-text transition-colors flex items-center justify-center font-bold"
-                  style={{ background: "rgba(27,39,66,0.6)", border: "1px solid rgba(125,165,255,0.10)" }}
+                  style={{ background: "rgb(var(--elevated-rgb) / 0.60)", border: "1px solid var(--glass-border)" }}
                 >
                   +
                 </button>
@@ -368,7 +368,7 @@ function Toggle({
     <div className="flex items-start gap-4">
       <div
         className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
-        style={{ background: "rgba(27,39,66,0.6)", border: "1px solid rgba(125,165,255,0.10)" }}
+        style={{ background: "rgb(var(--elevated-rgb) / 0.60)", border: "1px solid var(--glass-border)" }}
       >
         {icon}
       </div>
@@ -384,7 +384,7 @@ function Toggle({
             onClick={() => onChange(!checked)}
             className="relative flex-shrink-0 w-11 h-6 rounded-full transition-all duration-200"
             style={{
-              background: checked ? "linear-gradient(150deg,var(--brand),var(--brand-deep))" : "rgba(27,39,66,0.8)",
+              background: checked ? "linear-gradient(150deg,var(--brand),var(--brand-deep))" : "rgb(var(--elevated-rgb) / 0.80)",
               border: checked ? "none" : "1px solid rgba(125,165,255,0.15)",
               boxShadow: checked ? "0 2px 10px rgb(var(--brand-rgb) / 0.40)" : "none",
             }}

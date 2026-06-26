@@ -6,7 +6,7 @@ import { supabase } from "../lib/supabase";
 type Message = { role: "user" | "assistant"; content: string };
 
 const GLASS = {
-  background: "linear-gradient(180deg,rgba(20,32,60,0.55),rgba(9,14,30,0.55))",
+  background: "var(--glass-bg)",
   backdropFilter: "blur(20px) saturate(140%)",
   border: "1px solid var(--glass-border)",
 } as const;
@@ -114,7 +114,7 @@ export default function Assistant() {
               style={
                 m.role === "user"
                   ? { background: "linear-gradient(150deg,rgb(var(--brand-rgb) / 0.26),rgb(var(--brand-rgb) / 0.14))", border: "1px solid rgb(var(--brand-rgb) / 0.28)", color: "#e8edf2" }
-                  : { background: "rgba(27,39,66,0.65)", border: "1px solid rgba(125,165,255,0.10)", color: "#e8edf2" }
+                  : { background: "rgb(var(--elevated-rgb) / 0.65)", border: "1px solid var(--glass-border)", color: "var(--text)" }
               }
             >
               {m.content}
@@ -130,7 +130,7 @@ export default function Assistant() {
               <Bot size={15} style={{ color: "var(--brand)" }} />
             </div>
             <div className="rounded-2xl px-4 py-3 flex items-center gap-2"
-              style={{ background: "rgba(27,39,66,0.65)", border: "1px solid rgba(125,165,255,0.10)" }}>
+              style={{ background: "rgb(var(--elevated-rgb) / 0.65)", border: "1px solid var(--glass-border)" }}>
               <Loader2 size={14} className="animate-spin" style={{ color: "var(--brand)" }} />
               <span className="text-text-dim text-xs">{t("assistant.analyzing")}</span>
             </div>
@@ -172,7 +172,7 @@ export default function Assistant() {
           placeholder={t("assistant.placeholder")}
           disabled={loading}
           className="flex-1 h-11 rounded-xl px-4 text-sm text-text outline-none transition-colors disabled:opacity-60"
-          style={{ background: "rgba(27,39,66,0.65)", border: "1px solid rgba(125,165,255,0.14)" }}
+          style={{ background: "rgb(var(--elevated-rgb) / 0.65)", border: "1px solid var(--glass-border)" }}
         />
         <button
           onClick={() => send(input)}
