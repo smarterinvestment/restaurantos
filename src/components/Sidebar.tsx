@@ -47,6 +47,7 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
   const { data: profile }  = useProfile(userId);
   const restaurantName = profile?.restaurant_name?.trim() || "Mi Restaurante";
   const displayName    = profile?.full_name?.trim() || email;
+  const plan           = profile?.plan ?? "free";
   const { data: health } = useHealthScore(userId);
 
   const NAV = [
@@ -80,7 +81,7 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
       ].join(" ")}
       style={{
         width: 248,
-        background: "linear-gradient(180deg, rgba(20,32,60,0.70), rgba(9,14,30,0.80))",
+        background: "var(--sidebar-bg)",
         backdropFilter: "blur(20px) saturate(140%)",
         WebkitBackdropFilter: "blur(20px) saturate(140%)",
         borderRight: "1px solid var(--glass-border)",
@@ -111,7 +112,7 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
       </div>
 
       {/* Salud financiera */}
-      <div className="mx-4 mb-6 rounded-xl p-4" style={{ background: "rgba(27,39,66,0.6)", border: "1px solid var(--glass-border)" }}>
+      <div className="mx-4 mb-6 rounded-xl p-4" style={{ background: "rgb(var(--elevated-rgb) / 0.60)", border: "1px solid var(--glass-border)" }}>
         <div className="text-text-faint text-[10px] uppercase tracking-widest mb-1.5 font-medium">
           {t("sidebar.health")}
         </div>
@@ -220,14 +221,30 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
       {/* User block */}
       <div
         className="mx-4 mb-5 mt-2 rounded-xl px-4 py-3"
-        style={{ background: "rgba(27,39,66,0.5)", border: "1px solid var(--glass-border)" }}
+        style={{ background: "rgb(var(--elevated-rgb) / 0.50)", border: "1px solid var(--glass-border)" }}
       >
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-brand/20 flex items-center justify-center flex-shrink-0">
             <User size={15} className="text-brand" />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="text-text text-sm font-medium leading-tight truncate">{restaurantName}</div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-text text-sm font-medium leading-tight truncate">{restaurantName}</span>
+              {plan !== "free" && (
+                <span
+                  className="text-[9px] font-bold px-1.5 py-px rounded uppercase flex-shrink-0"
+                  style={{
+                    background: plan === "pro"
+                      ? "linear-gradient(90deg, rgb(var(--brand-rgb)/0.25), rgb(var(--brand-cyan-rgb)/0.20))"
+                      : "rgb(var(--brand-rgb)/0.15)",
+                    color: plan === "pro" ? "var(--brand-cyan)" : "var(--brand)",
+                    border: `1px solid ${plan === "pro" ? "rgb(var(--brand-cyan-rgb)/0.30)" : "rgb(var(--brand-rgb)/0.25)"}`,
+                  }}
+                >
+                  {plan.toUpperCase()}
+                </span>
+              )}
+            </div>
             <div className="text-text-faint text-[10px] leading-tight truncate">{displayName}</div>
           </div>
           <button

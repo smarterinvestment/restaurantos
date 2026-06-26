@@ -11,6 +11,7 @@ import Invoices from "./pages/Invoices";
 import Suppliers from "./pages/Suppliers";
 import Assistant from "./pages/Assistant";
 import Preferences from "./pages/Preferences";
+import SelectPlan from "./pages/SelectPlan";
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Login defaultMode="signup" />} />
+        <Route path="/select-plan" element={<SelectPlan />} />
 
         {/* Protected app */}
         <Route

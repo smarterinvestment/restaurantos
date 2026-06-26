@@ -1,5 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useProfile } from "../hooks/useProfile";
 import { useThemeColors } from "../hooks/useThemeColors";
@@ -7,7 +8,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, AreaChart, Area,
 } from "recharts";
-import { ScanLine, AlertCircle, TrendingDown, Info, CheckCircle } from "lucide-react";
+import { ScanLine, AlertCircle, TrendingDown, Info, CheckCircle, X } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../store/authStore";
 import i18n from "../i18n/config";
@@ -169,10 +170,13 @@ function useDashboardData(userId: string, lang: string) {
 
 export default function Dashboard() {
   const navigate  = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { t, i18n } = useTranslation();
   const tc        = useThemeColors();
+  const qc        = useQueryClient();
   const session   = useAuthStore((s) => s.session!);
   const userId    = session.user.id;
+  const [checkoutBanner, setCheckoutBanner] = useState(() => searchParams.get("checkout") === "success");
   const userName  = (session.user.user_metadata?.full_name as string | undefined)
     ?? (session.user.user_metadata?.name as string | undefined)
     ?? session.user.email?.split("@")[0]
@@ -183,6 +187,13 @@ export default function Dashboard() {
     ?? userName.split(/\s+/)[0];
 
   const { data, isLoading, error } = useDashboardData(userId, i18n.language);
+
+  function dismissBanner() {
+    setCheckoutBanner(false);
+    searchParams.delete("checkout");
+    setSearchParams(searchParams, { replace: true });
+    qc.invalidateQueries({ queryKey: ["profile", userId] });
+  }
 
   const TOOLTIP_STYLE = {
     contentStyle: {
@@ -197,6 +208,28 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
+      {/* ── Checkout success banner ── */}
+      {checkoutBanner && (
+        <div
+          className="flex items-center justify-between gap-3 rounded-xl px-5 py-3.5"
+          style={{ background: "rgba(16,185,129,0.10)", border: "1px solid rgba(16,185,129,0.22)" }}
+        >
+          <div className="flex items-center gap-3">
+            <CheckCircle size={18} style={{ color: "#10b981", flexShrink: 0 }} />
+            <span className="text-sm font-medium" style={{ color: "#10b981" }}>
+              ¡Plan activado! Ya tienes acceso completo a todas las funciones.
+            </span>
+          </div>
+          <button
+            onClick={dismissBanner}
+            className="text-text-faint hover:text-text transition-colors flex-shrink-0"
+            aria-label="Cerrar"
+          >
+            <X size={15} />
+          </button>
+        </div>
+      )}
+
       {/* ── Greeting row ── */}
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>

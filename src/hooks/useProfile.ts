@@ -6,6 +6,9 @@ export type Profile = {
   full_name: string | null;
   restaurant_name: string | null;
   created_at: string;
+  plan: string | null;
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
 };
 
 export function useProfile(userId: string) {
@@ -16,7 +19,7 @@ export function useProfile(userId: string) {
     queryFn: async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("user_id,full_name,restaurant_name,created_at")
+        .select("user_id,full_name,restaurant_name,created_at,plan,stripe_customer_id,stripe_subscription_id")
         .eq("user_id", userId)
         .maybeSingle();
       return data as Profile | null;

@@ -980,7 +980,7 @@ export default function Landing() {
                 <li>Proveedores ilimitados</li>
                 <li>App móvil y web (ES/EN)</li>
               </ul>
-              <button className="lp-btn lp-btn-ghost" onClick={goAuth}>Empezar gratis</button>
+              <button className="lp-btn lp-btn-ghost" onClick={() => navigate("/registro?plan=basico")}>Empezar gratis</button>
             </div>
             {/* Pro */}
             <div className="price lp-glass pop l-reveal">
@@ -994,7 +994,7 @@ export default function Landing() {
                 <li>Alertas inteligentes avanzadas</li>
                 <li>Reportes y varias sucursales</li>
               </ul>
-              <button className="lp-btn lp-btn-primary" onClick={goAuth}>Empezar gratis</button>
+              <button className="lp-btn lp-btn-primary" onClick={() => navigate("/registro?plan=pro")}>Empezar gratis</button>
             </div>
           </div>
           <p style={{ textAlign: "center", color: "var(--text-faint)", fontSize: 13.5, marginTop: 22 }}>

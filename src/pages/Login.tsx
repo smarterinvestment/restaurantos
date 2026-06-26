@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Loader2 } from "lucide-react";
 import { supabase } from "../lib/supabase";
@@ -8,6 +8,8 @@ import { useAuthStore } from "../store/authStore";
 export default function Login({ defaultMode = "signin" }: { defaultMode?: "signin" | "signup" }) {
   const { t } = useTranslation();
   const { session } = useAuthStore();
+  const navigate = useNavigate();
+  const [params] = useSearchParams();
   const [mode, setMode] = useState<"signin" | "signup">(defaultMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,7 +31,10 @@ export default function Login({ defaultMode = "signin" }: { defaultMode?: "signi
     } else {
       const { error: err } = await supabase.auth.signUp({ email, password });
       if (err) setError(err.message);
-      else setInfo(t("login.confirmEmail"));
+      else {
+        const plan = params.get("plan");
+        navigate("/select-plan" + (plan ? `?plan=${plan}` : ""));
+      }
     }
 
     setBusy(false);
