@@ -64,20 +64,25 @@ export default function SelectPlan() {
     setLoading(true);
     setError("");
     try {
+      console.log('Llamando a stripe-checkout con:', { priceId: plan.priceMonthlyId, userId: session!.user.id, email: session!.user.email });
       const res = await fetch("/api/stripe-checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           priceId: plan.priceMonthlyId,
-          userId: session.user.id,
-          email: session.user.email,
-          accessToken: session.access_token,
+          userId: session!.user.id,
+          email: session!.user.email,
+          accessToken: session!.access_token,
         }),
       });
+      console.log('Response status:', res.status, 'ok:', res.ok);
+      console.log('Leyendo JSON...');
       const data = await res.json();
+      console.log('Data recibida:', data);
       if (!res.ok) throw new Error(data.error ?? "Error al crear sesión de pago");
       window.location.href = data.url;
     } catch (err: unknown) {
+      console.error('Error completo:', err);
       setError(err instanceof Error ? err.message : "Error inesperado");
       setLoading(false);
     }
