@@ -323,6 +323,13 @@ const STYLES = `
 .lp .show-full .sf-text li{font-size:14px;color:var(--text-muted);display:flex;gap:8px}
 .lp .show-full .sf-text li::before{content:"→";color:#3d8bff;font-weight:700}
 .lp .lp-win-wrap{overflow-x:auto;border-radius:18px}
+/* panel window frame for secondary mockups */
+.lp .showmock .lp-win{border-radius:16px}
+.lp .lp-wincontent{padding:16px}
+@media(max-width:760px){
+  .lp .showmock .lp-win{overflow-x:auto}
+  .lp .lp-wincontent{min-width:360px}
+}
 `;
 
 type NavActive = "dashboard" | "ingresos" | "facturas" | "proveedores";
@@ -627,32 +634,29 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* 2. Captura */}
+          {/* 2. Captura — mockup left, text right */}
           <div className="show l-reveal">
             <div className="showmock">
-              <div className="mock lp-glass">
-                <div className="mhead">
-                  <div className="mtitle">Captura inteligente<span>La IA extrae todo de la foto</span></div>
+              <div className="lp-win">
+                <div className="lp-wbar">
+                  <span className="wdot d1" /><span className="wdot d2" /><span className="wdot d3" />
+                  <span className="lp-wurl">smarter-restaurant.app/captura</span>
                 </div>
-                <div className="cap">
-                  <div className="dropz">
-                    <div className="cam">📷</div>
-                    <b>Toma o sube la factura</b>
-                    <small>JPG · PNG · PDF</small>
+                <div className="lp-wincontent">
+                  <div className="mhead">
+                    <div className="mtitle">Captura inteligente<span>La IA extrae todo de la foto</span></div>
                   </div>
-                  <div className="extr">
-                    <div className="et">✦ Datos extraídos por IA</div>
-                    <div className="field">
-                      <div className="fl">Proveedor</div>
-                      <div className="fv">Distribuidora La Fresca</div>
+                  <div className="cap">
+                    <div className="dropz">
+                      <div className="cam">📷</div>
+                      <b>Toma o sube la factura</b>
+                      <small>JPG · PNG · PDF</small>
                     </div>
-                    <div className="field">
-                      <div className="fl">Monto total</div>
-                      <div className="fv accent">$3,340.00</div>
-                    </div>
-                    <div className="field">
-                      <div className="fl">Vencimiento</div>
-                      <div className="fv">06 jul 2026</div>
+                    <div className="extr">
+                      <div className="et">✦ Datos extraídos por IA</div>
+                      <div className="field"><div className="fl">Proveedor</div><div className="fv">Distribuidora La Fresca</div></div>
+                      <div className="field"><div className="fl">Monto total</div><div className="fv accent">$3,340.00</div></div>
+                      <div className="field"><div className="fl">Vencimiento</div><div className="fv">06 jul 2026</div></div>
                     </div>
                   </div>
                 </div>
@@ -674,36 +678,15 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* 3. Alertas */}
+          {/* 3. Alertas — text left, mockup right */}
           <div className="show l-reveal">
-            <div className="showmock">
-              <div className="mock lp-glass">
-                <div className="mhead">
-                  <div className="mtitle">Alertas inteligentes<span>Te avisa antes, no después</span></div>
-                </div>
-                <div className="alerts-list">
-                  <div className="al-item">
-                    <div className="al-icon dng">!</div>
-                    <div><b>Factura por vencer</b><small>Carnes del Valle · $5,210 vence en 3 días</small></div>
-                  </div>
-                  <div className="al-item">
-                    <div className="al-icon wrn">↑</div>
-                    <div><b>Aumento de costos</b><small>El gasto en alimentos subió 18% vs el mes pasado</small></div>
-                  </div>
-                  <div className="al-item">
-                    <div className="al-icon ok">✓</div>
-                    <div><b>Liquidez bajo control</b><small>Saldo proyectado positivo a 30 días</small></div>
-                  </div>
-                </div>
-              </div>
-            </div>
             <div className="showtext">
               <span className="pill">Siempre un paso adelante</span>
               <h3>Nunca más una factura vencida por sorpresa</h3>
               <p>
-                Smarter vigila tu caja por ti y te avisa por la app y por correo cuando algo
-                necesita tu atención: un pago próximo, un costo que se disparó o un riesgo de
-                liquidez. Decides con tiempo, no con apuro.
+                Smarter vigila tu caja por ti y te avisa cuando algo necesita tu atención:
+                un pago próximo, un costo que se disparó o un riesgo de liquidez. Decides
+                con tiempo, no con apuro.
               </p>
               <ul>
                 <li>Avisos de vencimiento configurables</li>
@@ -711,74 +694,82 @@ export default function Landing() {
                 <li>Notificaciones en la app y por email</li>
               </ul>
             </div>
-          </div>
-
-          {/* 4. Ingresos / Caja — full-width */}
-          <div className="show-full l-reveal">
-            <div className="sf-text">
-              <h3>Registra cada peso que entra</h3>
-              <p>Cierre de caja, terminales, domicilio, propinas o eventos — todo en segundos. Tu historial siempre al día, sin papeles.</p>
-              <ul>
-                <li>Origen e método de cobro en un clic</li>
-                <li>KPIs de ingresos del día y del mes</li>
-                <li>Historial de movimientos con hora exacta</li>
-              </ul>
-            </div>
-            <div className="lp-win-wrap">
+            <div className="showmock">
               <div className="lp-win">
                 <div className="lp-wbar">
                   <span className="wdot d1" /><span className="wdot d2" /><span className="wdot d3" />
-                  <span className="lp-wurl">smarter-restaurant.app/ingresos</span>
+                  <span className="lp-wurl">smarter-restaurant.app/dashboard</span>
                 </div>
-                <div className="lp-wapp">
-                  <MockSidebar active="ingresos" />
-                  <div className="lp-wmain">
-                    <div className="lp-wphead">
-                      <div><h2>Ingresos · Caja</h2><div className="sub">Registra las ventas y entradas de dinero del restaurante</div></div>
-                    </div>
-                    <div className="lp-row lp-r2" style={{ marginBottom: 14 }}>
-                      <div className="lp-card lp-kpi"><div className="kl">Ingresos de hoy</div><div className="kv" style={{ color: "#3d8bff" }}>$7,620.00</div><div className="ks">4 movimientos hoy</div></div>
-                      <div className="lp-card lp-kpi"><div className="kl">Ingresos del mes</div><div className="kv" style={{ color: "#00d4ff" }}>$184,920</div><div className="ks">↑ 9.4% vs mayo</div></div>
-                    </div>
-                    <div className="lp-row lp-r2">
-                      <div className="lp-card">
-                        <div className="lp-ct">Registrar ingreso</div><div className="lp-cs">Cierre de caja, transferencia, propinas o cualquier entrada</div>
-                        <div className="lp-flabel">Origen</div>
-                        <div className="lp-origin">
-                          <span className="lp-ochip on">Cierre de caja</span>
-                          <span className="lp-ochip">Terminal de tarjeta</span>
-                          <span className="lp-ochip">Pedidos a domicilio</span>
-                          <span className="lp-ochip">Propinas</span>
-                          <span className="lp-ochip">Eventos / reservas</span>
-                        </div>
-                        <div className="lp-flabel">Método de cobro</div>
-                        <div className="lp-origin">
-                          <span className="lp-ochip on">Efectivo</span>
-                          <span className="lp-ochip">Tarjeta</span>
-                          <span className="lp-ochip">Transferencia</span>
-                        </div>
-                        <div className="lp-flabel">Monto</div>
-                        <div className="lp-input">$ 3,180.00</div>
-                        <div className="lp-submit">↗ Registrar ingreso</div>
-                      </div>
-                      <div className="lp-card">
-                        <div className="lp-ct">Movimientos recientes</div><div className="lp-cs">Últimas entradas</div>
-                        <div className="lp-move"><div className="ml"><div className="mi">💵</div><div className="mn">Cierre de caja<small>Efectivo · Hoy 23:10</small></div></div><div className="mv">+$3,180.00</div></div>
-                        <div className="lp-move"><div className="ml"><div className="mi">💳</div><div className="mn">Terminal de tarjeta<small>Tarjeta · Hoy 22:40</small></div></div><div className="mv">+$2,640.00</div></div>
-                        <div className="lp-move"><div className="ml"><div className="mi">🛵</div><div className="mn">Pedidos a domicilio<small>Transferencia · Hoy 21:15</small></div></div><div className="mv">+$1,420.00</div></div>
-                        <div className="lp-move"><div className="ml"><div className="mi">🪙</div><div className="mn">Propinas<small>Efectivo · Hoy 20:00</small></div></div><div className="mv">+$380.00</div></div>
-                        <div className="lp-move" style={{ borderBottom: "none" }}><div className="ml"><div className="mi">🎉</div><div className="mn">Eventos / reservas<small>Transferencia · Ayer</small></div></div><div className="mv">+$5,000.00</div></div>
-                      </div>
-                    </div>
+                <div className="lp-wincontent">
+                  <div className="mhead">
+                    <div className="mtitle">Alertas inteligentes<span>Te avisa antes, no después</span></div>
+                  </div>
+                  <div className="alerts-list">
+                    <div className="al-item"><div className="al-icon dng">!</div><div><b>Factura por vencer</b><small>Carnes del Valle · $5,210 vence en 3 días</small></div></div>
+                    <div className="al-item"><div className="al-icon wrn">↑</div><div><b>Aumento de costos</b><small>Alimentos subió 18% vs el mes pasado</small></div></div>
+                    <div className="al-item"><div className="al-icon ok">✓</div><div><b>Liquidez bajo control</b><small>Saldo proyectado positivo a 30 días</small></div></div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* 5. Facturas — full-width */}
-          <div className="show-full l-reveal">
-            <div className="sf-text">
+          {/* 4. Ingresos — mockup left, text right */}
+          <div className="show l-reveal">
+            <div className="showmock">
+              <div className="lp-win">
+                <div className="lp-wbar">
+                  <span className="wdot d1" /><span className="wdot d2" /><span className="wdot d3" />
+                  <span className="lp-wurl">smarter-restaurant.app/ingresos</span>
+                </div>
+                <div className="lp-wincontent">
+                  <div className="mhead">
+                    <div className="mtitle">Ingresos · Caja<span>Ventas y entradas del restaurante</span></div>
+                  </div>
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:12 }}>
+                    <div className="lp-card lp-kpi"><div className="kl">Ingresos de hoy</div><div className="kv" style={{ color:"#3d8bff" }}>$7,620</div><div className="ks">4 movimientos</div></div>
+                    <div className="lp-card lp-kpi"><div className="kl">Este mes</div><div className="kv" style={{ color:"#00d4ff" }}>$184k</div><div className="ks">↑ 9.4% vs mayo</div></div>
+                  </div>
+                  <div className="lp-card" style={{ marginBottom:10 }}>
+                    <div className="lp-ct" style={{ marginBottom:8 }}>Registrar ingreso</div>
+                    <div className="lp-origin" style={{ margin:"0 0 10px" }}>
+                      <span className="lp-ochip on">Cierre de caja</span>
+                      <span className="lp-ochip">Terminal de tarjeta</span>
+                      <span className="lp-ochip">Domicilio</span>
+                    </div>
+                    <div className="lp-origin" style={{ margin:"0 0 10px" }}>
+                      <span className="lp-ochip on">Efectivo</span>
+                      <span className="lp-ochip">Tarjeta</span>
+                      <span className="lp-ochip">Transferencia</span>
+                    </div>
+                    <div className="lp-input">$ 3,180.00</div>
+                    <div className="lp-submit">↗ Registrar ingreso</div>
+                  </div>
+                  <div className="lp-card">
+                    <div className="lp-ct" style={{ marginBottom:8 }}>Movimientos recientes</div>
+                    <div className="lp-move"><div className="ml"><div className="mi">💵</div><div className="mn">Cierre de caja<small>Efectivo · Hoy 23:10</small></div></div><div className="mv">+$3,180.00</div></div>
+                    <div className="lp-move"><div className="ml"><div className="mi">💳</div><div className="mn">Terminal de tarjeta<small>Tarjeta · Hoy 22:40</small></div></div><div className="mv">+$2,640.00</div></div>
+                    <div className="lp-move" style={{ borderBottom:"none" }}><div className="ml"><div className="mi">🛵</div><div className="mn">Pedidos a domicilio<small>Transferencia · Hoy 21:15</small></div></div><div className="mv">+$1,420.00</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="showtext">
+              <span className="pill">Ingresos / Caja</span>
+              <h3>Registra cada peso que entra</h3>
+              <p>Cierre de caja, terminales, domicilio, propinas o eventos — todo en segundos. Tu historial siempre al día, sin papeles.</p>
+              <ul>
+                <li>Origen y método de cobro en un clic</li>
+                <li>KPIs de ingresos del día y del mes</li>
+                <li>Historial de movimientos con hora exacta</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* 5. Facturas — text left, mockup right */}
+          <div className="show l-reveal">
+            <div className="showtext">
+              <span className="pill">Control de facturas</span>
               <h3>Todas tus facturas, bajo control</h3>
               <p>Filtra por estado, ve quién está vencido y cuánto debes. Sin sorpresas al cierre del mes.</p>
               <ul>
@@ -787,76 +778,93 @@ export default function Landing() {
                 <li>Nueva factura en segundos con la captura IA</li>
               </ul>
             </div>
-            <div className="lp-win-wrap">
+            <div className="showmock">
               <div className="lp-win">
                 <div className="lp-wbar">
                   <span className="wdot d1" /><span className="wdot d2" /><span className="wdot d3" />
                   <span className="lp-wurl">smarter-restaurant.app/facturas</span>
                 </div>
-                <div className="lp-wapp">
-                  <MockSidebar active="facturas" />
-                  <div className="lp-wmain">
-                    <div className="lp-wphead">
-                      <div><h2>Facturas</h2><div className="sub">7 facturas · $18,420 por pagar</div></div>
-                      <div className="lp-wscan">+ Nueva factura</div>
-                    </div>
-                    <div className="lp-filters">
-                      <span className="lp-filter on">Todas 7</span>
-                      <span className="lp-filter">Pendientes 2</span>
-                      <span className="lp-filter">Programadas 1</span>
-                      <span className="lp-filter">Vencidas 2</span>
-                      <span className="lp-filter">Pagadas 2</span>
-                    </div>
-                    <div className="lp-card" style={{ padding: "8px 16px" }}>
-                      <table className="lp-ftable">
-                        <thead>
-                          <tr>
-                            <th>Proveedor</th><th>N.º factura</th><th>Vencimiento</th><th>Monto</th><th>Estado</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td><span className="lp-av2" style={{ background:"rgba(61,139,255,.18)",color:"#3d8bff" }}>LF</span><span className="lp-supp">Distribuidora La Fresca<small>Alimentos</small></span></td>
-                            <td>A-04821</td><td>06 jul 2026<br /><small style={{ color:"#7c8896" }}>en 13 días</small></td>
-                            <td><b>$3,340.00</b></td><td><span className="lp-badge bd-w">Pendiente</span></td>
-                          </tr>
-                          <tr>
-                            <td><span className="lp-av2" style={{ background:"rgba(0,212,255,.18)",color:"#00d4ff" }}>CV</span><span className="lp-supp">Carnes del Valle<small>Carnes</small></span></td>
-                            <td>CV-1190</td><td>26 jun 2026<br /><small style={{ color:"#7c8896" }}>en 3 días</small></td>
-                            <td><b>$5,210.00</b></td><td><span className="lp-badge bd-b">Programada</span></td>
-                          </tr>
-                          <tr>
-                            <td><span className="lp-av2" style={{ background:"rgba(255,77,109,.18)",color:"#ff4d6d" }}>GM</span><span className="lp-supp">Gas Industrial GMX<small>Servicios</small></span></td>
-                            <td>GMX-733</td><td>18 jun 2026<br /><small style={{ color:"#ff4d6d" }}>vencida hace 5 días</small></td>
-                            <td><b>$1,820.00</b></td><td><span className="lp-badge bd-d">Vencida</span></td>
-                          </tr>
-                          <tr>
-                            <td><span className="lp-av2" style={{ background:"rgba(168,85,247,.18)",color:"#a855f7" }}>VL</span><span className="lp-supp">Vinos &amp; Licores Sur<small>Bebidas</small></span></td>
-                            <td>VL-2048</td><td>20 jun 2026<br /><small style={{ color:"#ff4d6d" }}>vencida hace 3 días</small></td>
-                            <td><b>$1,330.00</b></td><td><span className="lp-badge bd-d">Vencida</span></td>
-                          </tr>
-                          <tr>
-                            <td><span className="lp-av2" style={{ background:"rgba(243,194,79,.18)",color:"#f3c24f" }}>LT</span><span className="lp-supp">Limpieza Total<small>Insumos</small></span></td>
-                            <td>LT-0091</td><td>30 jun 2026<br /><small style={{ color:"#7c8896" }}>en 7 días</small></td>
-                            <td><b>$640.00</b></td><td><span className="lp-badge bd-w">Pendiente</span></td>
-                          </tr>
-                          <tr>
-                            <td><span className="lp-av2" style={{ background:"rgba(34,224,160,.18)",color:"#22e0a0" }}>PH</span><span className="lp-supp">Panadería El Horno<small>Alimentos</small></span></td>
-                            <td>PH-5512</td><td>12 jun 2026<br /><small style={{ color:"#7c8896" }}>pagada</small></td>
-                            <td><b>$890.00</b></td><td><span className="lp-badge bd-g">Pagada</span></td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
+                <div className="lp-wincontent">
+                  <div className="mhead">
+                    <div className="mtitle">Facturas<span>7 facturas · $18,420 por pagar</span></div>
+                  </div>
+                  <div className="lp-filters" style={{ marginBottom:12 }}>
+                    <span className="lp-filter on">Todas 7</span>
+                    <span className="lp-filter">Pendientes 2</span>
+                    <span className="lp-filter">Vencidas 2</span>
+                    <span className="lp-filter">Pagadas 2</span>
+                  </div>
+                  <div className="lp-card" style={{ padding:"8px 12px" }}>
+                    <table className="lp-ftable">
+                      <thead><tr><th>Proveedor</th><th>Vence</th><th>Monto</th><th>Estado</th></tr></thead>
+                      <tbody>
+                        <tr>
+                          <td><span className="lp-av2" style={{ background:"rgba(61,139,255,.18)",color:"#3d8bff" }}>LF</span><span className="lp-supp">La Fresca<small>Alimentos</small></span></td>
+                          <td style={{ fontSize:10.5 }}>06 jul<br /><small style={{ color:"#7c8896" }}>13 días</small></td>
+                          <td><b>$3,340</b></td><td><span className="lp-badge bd-w">Pendiente</span></td>
+                        </tr>
+                        <tr>
+                          <td><span className="lp-av2" style={{ background:"rgba(0,212,255,.18)",color:"#00d4ff" }}>CV</span><span className="lp-supp">Carnes Valle<small>Carnes</small></span></td>
+                          <td style={{ fontSize:10.5 }}>26 jun<br /><small style={{ color:"#7c8896" }}>3 días</small></td>
+                          <td><b>$5,210</b></td><td><span className="lp-badge bd-b">Programada</span></td>
+                        </tr>
+                        <tr>
+                          <td><span className="lp-av2" style={{ background:"rgba(255,77,109,.18)",color:"#ff4d6d" }}>GM</span><span className="lp-supp">Gas GMX<small>Servicios</small></span></td>
+                          <td style={{ fontSize:10.5 }}>18 jun<br /><small style={{ color:"#ff4d6d" }}>vencida</small></td>
+                          <td><b>$1,820</b></td><td><span className="lp-badge bd-d">Vencida</span></td>
+                        </tr>
+                        <tr>
+                          <td><span className="lp-av2" style={{ background:"rgba(34,224,160,.18)",color:"#22e0a0" }}>PH</span><span className="lp-supp">El Horno<small>Alimentos</small></span></td>
+                          <td style={{ fontSize:10.5 }}>12 jun<br /><small style={{ color:"#7c8896" }}>pagada</small></td>
+                          <td><b>$890</b></td><td><span className="lp-badge bd-g">Pagada</span></td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* 6. Proveedores — full-width */}
-          <div className="show-full l-reveal">
-            <div className="sf-text">
+          {/* 6. Proveedores — mockup left, text right */}
+          <div className="show l-reveal">
+            <div className="showmock">
+              <div className="lp-win">
+                <div className="lp-wbar">
+                  <span className="wdot d1" /><span className="wdot d2" /><span className="wdot d3" />
+                  <span className="lp-wurl">smarter-restaurant.app/proveedores</span>
+                </div>
+                <div className="lp-wincontent">
+                  <div className="mhead">
+                    <div className="mtitle">Proveedores<span>Base de datos y condiciones de crédito</span></div>
+                  </div>
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
+                    <div className="lp-supcard">
+                      <div className="sh"><span className="lp-av2" style={{ background:"rgba(61,139,255,.18)",color:"#3d8bff",width:30,height:30 }}>DF</span><div className="sn">La Fresca<small>Crédito 15 días</small></div></div>
+                      <div className="sc">✉ ventas@lafresca.mx</div>
+                      <div className="lp-supstats"><div><div className="l">Compras / año</div><div className="v">$142k</div></div><div><div className="l">Por pagar</div><div className="v" style={{ color:"#3d8bff" }}>$3,340</div></div></div>
+                    </div>
+                    <div className="lp-supcard">
+                      <div className="sh"><span className="lp-av2" style={{ background:"rgba(0,212,255,.18)",color:"#00d4ff",width:30,height:30 }}>CV</span><div className="sn">Carnes Valle<small>Crédito 7 días</small></div></div>
+                      <div className="sc">✉ pedidos@carnesvalle.mx</div>
+                      <div className="lp-supstats"><div><div className="l">Compras / año</div><div className="v">$98,600</div></div><div><div className="l">Por pagar</div><div className="v" style={{ color:"#ff4d6d" }}>$5,210</div></div></div>
+                    </div>
+                    <div className="lp-supcard">
+                      <div className="sh"><span className="lp-av2" style={{ background:"rgba(168,85,247,.18)",color:"#a855f7",width:30,height:30 }}>VL</span><div className="sn">Vinos &amp; Licores<small>Crédito 30 días</small></div></div>
+                      <div className="sc">✉ hola@licoressur.mx</div>
+                      <div className="lp-supstats"><div><div className="l">Compras / año</div><div className="v">$54,200</div></div><div><div className="l">Por pagar</div><div className="v" style={{ color:"#ff4d6d" }}>$1,330</div></div></div>
+                    </div>
+                    <div className="lp-supcard">
+                      <div className="sh"><span className="lp-av2" style={{ background:"rgba(34,224,160,.18)",color:"#22e0a0",width:30,height:30 }}>PH</span><div className="sn">El Horno<small>Contado</small></div></div>
+                      <div className="sc">✉ elhorno@correo.mx</div>
+                      <div className="lp-supstats"><div><div className="l">Compras / año</div><div className="v">$32,900</div></div><div><div className="l">Por pagar</div><div className="v" style={{ color:"#22e0a0" }}>$0</div></div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="showtext">
+              <span className="pill">Gestión de proveedores</span>
               <h3>Tus proveedores, ordenados y a la mano</h3>
               <p>Historial de compras, condiciones de crédito y deuda actual por proveedor. Negocia con datos reales.</p>
               <ul>
@@ -865,70 +873,10 @@ export default function Landing() {
                 <li>Agrega proveedores nuevos en segundos</li>
               </ul>
             </div>
-            <div className="lp-win-wrap">
-              <div className="lp-win">
-                <div className="lp-wbar">
-                  <span className="wdot d1" /><span className="wdot d2" /><span className="wdot d3" />
-                  <span className="lp-wurl">smarter-restaurant.app/proveedores</span>
-                </div>
-                <div className="lp-wapp">
-                  <MockSidebar active="proveedores" />
-                  <div className="lp-wmain">
-                    <div className="lp-wphead">
-                      <div><h2>Proveedores</h2><div className="sub">Base de datos, condiciones e historial de pagos</div></div>
-                      <div className="lp-wscan">+ Nuevo proveedor</div>
-                    </div>
-                    <div className="lp-row lp-r2">
-                      <div className="lp-supcard">
-                        <div className="sh"><span className="lp-av2" style={{ background:"rgba(61,139,255,.18)",color:"#3d8bff",width:34,height:34 }}>DF</span><div className="sn">Distribuidora La Fresca<small>Crédito 15 días</small></div></div>
-                        <div className="sc">✉ ventas@lafresca.mx</div><div className="sc">📞 +52 55 1234 5678</div>
-                        <div className="lp-supstats"><div><div className="l">Compras / año</div><div className="v">$142,000</div></div><div><div className="l">Por pagar</div><div className="v" style={{ color:"#3d8bff" }}>$3,340</div></div></div>
-                      </div>
-                      <div className="lp-supcard">
-                        <div className="sh"><span className="lp-av2" style={{ background:"rgba(0,212,255,.18)",color:"#00d4ff",width:34,height:34 }}>CV</span><div className="sn">Carnes del Valle<small>Crédito 7 días</small></div></div>
-                        <div className="sc">✉ pedidos@carnesvalle.mx</div><div className="sc">📞 +52 55 9988 1122</div>
-                        <div className="lp-supstats"><div><div className="l">Compras / año</div><div className="v">$98,600</div></div><div><div className="l">Por pagar</div><div className="v" style={{ color:"#ff4d6d" }}>$5,210</div></div></div>
-                      </div>
-                      <div className="lp-supcard">
-                        <div className="sh"><span className="lp-av2" style={{ background:"rgba(168,85,247,.18)",color:"#a855f7",width:34,height:34 }}>VL</span><div className="sn">Vinos &amp; Licores Sur<small>Crédito 30 días</small></div></div>
-                        <div className="sc">✉ hola@licoressur.mx</div><div className="sc">📞 +52 55 7766 5544</div>
-                        <div className="lp-supstats"><div><div className="l">Compras / año</div><div className="v">$54,200</div></div><div><div className="l">Por pagar</div><div className="v" style={{ color:"#ff4d6d" }}>$1,330</div></div></div>
-                      </div>
-                      <div className="lp-supcard">
-                        <div className="sh"><span className="lp-av2" style={{ background:"rgba(34,224,160,.18)",color:"#22e0a0",width:34,height:34 }}>PH</span><div className="sn">Panadería El Horno<small>Contado</small></div></div>
-                        <div className="sc">✉ elhorno@correo.mx</div><div className="sc">📞 +52 55 2211 9988</div>
-                        <div className="lp-supstats"><div><div className="l">Compras / año</div><div className="v">$32,900</div></div><div><div className="l">Por pagar</div><div className="v" style={{ color:"#22e0a0" }}>$0</div></div></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
 
-          {/* 7. Asistente IA */}
-          <div className="show rev l-reveal">
-            <div className="showmock">
-              <div className="mock lp-glass">
-                <div className="mhead">
-                  <div className="mtitle">Asistente financiero IA<span>Tu CFO virtual</span></div>
-                </div>
-                <div className="chat-list">
-                  <div className="msg ai-msg">
-                    Hola Carlos 👋 Tienes $8,500 en pagos durante los próximos 10 días y tu liquidez se mantiene saludable.
-                  </div>
-                  <div className="msg me">¿Cuál será mi saldo si pago todo lo programado?</div>
-                  <div className="msg ai-msg">
-                    Tu saldo a 30 días sería de $12,300 — positivo. Te conviene pagar Carnes del Valle el día 25 para mantener colchón.
-                  </div>
-                  <div className="chips">
-                    <span className="chip">¿Qué pago primero?</span>
-                    <span className="chip">¿Cómo reduzco gastos?</span>
-                    <span className="chip">Proyección a 60 días</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+          {/* 7. Asistente IA — text left, mockup right */}
+          <div className="show l-reveal">
             <div className="showtext">
               <span className="pill">Inteligencia a tu servicio</span>
               <h3>Pregúntale a tu negocio lo que quieras</h3>
@@ -942,6 +890,29 @@ export default function Landing() {
                 <li>Sugerencias para mejorar tu liquidez</li>
                 <li>Como tener un director financiero 24/7</li>
               </ul>
+            </div>
+            <div className="showmock">
+              <div className="lp-win">
+                <div className="lp-wbar">
+                  <span className="wdot d1" /><span className="wdot d2" /><span className="wdot d3" />
+                  <span className="lp-wurl">smarter-restaurant.app/asistente</span>
+                </div>
+                <div className="lp-wincontent">
+                  <div className="mhead">
+                    <div className="mtitle">Asistente financiero IA<span>Tu CFO virtual · Rey Salomón</span></div>
+                  </div>
+                  <div className="chat-list">
+                    <div className="msg ai-msg">Hola Carlos 👋 Tienes $8,500 en pagos durante los próximos 10 días y tu liquidez se mantiene saludable.</div>
+                    <div className="msg me">¿Cuál será mi saldo si pago todo lo programado?</div>
+                    <div className="msg ai-msg">Tu saldo a 30 días sería de $12,300 — positivo. Te conviene pagar Carnes del Valle el día 25 para mantener colchón.</div>
+                    <div className="chips">
+                      <span className="chip">¿Qué pago primero?</span>
+                      <span className="chip">¿Cómo reduzco gastos?</span>
+                      <span className="chip">Proyección a 60 días</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
