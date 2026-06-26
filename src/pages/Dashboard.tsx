@@ -4,7 +4,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, AreaChart, Area,
 } from "recharts";
-import { ScanLine, AlertCircle, TrendingDown } from "lucide-react";
+import { ScanLine, AlertCircle, TrendingDown, Info } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../store/authStore";
 
@@ -365,6 +365,9 @@ export default function Dashboard() {
         )}
       </div>
 
+      {/* ── Smart alerts panel ── */}
+      <AlertsWidget userId={userId} />
+
       {/* ── Upcoming invoices quick list ── */}
       {data && data.pendingCount > 0 && (
         <UpcomingInvoices userId={userId} />
@@ -412,6 +415,63 @@ function EmptyChart({ label, height = 200 }: { label: string; height?: number })
       style={{ height, background: "rgba(27,39,66,0.25)" }}>
       <TrendingDown size={20} className="opacity-30" />
       {label}
+    </div>
+  );
+}
+
+function AlertsWidget({ userId }: { userId: string }) {
+  const { data: alerts = [] } = useQuery({
+    queryKey: ["alerts-widget", userId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("notifications")
+        .select("id,title,body,severity,read,created_at")
+        .eq("user_id", userId)
+        .eq("read", false)
+        .in("severity", ["danger", "warning"])
+        .order("created_at", { ascending: false })
+        .limit(4);
+      return data ?? [];
+    },
+    staleTime: 30_000,
+  });
+
+  if (alerts.length === 0) return null;
+
+  const colorOf = (sev: string) =>
+    sev === "danger" ? "#ff4d6d" : sev === "warning" ? "#ffb84d" : "#3d8bff";
+
+  const iconOf = (sev: string) =>
+    sev === "danger" || sev === "warning"
+      ? <AlertCircle size={13} style={{ color: colorOf(sev) }} />
+      : <Info size={13} style={{ color: colorOf(sev) }} />;
+
+  return (
+    <div className="rounded-2xl p-6" style={GLASS}>
+      <h2 className="font-display font-semibold text-sm text-text mb-4">Alertas inteligentes</h2>
+      <div className="grid gap-2.5" style={{ gridTemplateColumns: alerts.length > 2 ? "1fr 1fr" : "1fr" }}>
+        {alerts.map((a: any) => {
+          const color = colorOf(a.severity);
+          return (
+            <div
+              key={a.id}
+              className="flex items-start gap-3 rounded-xl px-4 py-3"
+              style={{ background: color + "0d", border: `1px solid ${color}22` }}
+            >
+              <div
+                className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5"
+                style={{ background: color + "1a" }}
+              >
+                {iconOf(a.severity)}
+              </div>
+              <div className="min-w-0">
+                <p className="text-text text-[12.5px] font-medium leading-snug">{a.title}</p>
+                <p className="text-text-dim text-[11px] mt-0.5 leading-relaxed line-clamp-2">{a.body}</p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -9,6 +9,7 @@ import {
   TrendingUp,
   User,
   LogOut,
+  Settings,
 } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
 
@@ -108,9 +109,34 @@ export default function Sidebar() {
         ))}
       </nav>
 
+      {/* Preferences link */}
+      <div className="px-3 pb-1">
+        <NavLink
+          to="/preferencias"
+          className={({ isActive }) =>
+            [
+              "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
+              isActive
+                ? "text-text"
+                : "text-text-dim hover:text-text-muted hover:bg-white/5",
+            ].join(" ")
+          }
+          style={({ isActive }) =>
+            isActive ? { background: "rgba(61,139,255,0.12)", boxShadow: "inset 2px 0 0 #3d8bff" } : undefined
+          }
+        >
+          {({ isActive }) => (
+            <>
+              <Settings size={17} className={isActive ? "text-brand" : "text-text-faint"} strokeWidth={isActive ? 2.2 : 1.8} />
+              Preferencias
+            </>
+          )}
+        </NavLink>
+      </div>
+
       {/* User block */}
       <div
-        className="mx-4 mb-5 mt-4 rounded-xl px-4 py-3"
+        className="mx-4 mb-5 mt-2 rounded-xl px-4 py-3"
         style={{ background: "rgba(27,39,66,0.5)", border: "1px solid rgba(125,165,255,0.08)" }}
       >
         <div className="flex items-center gap-3">
