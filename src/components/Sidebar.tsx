@@ -89,6 +89,11 @@ export default function Sidebar() {
             <div className="mt-1.5 text-[10px] font-medium" style={{ color: health.color }}>
               {health.label}
             </div>
+            {health.hint && (
+              <div className="mt-0.5 text-[9px] leading-tight" style={{ color: "rgba(159,176,192,0.65)" }}>
+                {health.hint}
+              </div>
+            )}
           </>
         ) : (
           <>
