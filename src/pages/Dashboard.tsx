@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { useProfile } from "../hooks/useProfile";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, AreaChart, Area,
@@ -176,6 +177,10 @@ export default function Dashboard() {
     ?? session.user.email?.split("@")[0]
     ?? "Chef";
 
+  const { data: profile } = useProfile(userId);
+  const firstName = profile?.full_name?.trim().split(/\s+/)[0]
+    ?? userName.split(/\s+/)[0];
+
   const { data, isLoading, error } = useDashboardData(userId);
 
   return (
@@ -184,7 +189,7 @@ export default function Dashboard() {
       <div className="flex items-start justify-between">
         <div>
           <h1 className="font-display font-semibold text-2xl text-text">
-            {greeting()}, {userName}
+            {greeting()}, {firstName}
           </h1>
           <p className="text-text-muted text-sm mt-1 capitalize">{todayLabel()}</p>
         </div>

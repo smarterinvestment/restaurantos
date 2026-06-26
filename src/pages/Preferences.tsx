@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { Bell, Mail, Save, Check, Smartphone } from "lucide-react";
+import { Bell, Mail, Save, Check, Smartphone, User, Store } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../store/authStore";
+import { useProfile } from "../hooks/useProfile";
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -21,7 +22,13 @@ const GLASS = {
 export default function Preferences() {
   const { session }           = useAuthStore();
   const userId                = session?.user.id ?? "";
+  const { data: profile, upsert: upsertProfile } = useProfile(userId);
 
+  // Profile fields
+  const [fullName,       setFullName]       = useState("");
+  const [restaurantName, setRestaurantName] = useState("");
+
+  // Notification prefs
   const [webEnabled,    setWebEnabled]    = useState(true);
   const [emailEnabled,  setEmailEnabled]  = useState(true);
   const [daysBefore,    setDaysBefore]    = useState(3);
@@ -30,7 +37,14 @@ export default function Preferences() {
   const [saved,         setSaved]         = useState(false);
   const [pushStatus,    setPushStatus]    = useState<"idle" | "requesting" | "granted" | "denied">("idle");
 
-  // Load existing preferences
+  // Seed profile fields when profile loads
+  useEffect(() => {
+    if (profile === undefined) return;
+    setFullName(profile?.full_name ?? "");
+    setRestaurantName(profile?.restaurant_name ?? "");
+  }, [profile]);
+
+  // Load notification preferences
   useEffect(() => {
     if (!userId) return;
     supabase
@@ -60,10 +74,16 @@ export default function Preferences() {
   async function save() {
     if (!userId) return;
     setSaving(true);
-    await supabase.from("notification_preferences").upsert(
-      { user_id: userId, web_enabled: webEnabled, email_enabled: emailEnabled, days_before_due: daysBefore },
-      { onConflict: "user_id" }
-    );
+    await Promise.all([
+      supabase.from("notification_preferences").upsert(
+        { user_id: userId, web_enabled: webEnabled, email_enabled: emailEnabled, days_before_due: daysBefore },
+        { onConflict: "user_id" }
+      ),
+      upsertProfile.mutateAsync({
+        full_name:       fullName.trim(),
+        restaurant_name: restaurantName.trim() || "Mi Restaurante",
+      }),
+    ]);
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
@@ -120,6 +140,48 @@ export default function Preferences() {
         </div>
       ) : (
         <>
+          {/* ── Profile ── */}
+          <div className="rounded-2xl p-6 space-y-4" style={GLASS}>
+            <h2 className="font-display font-semibold text-sm text-text">Perfil</h2>
+
+            <div className="grid gap-4" style={{ gridTemplateColumns: "1fr 1fr" }}>
+              <div>
+                <label className="block text-text-dim text-xs font-medium mb-1.5">
+                  <User size={11} className="inline mr-1 opacity-70" />
+                  Tu nombre completo
+                </label>
+                <input
+                  type="text"
+                  value={fullName}
+                  onChange={e => setFullName(e.target.value)}
+                  placeholder="Ej: María González"
+                  className="w-full h-10 rounded-xl px-3.5 text-sm text-text outline-none transition-all"
+                  style={{
+                    background: "rgba(27,39,66,0.65)",
+                    border: fullName ? "1px solid rgba(61,139,255,0.28)" : "1px solid rgba(125,165,255,0.14)",
+                  }}
+                />
+              </div>
+              <div>
+                <label className="block text-text-dim text-xs font-medium mb-1.5">
+                  <Store size={11} className="inline mr-1 opacity-70" />
+                  Nombre del restaurante
+                </label>
+                <input
+                  type="text"
+                  value={restaurantName}
+                  onChange={e => setRestaurantName(e.target.value)}
+                  placeholder="Ej: Tacos El Compadre"
+                  className="w-full h-10 rounded-xl px-3.5 text-sm text-text outline-none transition-all"
+                  style={{
+                    background: "rgba(27,39,66,0.65)",
+                    border: restaurantName ? "1px solid rgba(61,139,255,0.28)" : "1px solid rgba(125,165,255,0.14)",
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
           {/* Notification channels */}
           <div className="rounded-2xl p-6 space-y-5" style={GLASS}>
             <h2 className="font-display font-semibold text-sm text-text">Canales de notificación</h2>

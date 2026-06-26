@@ -1,10 +1,19 @@
 import { Outlet } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import NotificationBell from "../components/NotificationBell";
+import OnboardingModal from "../components/OnboardingModal";
+import { useAuthStore } from "../store/authStore";
+import { useProfile } from "../hooks/useProfile";
 
 export default function AppLayout() {
+  const { session }  = useAuthStore();
+  const userId       = session?.user.id ?? "";
+  const { data: profile, isLoading: profileLoading } = useProfile(userId);
+  const needsOnboarding = !!userId && !profileLoading && (!profile || !profile.full_name?.trim());
+
   return (
     <div className="min-h-screen bg-base">
+      {needsOnboarding && <OnboardingModal userId={userId} />}
       <Sidebar />
 
       {/* Top bar — notification bell */}

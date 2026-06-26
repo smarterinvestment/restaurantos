@@ -12,6 +12,7 @@ import {
   Settings,
 } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
+import { useProfile } from "../hooks/useProfile";
 
 const NAV = [
   { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -24,7 +25,11 @@ const NAV = [
 
 export default function Sidebar() {
   const { session, signOut } = useAuthStore();
-  const email = session?.user.email ?? "";
+  const email   = session?.user.email ?? "";
+  const userId  = session?.user.id ?? "";
+  const { data: profile } = useProfile(userId);
+  const restaurantName = profile?.restaurant_name?.trim() || "Mi Restaurante";
+  const displayName    = profile?.full_name?.trim() || email;
 
   return (
     <aside
@@ -144,8 +149,8 @@ export default function Sidebar() {
             <User size={15} className="text-brand" />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="text-text text-sm font-medium leading-tight truncate">Mi Restaurante</div>
-            <div className="text-text-faint text-[10px] leading-tight truncate">{email}</div>
+            <div className="text-text text-sm font-medium leading-tight truncate">{restaurantName}</div>
+            <div className="text-text-faint text-[10px] leading-tight truncate">{displayName}</div>
           </div>
           <button
             onClick={signOut}
