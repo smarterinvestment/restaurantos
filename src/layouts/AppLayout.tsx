@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
-import { Menu, TrendingUp } from "lucide-react";
+import { Menu } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import NotificationBell from "../components/NotificationBell";
 import OnboardingModal from "../components/OnboardingModal";
@@ -39,13 +39,8 @@ export default function AppLayout() {
           <Menu size={20} />
         </button>
         <div className="flex items-center gap-2 flex-1">
-          <div
-            className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-            style={{ background: "linear-gradient(150deg,var(--brand),var(--brand-deep))" }}
-          >
-            <TrendingUp size={13} className="text-white" />
-          </div>
-          <span className="font-display font-semibold text-sm text-text">CashFlow AI</span>
+          <img src="/icon-192.png" alt="Logo" className="w-7 h-7 rounded-md flex-shrink-0" />
+          <span className="font-display font-semibold text-sm text-text">Smarter Restaurant</span>
         </div>
         <NotificationBell />
       </div>

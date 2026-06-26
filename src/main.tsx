@@ -10,6 +10,11 @@ import "./i18n/config";
 const savedTheme = localStorage.getItem("ros-theme") ?? "blue";
 document.documentElement.setAttribute("data-theme", savedTheme);
 
+// Register service worker for PWA installability
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js").catch(() => {});
+}
+
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000 } },
 });

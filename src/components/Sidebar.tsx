@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import {
   LayoutDashboard, ScanLine, Banknote, FileText,
-  Truck, Sparkles, TrendingUp, User, LogOut, Settings, X,
+  Truck, Sparkles, User, LogOut, Settings, X,
 } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
 import { useProfile } from "../hooks/useProfile";
@@ -96,17 +96,17 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
       </button>
 
       {/* Logo */}
-      <div className="px-6 pt-7 pb-6">
+      <div className="px-6 pt-6 pb-6">
         <div className="flex items-center gap-2.5">
-          <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-            style={{ background: "linear-gradient(150deg,var(--brand),var(--brand-deep))" }}
-          >
-            <TrendingUp size={16} className="text-white" />
-          </div>
+          <img
+            src="/icon-192.png"
+            alt="Logo"
+            className="w-8 h-8 rounded-lg flex-shrink-0"
+            style={{ filter: "drop-shadow(0 2px 8px rgb(var(--brand-rgb) / 0.25))" }}
+          />
           <div>
-            <div className="font-display font-semibold text-sm text-text leading-tight">CashFlow AI</div>
-            <div className="text-text-faint text-[10px] leading-tight">RestaurantOS</div>
+            <div className="font-display font-semibold text-sm text-text leading-tight">Smarter Restaurant</div>
+            <div className="text-text-faint text-[10px] leading-tight">Management</div>
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Navigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { TrendingUp, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../store/authStore";
 
@@ -52,17 +52,13 @@ export default function Login() {
         }}
       >
         {/* Logo */}
-        <div className="flex items-center gap-3 mb-8">
-          <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{ background: "linear-gradient(150deg,var(--brand),var(--brand-deep))" }}
-          >
-            <TrendingUp size={20} className="text-white" />
-          </div>
-          <div>
-            <div className="font-display font-semibold text-base text-text">CashFlow AI</div>
-            <div className="text-text-faint text-xs">RestaurantOS</div>
-          </div>
+        <div className="flex flex-col items-center mb-8">
+          <img
+            src="/logo-full-512.png"
+            alt="Smarter Restaurant Management"
+            className="h-16 w-auto"
+            style={{ filter: "drop-shadow(0 4px 16px rgb(var(--brand-rgb) / 0.30))" }}
+          />
         </div>
 
         <h1 className="font-display font-semibold text-xl text-text mb-1">
