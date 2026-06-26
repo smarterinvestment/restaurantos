@@ -1,13 +1,22 @@
 /**
- * api/extract-invoice.cjs — Vercel Serverless Function (CommonJS)
+ * api/extract-invoice.ts — Vercel Serverless Function
  *
- * .cjs fuerza CommonJS aunque package.json tenga "type": "module".
- * Extrae datos de una factura (imagen) usando CLAUDE VISION.
+ * api/package.json fuerza CommonJS para este directorio,
+ * resolviendo el conflicto con "type": "module" del raíz (Vite).
  *
  * POST { imageBase64: string, mediaType: "image/jpeg"|"image/png"|"image/webp" }
  * Devuelve JSON estructurado. NO persiste — el frontend confirma antes de guardar.
  * Requiere env: ANTHROPIC_API_KEY
  */
+
+type VercelRequest = {
+  method?: string;
+  body?: any;
+};
+type VercelResponse = {
+  status: (code: number) => VercelResponse;
+  json: (body: any) => void;
+};
 
 const EXTRACTION_SCHEMA = `{
   "supplier_name": string,
@@ -31,7 +40,7 @@ const SYSTEM_PROMPT =
   "\nSi un campo no aparece en la factura, usa null. Las cantidades son números (sin símbolo de moneda). " +
   "Las fechas en formato ISO YYYY-MM-DD.";
 
-module.exports = async function handler(req, res) {
+module.exports = async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -41,7 +50,10 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: "Falta ANTHROPIC_API_KEY en el servidor" });
   }
 
-  const { imageBase64, mediaType } = req.body || {};
+  const { imageBase64, mediaType } = (req.body || {}) as {
+    imageBase64?: string;
+    mediaType?: string;
+  };
 
   if (!imageBase64 || !mediaType) {
     return res.status(400).json({ error: "Faltan imageBase64 y/o mediaType" });
@@ -95,9 +107,9 @@ module.exports = async function handler(req, res) {
     const data = await anthropicRes.json();
     console.log("[extract-invoice] Respuesta OK — stop_reason:", data.stop_reason, "| usage:", JSON.stringify(data.usage));
 
-    const text = (data.content || [])
-      .filter((b) => b.type === "text")
-      .map((b) => b.text)
+    const text: string = (data.content || [])
+      .filter((b: any) => b.type === "text")
+      .map((b: any) => b.text)
       .join("");
 
     const cleaned = text.replace(/```json|```/g, "").trim();
@@ -105,7 +117,7 @@ module.exports = async function handler(req, res) {
     const end = cleaned.lastIndexOf("}");
     const jsonStr = start >= 0 && end >= 0 ? cleaned.slice(start, end + 1) : cleaned;
 
-    let parsed;
+    let parsed: any;
     try {
       parsed = JSON.parse(jsonStr);
     } catch {
@@ -118,7 +130,7 @@ module.exports = async function handler(req, res) {
 
     // NO se guarda. El frontend debe confirmarlo con el usuario primero.
     return res.status(200).json({ ok: true, invoice: parsed });
-  } catch (err) {
+  } catch (err: any) {
     console.error("[extract-invoice] Fallo inesperado:", err);
     return res.status(500).json({ error: "Fallo inesperado", detail: String(err?.message || err) });
   }

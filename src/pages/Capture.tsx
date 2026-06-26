@@ -111,7 +111,7 @@ export default function Capture() {
 
       // 2. Call Claude Vision API via serverless function
       const imageBase64 = await toBase64(file);
-      const res = await fetch("/api/extract-invoice.cjs", {
+      const res = await fetch("/api/extract-invoice", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageBase64, mediaType: file.type }),
