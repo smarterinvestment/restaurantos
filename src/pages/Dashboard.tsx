@@ -420,7 +420,6 @@ function UpcomingInvoices({ userId }: { userId: string }) {
   const { data, isLoading } = useQuery({
     queryKey: ["upcoming-invoices", userId],
     queryFn: async () => {
-      const today = new Date().toISOString().split("T")[0];
       const in30  = new Date(Date.now() + 30 * 86_400_000).toISOString().split("T")[0];
       const { data } = await supabase
         .from("invoices")
