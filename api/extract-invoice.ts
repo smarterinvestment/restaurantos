@@ -1,5 +1,5 @@
 /**
- * api/extract-invoice.ts — Vercel Serverless Function
+ * api/extract-invoice.ts — Vercel Serverless Function (CommonJS)
  *
  * Extrae datos de una factura (imagen) usando CLAUDE VISION.
  * NO usar OpenAI/Tesseract/Google Vision. Modelo: claude-sonnet-4-6.
@@ -9,6 +9,7 @@
  *   el frontend debe mostrar pantalla de CONFIRMACIÓN HUMANA antes de guardar en Supabase.
  *
  * Requiere env del servidor: ANTHROPIC_API_KEY
+ * Runtime: Node 18+ (fetch nativo disponible sin node-fetch)
  */
 
 type VercelRequest = {
@@ -42,7 +43,7 @@ const SYSTEM_PROMPT =
   `\nSi un campo no aparece en la factura, usa null. Las cantidades son números (sin símbolo de moneda). ` +
   `Las fechas en formato ISO YYYY-MM-DD.`;
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+module.exports = async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -60,6 +61,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!imageBase64 || !mediaType) {
     return res.status(400).json({ error: "Faltan imageBase64 y/o mediaType" });
   }
+
+  console.log("[extract-invoice] Iniciando llamada a Claude Vision API");
+  console.log("[extract-invoice] mediaType:", mediaType, "| imageBase64 length:", imageBase64.length);
 
   try {
     const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
@@ -91,12 +95,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }),
     });
 
+    console.log("[extract-invoice] Anthropic HTTP status:", anthropicRes.status, anthropicRes.statusText);
+
     if (!anthropicRes.ok) {
-      const detail = await anthropicRes.text();
-      return res.status(502).json({ error: "Error en Claude API", detail });
+      const errorBody = await anthropicRes.text();
+      console.error("[extract-invoice] Anthropic error body:", errorBody);
+      return res.status(502).json({
+        error: "Error en Claude API",
+        status: anthropicRes.status,
+        detail: errorBody,
+      });
     }
 
     const data = await anthropicRes.json();
+    console.log("[extract-invoice] Respuesta OK — stop_reason:", data.stop_reason, "| usage:", JSON.stringify(data.usage));
+
     const text: string = (data.content || [])
       .filter((b: any) => b.type === "text")
       .map((b: any) => b.text)
@@ -112,6 +125,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
       parsed = JSON.parse(jsonStr);
     } catch {
+      console.error("[extract-invoice] JSON parse failed. Raw text:", text);
       return res.status(422).json({
         error: "No se pudo parsear la respuesta como JSON",
         raw: text,
@@ -121,6 +135,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // OJO: esto NO se guarda. El frontend debe confirmarlo con el usuario primero.
     return res.status(200).json({ ok: true, invoice: parsed });
   } catch (err: any) {
+    console.error("[extract-invoice] Fallo inesperado:", err);
     return res.status(500).json({ error: "Fallo inesperado", detail: String(err?.message || err) });
   }
-}
+};
