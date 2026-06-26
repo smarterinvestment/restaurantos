@@ -177,7 +177,194 @@ const STYLES = `
 @media(prefers-reduced-motion:reduce){
   .lp .l-reveal{opacity:1;transform:none;transition:none}
   .lp .mock.tilt{transform:none}}
+
+/* ── extra vars for mockups ── */
+.lp{--violet:#a855f7;--danger:#ff4d6d;--cyan:#00d4ff;--dim:#7c8896;--muted:#9fb0c0;--faint:#5f6b7a}
+
+/* ── window frame ── */
+.lp .lp-win{width:min(1100px,100%);border-radius:18px;overflow:hidden;border:1px solid rgba(125,165,255,.12);
+  box-shadow:0 40px 90px rgba(0,0,0,.55);
+  background:radial-gradient(900px 500px at 85% -10%,rgba(61,139,255,.10),transparent 60%),
+    radial-gradient(700px 460px at -5% 110%,rgba(0,212,255,.06),transparent 55%),#070c1a}
+.lp .lp-wbar{display:flex;align-items:center;gap:7px;padding:11px 15px;
+  background:rgba(10,16,32,.8);border-bottom:1px solid rgba(125,165,255,.12)}
+.lp .wdot{width:11px;height:11px;border-radius:50%;flex-shrink:0;display:inline-block}
+.lp .d1{background:#ff5f57}.lp .d2{background:#febc2e}.lp .d3{background:#28c840}
+.lp .lp-wurl{margin-left:12px;font-size:11.5px;color:#7c8896;background:rgba(7,12,26,.7);
+  padding:4px 12px;border-radius:7px;border:1px solid rgba(125,165,255,.12)}
+.lp .lp-wapp{display:grid;grid-template-columns:208px 1fr}
+.lp .lp-wside{border-right:1px solid rgba(125,165,255,.12);padding:16px 12px;
+  display:flex;flex-direction:column;gap:14px;min-height:560px;background:rgba(9,14,30,.4)}
+.lp .lp-wlogo{display:flex;align-items:center;gap:9px}
+.lp .lp-whealth{background:linear-gradient(180deg,rgba(20,32,60,.55),rgba(9,14,30,.55));
+  border:1px solid rgba(125,165,255,.12);border-radius:13px;padding:13px}
+.lp .lp-whealth .hl{font-size:8.5px;color:#7c8896;letter-spacing:.08em;text-transform:uppercase}
+.lp .lp-whealth .hv{font-family:'Space Grotesk';font-weight:700;font-size:26px;color:#00d4ff;margin:3px 0 1px}
+.lp .lp-whealth .hv small{font-size:11px;color:#7c8896}
+.lp .lp-wtrack{height:5px;border-radius:5px;background:rgba(125,165,255,.12);margin:7px 0 5px;overflow:hidden}
+.lp .lp-wtrack span{display:block;height:100%;width:92%;background:linear-gradient(90deg,#3d8bff,#00d4ff)}
+.lp .lp-whealth .hs{font-size:9px;color:#22e0a0}
+.lp .lp-whealth .hs b{color:#9fb0c0;font-weight:400;display:block;margin-top:2px}
+.lp .lp-wnav{display:flex;flex-direction:column;gap:2px;margin-top:4px}
+.lp .lp-wnav a{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;
+  font-size:12.5px;color:#9fb0c0;cursor:default;text-decoration:none}
+.lp .lp-wnav a.on{background:rgba(61,139,255,.12);border:1px solid rgba(61,139,255,.3);color:#fff;font-weight:600}
+.lp .lp-wnav a .ni{width:15px;text-align:center;opacity:.85;flex-shrink:0}
+.lp .lp-wfoot{margin-top:auto;display:flex;align-items:center;gap:8px;padding:9px;
+  border:1px solid rgba(125,165,255,.12);border-radius:11px}
+.lp .lp-wfoot .fav{width:26px;height:26px;border-radius:8px;background:rgba(61,139,255,.18);
+  display:grid;place-items:center;font-size:12px}
+.lp .lp-wfoot small{font-size:10.5px;color:var(--text)}
+.lp .lp-wfoot small b{display:block;color:#7c8896;font-weight:400;font-size:9px}
+.lp .lp-wmain{padding:22px 24px;flex:1;min-width:0}
+.lp .lp-wphead{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;gap:12px}
+.lp .lp-wphead h2{font-size:21px;font-weight:700;color:var(--text)}
+.lp .lp-wphead .sub{font-size:12px;color:#7c8896;margin-top:3px}
+.lp .lp-wscan{font-family:'Space Grotesk';font-weight:600;font-size:12px;color:#fff;
+  background:linear-gradient(150deg,#3d8bff,#1f5fe0);border-radius:10px;padding:9px 15px;
+  box-shadow:0 6px 18px rgba(61,139,255,.4);white-space:nowrap;flex-shrink:0}
+.lp .lp-row{display:grid;gap:13px;margin-bottom:13px}
+.lp .lp-r4{grid-template-columns:repeat(4,1fr)}
+.lp .lp-r2{grid-template-columns:1fr 1fr}
+.lp .lp-r32{grid-template-columns:1.4fr 1fr}
+.lp .lp-card{background:linear-gradient(180deg,rgba(20,32,60,.5),rgba(9,14,30,.5));
+  border:1px solid rgba(125,165,255,.12);border-radius:15px;padding:15px}
+.lp .lp-kpi .kl{font-size:9px;color:#7c8896;text-transform:uppercase;letter-spacing:.07em}
+.lp .lp-kpi .kv{font-family:'Space Grotesk';font-weight:700;font-size:25px;margin:6px 0 2px}
+.lp .lp-kpi .ks{font-size:9.5px;color:#5f6b7a}
+.lp .lp-ct{font-family:'Space Grotesk';font-weight:600;font-size:13px;margin-bottom:3px;color:var(--text)}
+.lp .lp-cs{font-size:10px;color:#7c8896;margin-bottom:12px}
+.lp .lp-cbars{display:flex;align-items:flex-end;gap:10px;height:150px;padding-top:8px}
+.lp .lp-bg{flex:1;display:flex;gap:3px;align-items:flex-end;height:100%}
+.lp .lp-bg span{flex:1;border-radius:4px 4px 0 0}
+.lp .lp-bg .ba{background:linear-gradient(180deg,#3d8bff,#1f5fe0)}
+.lp .lp-bg .bb{background:rgba(125,140,160,.5)}
+.lp .lp-bglabel{display:flex;gap:10px;margin-top:6px}
+.lp .lp-bglabel span{flex:1;text-align:center;font-size:9px;color:#5f6b7a}
+.lp .lp-catrow{display:flex;flex-direction:column;gap:13px}
+.lp .lp-cat .ch{display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:5px;color:#9fb0c0}
+.lp .lp-cat .cv{font-weight:600;color:var(--text)}
+.lp .lp-catbar{height:6px;border-radius:6px;background:rgba(125,165,255,.1);overflow:hidden}
+.lp .lp-catbar span{display:block;height:100%}
+.lp .lp-proj{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:14px}
+.lp .lp-proj .pp{background:rgba(10,16,32,.6);border:1px solid rgba(125,165,255,.12);
+  border-radius:11px;padding:11px;text-align:center}
+.lp .lp-proj .pl{font-size:8px;color:#7c8896;text-transform:uppercase;letter-spacing:.06em}
+.lp .lp-proj .pv{font-family:'Space Grotesk';font-weight:700;font-size:18px;color:#f3c24f;margin-top:4px}
+.lp .lp-projline{height:78px;position:relative;margin-top:6px}
+.lp .lp-walerts{display:flex;flex-direction:column;gap:8px}
+.lp .lp-al{display:flex;gap:10px;align-items:flex-start;background:rgba(10,16,32,.6);
+  border:1px solid rgba(125,165,255,.12);border-radius:11px;padding:11px}
+.lp .lp-al .lai{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:13px;flex-shrink:0}
+.lp .lp-al b{font-size:11.5px;display:block;color:var(--text)}
+.lp .lp-al small{font-size:10px;color:#7c8896}
+.lp .lai.dng{background:rgba(255,77,109,.14);color:#ff4d6d}
+.lp .lai.wrn{background:rgba(243,194,79,.14);color:#f3c24f}
+.lp .lai.ok{background:rgba(34,224,160,.14);color:#22e0a0}
+.lp .lp-venc{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;
+  background:rgba(10,16,32,.5);border:1px solid rgba(125,165,255,.12);border-radius:11px;margin-bottom:8px}
+.lp .lp-venc:last-child{margin-bottom:0}
+.lp .lp-venc .vp{font-size:12px;font-weight:600;color:var(--text)}
+.lp .lp-venc .vp small{display:block;color:#7c8896;font-size:9.5px;font-weight:400}
+.lp .lp-venc .vr{display:flex;align-items:center;gap:9px}
+.lp .lp-venc .vm{font-family:'Space Grotesk';font-weight:700;font-size:13px;color:var(--text)}
+.lp .lp-badge{font-size:9px;font-weight:700;padding:3px 8px;border-radius:100px}
+.lp .bd-d{background:rgba(255,77,109,.15);color:#ff4d6d}
+.lp .bd-w{background:rgba(243,194,79,.15);color:#f3c24f}
+.lp .bd-g{background:rgba(34,224,160,.15);color:#22e0a0}
+.lp .bd-b{background:rgba(61,139,255,.15);color:#3d8bff}
+.lp .lp-filters{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.lp .lp-filter{font-size:11px;padding:6px 13px;border-radius:100px;border:1px solid rgba(125,165,255,.12);
+  color:#9fb0c0;background:rgba(125,165,255,.04);cursor:default}
+.lp .lp-filter.on{background:rgba(61,139,255,.15);border-color:rgba(61,139,255,.4);color:#fff;font-weight:600}
+.lp .lp-ftable{width:100%;border-collapse:collapse}
+.lp .lp-ftable th{text-align:left;font-size:8.5px;color:#7c8896;text-transform:uppercase;
+  letter-spacing:.06em;padding:0 10px 11px;font-weight:500}
+.lp .lp-ftable td{padding:11px 10px;border-top:1px solid rgba(125,165,255,.12);
+  font-size:11.5px;color:var(--text);vertical-align:middle}
+.lp .lp-av2{width:26px;height:26px;border-radius:8px;display:inline-grid;place-items:center;
+  font-size:9.5px;font-weight:700;margin-right:9px;vertical-align:middle}
+.lp .lp-supp{font-weight:600;color:var(--text);display:inline-block;vertical-align:middle}
+.lp .lp-supp small{display:block;color:#7c8896;font-size:9px;font-weight:400}
+.lp .lp-origin{display:flex;flex-wrap:wrap;gap:7px;margin:9px 0 14px}
+.lp .lp-ochip{font-size:10.5px;padding:7px 11px;border-radius:9px;border:1px solid rgba(125,165,255,.12);
+  color:#9fb0c0;background:rgba(125,165,255,.04);cursor:default}
+.lp .lp-ochip.on{background:rgba(61,139,255,.18);border-color:rgba(61,139,255,.45);color:#fff;font-weight:600}
+.lp .lp-flabel{font-size:8.5px;color:#7c8896;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.lp .lp-input{background:rgba(7,12,26,.8);border:1px solid rgba(125,165,255,.12);
+  border-radius:9px;padding:10px 12px;font-size:13px;color:#9fb0c0;margin-bottom:12px}
+.lp .lp-submit{background:linear-gradient(150deg,#3d8bff,#1f5fe0);color:#fff;font-family:'Space Grotesk';
+  font-weight:600;font-size:12.5px;border-radius:10px;padding:11px;text-align:center;
+  box-shadow:0 6px 18px rgba(61,139,255,.35)}
+.lp .lp-move{display:flex;justify-content:space-between;align-items:center;padding:10px 0;
+  border-bottom:1px solid rgba(125,165,255,.12)}
+.lp .lp-move:last-child{border-bottom:none}
+.lp .lp-move .ml{display:flex;align-items:center;gap:9px}
+.lp .lp-move .mi{width:28px;height:28px;border-radius:8px;background:rgba(61,139,255,.14);
+  display:grid;place-items:center;font-size:12px}
+.lp .lp-move .mn{font-size:11.5px;font-weight:600;color:var(--text)}
+.lp .lp-move .mn small{display:block;color:#7c8896;font-size:9px;font-weight:400}
+.lp .lp-move .mv{font-family:'Space Grotesk';font-weight:700;font-size:12.5px;color:#22e0a0}
+.lp .lp-supcard{background:linear-gradient(180deg,rgba(20,32,60,.5),rgba(9,14,30,.5));
+  border:1px solid rgba(125,165,255,.12);border-radius:14px;padding:16px}
+.lp .lp-supcard .sh{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.lp .lp-supcard .sn{font-size:13px;font-weight:600;color:var(--text)}
+.lp .lp-supcard .sn small{display:block;color:#7c8896;font-size:9.5px;font-weight:400}
+.lp .lp-supcard .sc{font-size:10.5px;color:#9fb0c0;margin-bottom:5px;display:flex;gap:7px;align-items:center}
+.lp .lp-supstats{display:flex;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(125,165,255,.12)}
+.lp .lp-supstats > div{flex:1}
+.lp .lp-supstats .l{font-size:8px;color:#7c8896;text-transform:uppercase}
+.lp .lp-supstats .v{font-family:'Space Grotesk';font-weight:700;font-size:15px;margin-top:3px;color:var(--text)}
+.lp .show-full{margin-bottom:80px}
+.lp .show-full .sf-text{max-width:54ch;margin:0 auto 32px;text-align:center}
+.lp .show-full .sf-text h3{font-size:clamp(22px,3vw,30px);font-weight:700;margin-bottom:12px;color:var(--text)}
+.lp .show-full .sf-text p{color:var(--text-muted);font-size:16px;margin-bottom:18px}
+.lp .show-full .sf-text ul{list-style:none;display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:center;padding:0}
+.lp .show-full .sf-text li{font-size:14px;color:var(--text-muted);display:flex;gap:8px}
+.lp .show-full .sf-text li::before{content:"→";color:#3d8bff;font-weight:700}
+.lp .lp-win-wrap{overflow-x:auto;border-radius:18px}
 `;
+
+type NavActive = "dashboard" | "ingresos" | "facturas" | "proveedores";
+
+function MockSidebar({ active }: { active: NavActive }) {
+  const items: { key: string; icon: string; label: string }[] = [
+    { key: "dashboard", icon: "▣", label: "Dashboard" },
+    { key: "captura", icon: "▢", label: "Captura" },
+    { key: "ingresos", icon: "▤", label: "Ingresos / Caja" },
+    { key: "facturas", icon: "▦", label: "Facturas" },
+    { key: "proveedores", icon: "▥", label: "Proveedores" },
+    { key: "asistente", icon: "✦", label: "Asistente IA" },
+  ];
+  return (
+    <aside className="lp-wside">
+      <div className="lp-wlogo">
+        <img src="/icon-192.png" alt="Logo" style={{ width: 34, height: 34, borderRadius: 10, objectFit: "contain" }} />
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 700, lineHeight: "1.1", color: "var(--text)" }}>Smarter Restaurant</div>
+          <div style={{ fontSize: 9, color: "#7c8896", fontWeight: 400 }}>MANAGEMENT</div>
+        </div>
+      </div>
+      <div className="lp-whealth">
+        <div className="hl">Salud financiera</div>
+        <div className="hv">92<small>/100</small></div>
+        <div className="lp-wtrack"><span /></div>
+        <div className="hs">Saludable<b>Liquidez excelente · 1 factura vencida menor</b></div>
+      </div>
+      <div className="lp-wnav">
+        {items.map(({ key, icon, label }) => (
+          <a key={key} className={active === key ? "on" : ""}>
+            <span className="ni">{icon}</span> {label}
+          </a>
+        ))}
+      </div>
+      <div className="lp-wfoot">
+        <div className="fav">🍽️</div>
+        <small>El Buen Sabor<b>Carlos Méndez</b></small>
+      </div>
+    </aside>
+  );
+}
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -341,7 +528,106 @@ export default function Landing() {
             <p>Cada función pensada para el día a día de un restaurante. Así trabaja Smarter.</p>
           </div>
 
-          {/* 1. Captura */}
+          {/* 1. Dashboard — full-width window frame */}
+          <div className="l-reveal" style={{ marginBottom: 80 }}>
+            <div className="lp-win-wrap">
+              <div className="lp-win">
+                <div className="lp-wbar">
+                  <span className="wdot d1" /><span className="wdot d2" /><span className="wdot d3" />
+                  <span className="lp-wurl">smarter-restaurant.app/dashboard</span>
+                </div>
+                <div className="lp-wapp">
+                  <MockSidebar active="dashboard" />
+                  <div className="lp-wmain">
+                    <div className="lp-wphead">
+                      <div><h2>Buenos días, Carlos</h2><div className="sub">Viernes, 26 de junio · resumen en tiempo real</div></div>
+                      <div className="lp-wscan">⤢ Escanear factura</div>
+                    </div>
+                    <div className="lp-row lp-r4">
+                      <div className="lp-card lp-kpi"><div className="kl">Dinero disponible</div><div className="kv" style={{ color: "#3d8bff" }}>$24,860</div><div className="ks">↑ 6.2% vs mes anterior</div></div>
+                      <div className="lp-card lp-kpi"><div className="kl">Facturas pendientes</div><div className="kv" style={{ color: "#f3c24f" }}>$18,420</div><div className="ks">12 por pagar</div></div>
+                      <div className="lp-card lp-kpi"><div className="kl">Facturas vencidas</div><div className="kv" style={{ color: "#ff4d6d" }}>$3,150</div><div className="ks">2 requieren atención</div></div>
+                      <div className="lp-card lp-kpi"><div className="kl">Gastos del mes</div><div className="kv" style={{ color: "#00d4ff" }}>$42,300</div><div className="ks">↑ 18% en alimentos</div></div>
+                    </div>
+                    <div className="lp-row lp-r32">
+                      <div className="lp-card">
+                        <div className="lp-ct">Ingresos vs Gastos</div><div className="lp-cs">Últimos 6 meses</div>
+                        <div className="lp-cbars">
+                          {([[60,42],[72,55],[64,48],[85,62],[78,70],[95,66]] as [number,number][]).map(([a,b],i) => (
+                            <div key={i} className="lp-bg">
+                              <span className="ba" style={{ height: `${a}%` }} />
+                              <span className="bb" style={{ height: `${b}%` }} />
+                            </div>
+                          ))}
+                        </div>
+                        <div className="lp-bglabel">
+                          {["Ene","Feb","Mar","Abr","May","Jun"].map(m => <span key={m}>{m}</span>)}
+                        </div>
+                      </div>
+                      <div className="lp-card">
+                        <div className="lp-ct">Gastos por categoría</div><div className="lp-cs">Junio · $42,300</div>
+                        <div className="lp-catrow">
+                          {([
+                            { n:"Alimentos", v:"$19,400", w:"92%", c:"linear-gradient(90deg,#3d8bff,#00d4ff)" },
+                            { n:"Carnes y pescado", v:"$9,800", w:"64%", c:"#00d4ff" },
+                            { n:"Bebidas", v:"$6,200", w:"42%", c:"#a855f7" },
+                            { n:"Servicios", v:"$4,500", w:"30%", c:"#f3c24f" },
+                            { n:"Insumos y limpieza", v:"$2,400", w:"18%", c:"#ff4d6d" },
+                          ] as { n:string; v:string; w:string; c:string }[]).map(({ n,v,w,c }) => (
+                            <div key={n} className="lp-cat">
+                              <div className="ch"><span>{n}</span><span className="cv">{v}</span></div>
+                              <div className="lp-catbar"><span style={{ width: w, background: c }} /></div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="lp-row lp-r32">
+                      <div className="lp-card">
+                        <div className="lp-ct">Flujo de caja proyectado</div><div className="lp-cs">Próximos 30 días</div>
+                        <div className="lp-proj">
+                          <div className="pp"><div className="pl">En 7 días</div><div className="pv" style={{ color: "#f3c24f" }}>$8,500</div></div>
+                          <div className="pp"><div className="pl">En 15 días</div><div className="pv" style={{ color: "#f3c24f" }}>$12,840</div></div>
+                          <div className="pp"><div className="pl">En 30 días</div><div className="pv" style={{ color: "#f3c24f" }}>$18,420</div></div>
+                        </div>
+                        <svg className="lp-projline" viewBox="0 0 400 78" preserveAspectRatio="none" style={{ width: "100%" }}>
+                          <defs>
+                            <linearGradient id="lp-dash-grad" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0" stopColor="#3d8bff" stopOpacity={0.35} />
+                              <stop offset="1" stopColor="#3d8bff" stopOpacity={0} />
+                            </linearGradient>
+                          </defs>
+                          <path d="M0 14 L80 26 L160 40 L240 30 L320 52 L400 60 L400 78 L0 78 Z" fill="url(#lp-dash-grad)" />
+                          <path d="M0 14 L80 26 L160 40 L240 30 L320 52 L400 60" fill="none" stroke="#3d8bff" strokeWidth={2.5} />
+                          <circle cx={0} cy={14} r={3.5} fill="#00d4ff" />
+                          <circle cx={160} cy={40} r={3.5} fill="#00d4ff" />
+                          <circle cx={320} cy={52} r={3.5} fill="#00d4ff" />
+                          <circle cx={400} cy={60} r={3.5} fill="#00d4ff" />
+                        </svg>
+                      </div>
+                      <div className="lp-card">
+                        <div className="lp-ct">⚠ Alertas inteligentes</div><div className="lp-cs">Lo que necesita tu atención</div>
+                        <div className="lp-walerts">
+                          <div className="lp-al"><div className="lai dng">!</div><div><b>Factura vencida</b><small>Gas Industrial GMX · $1,820 venció hace 5 días</small></div></div>
+                          <div className="lp-al"><div className="lai wrn">◷</div><div><b>Vence en 3 días</b><small>Carnes del Valle · $5,210 el 26 de junio</small></div></div>
+                          <div className="lp-al"><div className="lai wrn">↗</div><div><b>Aumento inusual de costos</b><small>Alimentos subió 18% vs mayo</small></div></div>
+                          <div className="lp-al"><div className="lai ok">✓</div><div><b>Liquidez bajo control</b><small>Saldo proyectado positivo a 30 días</small></div></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="lp-card">
+                      <div className="lp-ct">Próximos vencimientos</div><div className="lp-cs" style={{ marginBottom: 14 }} />
+                      <div className="lp-venc"><div className="vp">Carnes del Valle<small>CV-1190 · Carnes</small></div><div className="vr"><span className="vm">$5,210</span><span className="lp-badge bd-w">En 3 días</span></div></div>
+                      <div className="lp-venc"><div className="vp">Distribuidora La Fresca<small>A-04821 · Alimentos</small></div><div className="vr"><span className="vm">$3,340</span><span className="lp-badge bd-b">En 13 días</span></div></div>
+                      <div className="lp-venc"><div className="vp">Gas Industrial GMX<small>GMX-733 · Servicios</small></div><div className="vr"><span className="vm">$1,820</span><span className="lp-badge bd-d">Vencida</span></div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. Captura */}
           <div className="show l-reveal">
             <div className="showmock">
               <div className="mock lp-glass">
@@ -388,43 +674,6 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* 2. Dashboard */}
-          <div className="show rev l-reveal">
-            <div className="showmock">
-              <div className="mock lp-glass">
-                <div className="mhead">
-                  <div className="mtitle">Tu panel financiero<span>Todo claro de un vistazo</span></div>
-                </div>
-                <div className="kpis">
-                  <div className="kpi"><div className="lab">Disponible</div><div className="val accent">$24,860</div></div>
-                  <div className="kpi"><div className="lab">Por pagar</div><div className="val lp-gold">$18,420</div></div>
-                  <div className="kpi"><div className="lab">Gastos del mes</div><div className="val">$42,300</div></div>
-                  <div className="kpi"><div className="lab">Salud</div><div className="val lp-cyan">92/100</div></div>
-                </div>
-                <div className="bars">
-                  {[50, 65, 58, 80, 72].map((h, i) => (
-                    <div key={i} className="bar" style={{ height: `${h}%` }} />
-                  ))}
-                  <div className="bar c" style={{ height: "94%" }} />
-                </div>
-              </div>
-            </div>
-            <div className="showtext">
-              <span className="pill">Visión total</span>
-              <h3>Sabe en segundos cómo está tu caja</h3>
-              <p>
-                Dinero disponible, lo que debes, lo que ya venció y tus gastos del mes — todo en
-                una sola pantalla, actualizado al instante. Sin abrir diez archivos ni llamar al
-                contador.
-              </p>
-              <ul>
-                <li>Ingresos vs gastos en gráficas claras</li>
-                <li>Gastos por categoría para ver dónde se va el dinero</li>
-                <li>Un indicador de salud financiera siempre visible</li>
-              </ul>
-            </div>
-          </div>
-
           {/* 3. Alertas */}
           <div className="show l-reveal">
             <div className="showmock">
@@ -464,7 +713,200 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* 4. Asistente IA */}
+          {/* 4. Ingresos / Caja — full-width */}
+          <div className="show-full l-reveal">
+            <div className="sf-text">
+              <h3>Registra cada peso que entra</h3>
+              <p>Cierre de caja, terminales, domicilio, propinas o eventos — todo en segundos. Tu historial siempre al día, sin papeles.</p>
+              <ul>
+                <li>Origen e método de cobro en un clic</li>
+                <li>KPIs de ingresos del día y del mes</li>
+                <li>Historial de movimientos con hora exacta</li>
+              </ul>
+            </div>
+            <div className="lp-win-wrap">
+              <div className="lp-win">
+                <div className="lp-wbar">
+                  <span className="wdot d1" /><span className="wdot d2" /><span className="wdot d3" />
+                  <span className="lp-wurl">smarter-restaurant.app/ingresos</span>
+                </div>
+                <div className="lp-wapp">
+                  <MockSidebar active="ingresos" />
+                  <div className="lp-wmain">
+                    <div className="lp-wphead">
+                      <div><h2>Ingresos · Caja</h2><div className="sub">Registra las ventas y entradas de dinero del restaurante</div></div>
+                    </div>
+                    <div className="lp-row lp-r2" style={{ marginBottom: 14 }}>
+                      <div className="lp-card lp-kpi"><div className="kl">Ingresos de hoy</div><div className="kv" style={{ color: "#3d8bff" }}>$7,620.00</div><div className="ks">4 movimientos hoy</div></div>
+                      <div className="lp-card lp-kpi"><div className="kl">Ingresos del mes</div><div className="kv" style={{ color: "#00d4ff" }}>$184,920</div><div className="ks">↑ 9.4% vs mayo</div></div>
+                    </div>
+                    <div className="lp-row lp-r2">
+                      <div className="lp-card">
+                        <div className="lp-ct">Registrar ingreso</div><div className="lp-cs">Cierre de caja, transferencia, propinas o cualquier entrada</div>
+                        <div className="lp-flabel">Origen</div>
+                        <div className="lp-origin">
+                          <span className="lp-ochip on">Cierre de caja</span>
+                          <span className="lp-ochip">Terminal de tarjeta</span>
+                          <span className="lp-ochip">Pedidos a domicilio</span>
+                          <span className="lp-ochip">Propinas</span>
+                          <span className="lp-ochip">Eventos / reservas</span>
+                        </div>
+                        <div className="lp-flabel">Método de cobro</div>
+                        <div className="lp-origin">
+                          <span className="lp-ochip on">Efectivo</span>
+                          <span className="lp-ochip">Tarjeta</span>
+                          <span className="lp-ochip">Transferencia</span>
+                        </div>
+                        <div className="lp-flabel">Monto</div>
+                        <div className="lp-input">$ 3,180.00</div>
+                        <div className="lp-submit">↗ Registrar ingreso</div>
+                      </div>
+                      <div className="lp-card">
+                        <div className="lp-ct">Movimientos recientes</div><div className="lp-cs">Últimas entradas</div>
+                        <div className="lp-move"><div className="ml"><div className="mi">💵</div><div className="mn">Cierre de caja<small>Efectivo · Hoy 23:10</small></div></div><div className="mv">+$3,180.00</div></div>
+                        <div className="lp-move"><div className="ml"><div className="mi">💳</div><div className="mn">Terminal de tarjeta<small>Tarjeta · Hoy 22:40</small></div></div><div className="mv">+$2,640.00</div></div>
+                        <div className="lp-move"><div className="ml"><div className="mi">🛵</div><div className="mn">Pedidos a domicilio<small>Transferencia · Hoy 21:15</small></div></div><div className="mv">+$1,420.00</div></div>
+                        <div className="lp-move"><div className="ml"><div className="mi">🪙</div><div className="mn">Propinas<small>Efectivo · Hoy 20:00</small></div></div><div className="mv">+$380.00</div></div>
+                        <div className="lp-move" style={{ borderBottom: "none" }}><div className="ml"><div className="mi">🎉</div><div className="mn">Eventos / reservas<small>Transferencia · Ayer</small></div></div><div className="mv">+$5,000.00</div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 5. Facturas — full-width */}
+          <div className="show-full l-reveal">
+            <div className="sf-text">
+              <h3>Todas tus facturas, bajo control</h3>
+              <p>Filtra por estado, ve quién está vencido y cuánto debes. Sin sorpresas al cierre del mes.</p>
+              <ul>
+                <li>Vista por estado: pendiente, programada, vencida, pagada</li>
+                <li>Monto e indicador de urgencia de un vistazo</li>
+                <li>Nueva factura en segundos con la captura IA</li>
+              </ul>
+            </div>
+            <div className="lp-win-wrap">
+              <div className="lp-win">
+                <div className="lp-wbar">
+                  <span className="wdot d1" /><span className="wdot d2" /><span className="wdot d3" />
+                  <span className="lp-wurl">smarter-restaurant.app/facturas</span>
+                </div>
+                <div className="lp-wapp">
+                  <MockSidebar active="facturas" />
+                  <div className="lp-wmain">
+                    <div className="lp-wphead">
+                      <div><h2>Facturas</h2><div className="sub">7 facturas · $18,420 por pagar</div></div>
+                      <div className="lp-wscan">+ Nueva factura</div>
+                    </div>
+                    <div className="lp-filters">
+                      <span className="lp-filter on">Todas 7</span>
+                      <span className="lp-filter">Pendientes 2</span>
+                      <span className="lp-filter">Programadas 1</span>
+                      <span className="lp-filter">Vencidas 2</span>
+                      <span className="lp-filter">Pagadas 2</span>
+                    </div>
+                    <div className="lp-card" style={{ padding: "8px 16px" }}>
+                      <table className="lp-ftable">
+                        <thead>
+                          <tr>
+                            <th>Proveedor</th><th>N.º factura</th><th>Vencimiento</th><th>Monto</th><th>Estado</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td><span className="lp-av2" style={{ background:"rgba(61,139,255,.18)",color:"#3d8bff" }}>LF</span><span className="lp-supp">Distribuidora La Fresca<small>Alimentos</small></span></td>
+                            <td>A-04821</td><td>06 jul 2026<br /><small style={{ color:"#7c8896" }}>en 13 días</small></td>
+                            <td><b>$3,340.00</b></td><td><span className="lp-badge bd-w">Pendiente</span></td>
+                          </tr>
+                          <tr>
+                            <td><span className="lp-av2" style={{ background:"rgba(0,212,255,.18)",color:"#00d4ff" }}>CV</span><span className="lp-supp">Carnes del Valle<small>Carnes</small></span></td>
+                            <td>CV-1190</td><td>26 jun 2026<br /><small style={{ color:"#7c8896" }}>en 3 días</small></td>
+                            <td><b>$5,210.00</b></td><td><span className="lp-badge bd-b">Programada</span></td>
+                          </tr>
+                          <tr>
+                            <td><span className="lp-av2" style={{ background:"rgba(255,77,109,.18)",color:"#ff4d6d" }}>GM</span><span className="lp-supp">Gas Industrial GMX<small>Servicios</small></span></td>
+                            <td>GMX-733</td><td>18 jun 2026<br /><small style={{ color:"#ff4d6d" }}>vencida hace 5 días</small></td>
+                            <td><b>$1,820.00</b></td><td><span className="lp-badge bd-d">Vencida</span></td>
+                          </tr>
+                          <tr>
+                            <td><span className="lp-av2" style={{ background:"rgba(168,85,247,.18)",color:"#a855f7" }}>VL</span><span className="lp-supp">Vinos &amp; Licores Sur<small>Bebidas</small></span></td>
+                            <td>VL-2048</td><td>20 jun 2026<br /><small style={{ color:"#ff4d6d" }}>vencida hace 3 días</small></td>
+                            <td><b>$1,330.00</b></td><td><span className="lp-badge bd-d">Vencida</span></td>
+                          </tr>
+                          <tr>
+                            <td><span className="lp-av2" style={{ background:"rgba(243,194,79,.18)",color:"#f3c24f" }}>LT</span><span className="lp-supp">Limpieza Total<small>Insumos</small></span></td>
+                            <td>LT-0091</td><td>30 jun 2026<br /><small style={{ color:"#7c8896" }}>en 7 días</small></td>
+                            <td><b>$640.00</b></td><td><span className="lp-badge bd-w">Pendiente</span></td>
+                          </tr>
+                          <tr>
+                            <td><span className="lp-av2" style={{ background:"rgba(34,224,160,.18)",color:"#22e0a0" }}>PH</span><span className="lp-supp">Panadería El Horno<small>Alimentos</small></span></td>
+                            <td>PH-5512</td><td>12 jun 2026<br /><small style={{ color:"#7c8896" }}>pagada</small></td>
+                            <td><b>$890.00</b></td><td><span className="lp-badge bd-g">Pagada</span></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 6. Proveedores — full-width */}
+          <div className="show-full l-reveal">
+            <div className="sf-text">
+              <h3>Tus proveedores, ordenados y a la mano</h3>
+              <p>Historial de compras, condiciones de crédito y deuda actual por proveedor. Negocia con datos reales.</p>
+              <ul>
+                <li>Ficha completa: contacto, crédito e historial</li>
+                <li>Compras anuales y saldo pendiente visibles</li>
+                <li>Agrega proveedores nuevos en segundos</li>
+              </ul>
+            </div>
+            <div className="lp-win-wrap">
+              <div className="lp-win">
+                <div className="lp-wbar">
+                  <span className="wdot d1" /><span className="wdot d2" /><span className="wdot d3" />
+                  <span className="lp-wurl">smarter-restaurant.app/proveedores</span>
+                </div>
+                <div className="lp-wapp">
+                  <MockSidebar active="proveedores" />
+                  <div className="lp-wmain">
+                    <div className="lp-wphead">
+                      <div><h2>Proveedores</h2><div className="sub">Base de datos, condiciones e historial de pagos</div></div>
+                      <div className="lp-wscan">+ Nuevo proveedor</div>
+                    </div>
+                    <div className="lp-row lp-r2">
+                      <div className="lp-supcard">
+                        <div className="sh"><span className="lp-av2" style={{ background:"rgba(61,139,255,.18)",color:"#3d8bff",width:34,height:34 }}>DF</span><div className="sn">Distribuidora La Fresca<small>Crédito 15 días</small></div></div>
+                        <div className="sc">✉ ventas@lafresca.mx</div><div className="sc">📞 +52 55 1234 5678</div>
+                        <div className="lp-supstats"><div><div className="l">Compras / año</div><div className="v">$142,000</div></div><div><div className="l">Por pagar</div><div className="v" style={{ color:"#3d8bff" }}>$3,340</div></div></div>
+                      </div>
+                      <div className="lp-supcard">
+                        <div className="sh"><span className="lp-av2" style={{ background:"rgba(0,212,255,.18)",color:"#00d4ff",width:34,height:34 }}>CV</span><div className="sn">Carnes del Valle<small>Crédito 7 días</small></div></div>
+                        <div className="sc">✉ pedidos@carnesvalle.mx</div><div className="sc">📞 +52 55 9988 1122</div>
+                        <div className="lp-supstats"><div><div className="l">Compras / año</div><div className="v">$98,600</div></div><div><div className="l">Por pagar</div><div className="v" style={{ color:"#ff4d6d" }}>$5,210</div></div></div>
+                      </div>
+                      <div className="lp-supcard">
+                        <div className="sh"><span className="lp-av2" style={{ background:"rgba(168,85,247,.18)",color:"#a855f7",width:34,height:34 }}>VL</span><div className="sn">Vinos &amp; Licores Sur<small>Crédito 30 días</small></div></div>
+                        <div className="sc">✉ hola@licoressur.mx</div><div className="sc">📞 +52 55 7766 5544</div>
+                        <div className="lp-supstats"><div><div className="l">Compras / año</div><div className="v">$54,200</div></div><div><div className="l">Por pagar</div><div className="v" style={{ color:"#ff4d6d" }}>$1,330</div></div></div>
+                      </div>
+                      <div className="lp-supcard">
+                        <div className="sh"><span className="lp-av2" style={{ background:"rgba(34,224,160,.18)",color:"#22e0a0",width:34,height:34 }}>PH</span><div className="sn">Panadería El Horno<small>Contado</small></div></div>
+                        <div className="sc">✉ elhorno@correo.mx</div><div className="sc">📞 +52 55 2211 9988</div>
+                        <div className="lp-supstats"><div><div className="l">Compras / año</div><div className="v">$32,900</div></div><div><div className="l">Por pagar</div><div className="v" style={{ color:"#22e0a0" }}>$0</div></div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 7. Asistente IA */}
           <div className="show rev l-reveal">
             <div className="showmock">
               <div className="mock lp-glass">
