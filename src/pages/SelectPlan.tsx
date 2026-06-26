@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Check, Loader2 } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
+import { supabase } from "../lib/supabase";
 
 const PRICE_BASICO = "price_1Tmfz3ITKXKBIUvUWX94Dsx9";
 const PRICE_PRO    = "price_1Tmg18ITKXKBIUvUkLl9OPfm";
@@ -46,9 +47,19 @@ export default function SelectPlan() {
   const [selected, setSelected] = useState<"basico" | "pro">(preselected ?? "basico");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [emailConfirmed, setEmailConfirmed] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!session) { setEmailConfirmed(null); return; }
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setEmailConfirmed(!!user?.email_confirmed_at);
+    });
+  }, [session]);
+
+  const canCheckout = !!session && emailConfirmed === true;
 
   async function handleCheckout() {
-    if (!session) return;
+    if (!canCheckout) return;
     const plan = PLANS.find(p => p.id === selected)!;
     setLoading(true);
     setError("");
@@ -159,13 +170,13 @@ export default function SelectPlan() {
         </div>
       )}
 
-      {/* No session warning */}
-      {!session && (
+      {/* Email not confirmed warning — only shown when logged in but unconfirmed */}
+      {session && emailConfirmed === false && (
         <div
           className="mt-4 w-full max-w-2xl rounded-lg px-4 py-3 text-sm text-center"
           style={{ background: "rgb(var(--brand-rgb) / 0.08)", color: "#9cc4ff", border: "1px solid rgb(var(--brand-rgb) / 0.15)" }}
         >
-          Confirma tu email para activar el plan de pago.
+          Revisa tu email y confirma tu cuenta para activar el plan de pago.
         </div>
       )}
 
@@ -173,7 +184,7 @@ export default function SelectPlan() {
       <div className="mt-6 flex flex-col sm:flex-row gap-3 w-full max-w-2xl">
         <button
           onClick={handleCheckout}
-          disabled={loading || !session}
+          disabled={loading || !canCheckout}
           className="flex-1 flex items-center justify-center gap-2 rounded-xl py-3.5 font-semibold text-sm text-white transition-opacity disabled:opacity-50"
           style={{
             background: "linear-gradient(150deg,var(--brand),var(--brand-deep))",
