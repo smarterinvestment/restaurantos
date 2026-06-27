@@ -322,7 +322,29 @@ const STYLES = `
 .lp .show-full .sf-text ul{list-style:none;display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:center;padding:0}
 .lp .show-full .sf-text li{font-size:14px;color:var(--text-muted);display:flex;gap:8px}
 .lp .show-full .sf-text li::before{content:"→";color:#3d8bff;font-weight:700}
-.lp .lp-win-wrap{overflow-x:auto;border-radius:18px}
+/* ── Hero dashboard: scale-to-fit (natural height ~1236px, width 1100px) ── */
+.lp .lp-dash-hero{overflow:hidden;width:100%;border-radius:18px;height:371px}
+.lp .lp-dash-hero .lp-win{width:1100px;transform-origin:top left;transform:scale(0.30)}
+@media(min-width:480px){
+  .lp .lp-dash-hero{height:482px}
+  .lp .lp-dash-hero .lp-win{transform:scale(0.39)}
+}
+@media(min-width:640px){
+  .lp .lp-dash-hero{height:668px}
+  .lp .lp-dash-hero .lp-win{transform:scale(0.54)}
+}
+@media(min-width:768px){
+  .lp .lp-dash-hero{height:803px}
+  .lp .lp-dash-hero .lp-win{transform:scale(0.65)}
+}
+@media(min-width:1024px){
+  .lp .lp-dash-hero{height:1088px}
+  .lp .lp-dash-hero .lp-win{transform:scale(0.88)}
+}
+@media(min-width:1200px){
+  .lp .lp-dash-hero{height:auto}
+  .lp .lp-dash-hero .lp-win{transform:scale(1);width:min(1100px,100%)}
+}
 /* panel window frame for secondary mockups */
 .lp .showmock .lp-win{border-radius:16px}
 .lp .lp-wincontent{padding:16px}
@@ -537,7 +559,7 @@ export default function Landing() {
 
           {/* 1. Dashboard — full-width window frame */}
           <div className="l-reveal" style={{ marginBottom: 80 }}>
-            <div className="lp-win-wrap">
+            <div className="lp-dash-hero">
               <div className="lp-win">
                 <div className="lp-wbar">
                   <span className="wdot d1" /><span className="wdot d2" /><span className="wdot d3" />
