@@ -6,6 +6,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   console.log("stripe-checkout llamado", req.method);
   console.log("ENV check:", !!process.env.STRIPE_SECRET_KEY, !!process.env.VITE_SUPABASE_URL, !!process.env.SUPABASE_SERVICE_ROLE_KEY);
 
+  if (!process.env.STRIPE_SECRET_KEY)
+    return res.status(500).json({ error: "STRIPE_SECRET_KEY missing in env" });
+
   try {
     if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 

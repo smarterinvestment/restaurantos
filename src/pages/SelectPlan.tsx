@@ -3,8 +3,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Check, Loader2 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
-const PRICE_BASICO = "price_1Tmfz3ITKXKBIUvUWX94Dsx9";
-const PRICE_PRO    = "price_1Tmg18ITKXKBIUvUkLl9OPfm";
+const PRICE_BASICO = import.meta.env.VITE_STRIPE_PRICE_BASICO as string;
+const PRICE_PRO    = import.meta.env.VITE_STRIPE_PRICE_PRO    as string;
 
 const PLANS = [
   {
